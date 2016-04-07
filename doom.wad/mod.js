@@ -4,8 +4,8 @@
  * @module  DOOM
  * @author  kod.connect
  * 
- */
-  
+ */ 
+
 g_.title = 'NULL DOOM';
 
 // set modname
@@ -23,7 +23,7 @@ $('#back').append('<img class="background" src="doom.wad/gra/TITLEPIC.png" />');
 ////////////////////////////////////////////////////////////////////////////////
 // setup menu  
 
-m_.mnu.init({
+u_.mnu.init({
     //background: 'TITLEPIC.png',
     heading: 'M_DOOM.png',
     selector: {
@@ -31,14 +31,15 @@ m_.mnu.init({
     },
     items: {
         new : {
-            img: 'M_NEWG.png'
+            img: 'M_NEWG.png',
+            action: c_.nextmap
         }
     }
 });
 
-m_.mnu.timer = window.setInterval(function(){
+u_.mnu.timer = window.setInterval(function(){
     var i = $('#menu .selector').attr('ind');
-    var img = m_.mnu.selector.img;
+    var img = u_.mnu.selector.img;
     
     i = ( i < img.length-1 ) ? parseInt(i)+1 : 0;
     
@@ -81,9 +82,12 @@ r_.img.load({
     ]
 });  
 
-// load objects
-o_.map.load('');
+// load maps
+//o_.map.add({ });
 
 
 // load mod scripts
-//core.include( 'doom.wad/scripts/render.js' ); // @TODO move render to core
+
+// start render
+r_.init();
+r_.animate();

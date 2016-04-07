@@ -1,13 +1,79 @@
 /*
-* NULL Engine
-* 
-* 
-* Thanks to http://www.html5rocks.com/en/tutorials/pointerlock/intro/
-* 
-* @module  render
-* @author  kod.connect
-* 
-*/
+ * NULL Engine
+ *  
+ * 
+ * Thanks to http://www.html5rocks.com/en/tutorials/pointerlock/intro/
+ * 
+ * @module  render
+ * @author  kod.connect
+ * 
+ */
+
+r_.img = new function(){
+    var t = this;
+    
+    t.items = {};
+    
+    t.load = function(o){
+        var f;
+        
+        for (var i in o.files) {
+            f = o.files[i];
+            
+            t.items[ f ] = THREE.ImageUtils.loadTexture(cfg.mod+ "/gra/"+ f +"."+ o.type);
+            t.items[ f ].magFilter = THREE.NearestFilter;
+            t.items[ f ].minFilter = THREE.LinearMipMapLinearFilter;   
+        }
+    };
+};
+
+r_.mode = new function(){
+    var t = this;
+    
+    t.current = cfg.screenmode;
+    
+    t.list = [ '640x480', '800x600', '1024x768', '1280x800' ];
+    
+    t.next = function(){
+        // get index of current mode
+        var i = t.list.indexOf( t.current );
+        
+        // check next mode
+        if ( i < t.list.length-1 ) {
+            // set next mode
+            t.set( t.list[i+1] );
+        } else {
+            // set first mode
+            t.set( t.list[0] );
+        }
+    };
+    
+    t.prev = function(){
+        // get index of current mode
+        var i = t.list.indexOf( t.current );
+        
+        // check prev mode
+        if ( i > 0 ) {
+            // set next mode
+            t.set( t.list[i-1] );
+        } else {
+            // set last mode
+            t.set( t.list[ t.list.length-1 ] );
+        }
+    };
+    
+    t.set = function( val ){
+        t.current = val;
+        
+        // update render
+        
+        var scrMode     = val.split('x');
+        r_.camera.aspect = scrMode[0] / scrMode[1];
+        r_.camera.updateProjectionMatrix();
+        r_.renderer.setSize( scrMode[0], scrMode[1] );
+    };
+        
+};
 
 var hudCamera, scene, hudScene;
 var geometry, material, mesh;
@@ -294,7 +360,6 @@ r_.init = function() {
 
     window.addEventListener( 'resize', r_.onWindowResize, false );
     
-    r.animate();
 };     
 
 r_.onWindowResize = function () {

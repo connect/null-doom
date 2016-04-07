@@ -27,7 +27,3 @@ r.img       textures
 
 Starting Sequence
 -----------------
-
-1. index.html
-2. core.js
-2.1 r_

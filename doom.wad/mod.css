@@ -1,5 +1,5 @@
 body {
-    /* background-image: url('gra/FLOOR7_2.png'); */
+    /* background: url('gra/FLOOR7_2.png'); */
 }
 
 #back {
@@ -25,7 +25,7 @@ body {
     right: 0;
     bottom: 0;
     z-index: 3; 
-    /* background-color: rgba(255,0,0,0.5); */
+     background-color: rgba(255,0,0,0.5); 
 }
 
 #menu {
