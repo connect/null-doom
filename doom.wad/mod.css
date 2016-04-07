@@ -1,0 +1,47 @@
+body {
+    /* background-image: url('gra/FLOOR7_2.png'); */
+}
+
+#back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#back .background {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 100%;
+    transform: translate(-50%);
+}
+
+#blocker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3; 
+    /* background-color: rgba(255,0,0,0.5); */
+}
+
+#menu {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    
+    
+    color: #ffffff;
+    text-align: center;
+
+    cursor: pointer;
+    transform: translate(-50%, 50%) scale(2,2) ;
+}
+
+#menu .selector {
+    position: absolute;
+    left: -50px;
+}
