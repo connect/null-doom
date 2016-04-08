@@ -25,23 +25,23 @@ body {
     right: 0;
     bottom: 0;
     z-index: 3; 
-     background-color: rgba(255,0,0,0.5); 
+    background-color: rgba(255,0,0,0.5); 
 }
 
 #menu {
     position: absolute;
-    top: 20px;
+    top: 50%;
     left: 50%;
     
-    
     color: #ffffff;
-    text-align: center;
+    text-align: left;
 
     cursor: pointer;
-    transform: translate(-50%, 50%) scale(2,2) ;
+    transform: translate(-50%, -50%) scale(2,2) ;
 }
 
 #menu .selector {
     position: absolute;
-    left: -50px;
+    /* left: -25%; */
+    transform: translate(-150%, -25%);
 }

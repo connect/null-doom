@@ -6,6 +6,8 @@
  * 
  */
 
+var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+
 i_ = {
     bindlist        : {}
 };
@@ -86,6 +88,23 @@ i_.onKeyDown = function(e){
         e.preventDefault();
         return false;
     }
+    
+    // menu navigations
+    if (u_.inmenu) {
+        
+        // esc
+        if (e.keyCode == 27) {
+            $('#blocker').trigger('click');
+        } 
+        
+        if (e.keyCode == 40) {
+            u_.mnu.down();
+        }
+        
+        if (e.keyCode == 38) {
+            u_.mnu.up();
+        }
+    }
 };
 
 i_.onKeyUp = function(e){
@@ -105,6 +124,46 @@ i_.onKeyUp = function(e){
         // i.act[ action ] = false;
 
     }
+};
+
+i_.init = function(){
+    console.log('i_.init()');
+    
+    i_.controls = new THREE.PointerLockControls( r_.camera );
+    r_.scene.add( i_.controls.getObject() );
+    
+    // Hook pointer lock state change events
+    document.addEventListener( 'pointerlockchange',         i_.pointerlockchange, false );
+    document.addEventListener( 'mozpointerlockchange',      i_.pointerlockchange, false );
+    document.addEventListener( 'webkitpointerlockchange',   i_.pointerlockchange, false );
+
+    document.addEventListener( 'pointerlockerror',          i_.pointerlockerror, false );
+    document.addEventListener( 'mozpointerlockerror',       i_.pointerlockerror, false );
+    document.addEventListener( 'webkitpointerlockerror',    i_.pointerlockerror, false );
+};
+
+i_.pointerlockchange = function ( e ) {
+        
+    var element = document.body;
+
+    if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
+
+        //controlsEnabled = true;
+        i_.controls.enabled = true;
+
+        $('#blocker').hide();
+
+    } else {
+
+        i_.controls.enabled = false;
+
+        $('#blocker').show();
+    }
+};
+
+i_.pointerlockerror = function ( e ) {
+
+    $('#blocker').hide();
 };
 
 

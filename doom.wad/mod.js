@@ -18,25 +18,44 @@ $('head').append('<link rel="icon" href="doom.wad/gra/favicon.gif" />');
 $('head').append('<link rel="stylesheet" type="text/css" href="doom.wad/mod.css" />');
 
 // set background
-$('#back').append('<img class="background" src="doom.wad/gra/TITLEPIC.png" />');
+//$('#back').append('<img class="background" src="doom.wad/gra/TITLEPIC.png" />');
 
 ////////////////////////////////////////////////////////////////////////////////
 // setup menu  
 
 u_.mnu.init({
-    //background: 'TITLEPIC.png',
-    heading: 'M_DOOM.png',
-    selector: {
-        img  : [ 'M_SKULL1.png', 'M_SKULL2.png' ]
-    },
-    items: {
-        new : {
-            img: 'M_NEWG.png',
-            action: c_.nextmap
-        }
+    
+    root: {
+        heading: 'M_DOOM.png',
+        selector: {
+            img  : [ 'M_SKULL1.png', 'M_SKULL2.png' ]
+        },
+        items: [
+            {
+                img: 'M_NEWG.png',
+                action: c_.nextmap
+            },
+            {
+                img: 'M_OPTION.png',
+                action: c_.menu_options
+            },
+            {
+                img: 'M_LGTTL.png',
+                action: c_.menu_load
+            },
+            {
+                img: 'M_RDTHIS.png',
+                action: c_.menu_readme
+            },            
+            {
+                img: 'M_QUITG.png',
+                action: c_.exit
+            }
+        ]
     }
 });
 
+// animate menu selector
 u_.mnu.timer = window.setInterval(function(){
     var i = $('#menu .selector').attr('ind');
     var img = u_.mnu.selector.img;
@@ -75,6 +94,7 @@ r_.img.load({
         'STTNUM8',
         'STTNUM9',
         'STTPRCNT',
+        'TITLEPIC',
         'W28_5',
         'W94_1',
         'WALL03_7',  
@@ -87,7 +107,5 @@ r_.img.load({
 
 
 // load mod scripts
+core.include( 'doom.wad/render.js' );
 
-// start render
-r_.init();
-r_.animate();
