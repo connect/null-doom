@@ -6,6 +6,11 @@
  * 
  */
 
+c_.nextmap = function(){
+    console.log('c_.nextmap()');
+    o_.map.next();
+};
+
 c_.zoomin = function(){
     r_.mode.next();
 };

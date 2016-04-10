@@ -8,6 +8,68 @@
 
 var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
+function simulate(element, eventName)
+{
+    var options = extend(defaultOptions, arguments[2] || {});
+    var oEvent, eventType = null;
+
+    for (var name in eventMatchers)
+    {
+        if (eventMatchers[name].test(eventName)) { eventType = name; break; }
+    }
+
+    if (!eventType)
+        throw new SyntaxError('Only HTMLEvents and MouseEvents interfaces are supported');
+
+    if (document.createEvent)
+    {
+        oEvent = document.createEvent(eventType);
+        if (eventType == 'HTMLEvents')
+        {
+            oEvent.initEvent(eventName, options.bubbles, options.cancelable);
+        }
+        else
+        {
+            oEvent.initMouseEvent(eventName, options.bubbles, options.cancelable, document.defaultView,
+            options.button, options.pointerX, options.pointerY, options.pointerX, options.pointerY,
+            options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, element);
+        }
+        element.dispatchEvent(oEvent);
+    }
+    else
+    {
+        options.clientX = options.pointerX;
+        options.clientY = options.pointerY;
+        var evt = document.createEventObject();
+        oEvent = extend(evt, options);
+        element.fireEvent('on' + eventName, oEvent);
+    }
+    return element;
+}
+
+function extend(destination, source) {
+    for (var property in source)
+      destination[property] = source[property];
+    return destination;
+}
+
+var eventMatchers = {
+    'HTMLEvents': /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
+    'MouseEvents': /^(?:click|dblclick|mouse(?:down|up|over|move|out))$/
+}
+var defaultOptions = {
+    pointerX: 0,
+    pointerY: 0,
+    button: 0,
+    ctrlKey: false,
+    altKey: false,
+    shiftKey: false,
+    metaKey: false,
+    bubbles: true,
+    cancelable: true
+}
+
+
 i_ = {
     bindlist        : {}
 };
@@ -90,7 +152,9 @@ i_.onKeyDown = function(e){
     }
     
     // menu navigations
-    if (u_.inmenu) {
+    if (u_.inmenu()) {
+        
+        //console.log(u_.inmenu, $('#blocker').is(':visible'))
         
         switch (e.keyCode) {
                     
@@ -109,7 +173,8 @@ i_.onKeyDown = function(e){
             case 13: // enter
                     u_.menu.select();            
                 break;
-        }
+        }        
+                
     }
 };
 
@@ -132,25 +197,12 @@ i_.onKeyUp = function(e){
     }
 };
 
-i_.init = function(){
-    console.log('i_.init()');
-    
-    i_.controls = new THREE.PointerLockControls( r_.camera );
-    r_.scene.add( i_.controls.getObject() );
-    
-    // Hook pointer lock state change events
-    document.addEventListener( 'pointerlockchange',         i_.pointerlockchange, false );
-    document.addEventListener( 'mozpointerlockchange',      i_.pointerlockchange, false );
-    document.addEventListener( 'webkitpointerlockchange',   i_.pointerlockchange, false );
-
-    document.addEventListener( 'pointerlockerror',          i_.pointerlockerror, false );
-    document.addEventListener( 'mozpointerlockerror',       i_.pointerlockerror, false );
-    document.addEventListener( 'webkitpointerlockerror',    i_.pointerlockerror, false );
-};
-
 i_.pointerlockchange = function ( e ) {
-        
+    console.log('pointerlock change',e)    
+    
     var element = document.body;
+
+    console.log('--->',document.pointerLockElement,document.mozPointerLockElement,document.webkitPointerLockElement)
 
     if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
 
@@ -161,17 +213,49 @@ i_.pointerlockchange = function ( e ) {
 
     } else {
 
-        i_.controls.enabled = false;
-
-        $('#blocker').show();
+        i_.controls.enabled = false;        
+        
+        u_.openmenu('root');
     }
+    
 };
 
 i_.pointerlockerror = function ( e ) {
+    console.log(e)
+   // $('#blocker').hide();
+};
 
-    $('#blocker').hide();
+i_.init = function(){
+    console.log('i_.init()');
+    
+    i_.controls = new THREE.PointerLockControls( r_.camera );
+    r_.scene.add( i_.controls.getObject() );
+    
+    document.addEventListener( 'keydown', i_.onKeyDown, false );
+    document.addEventListener( 'keyup', i_.onKeyUp, false );
+    
+    
+    // Hook pointer lock state change events
+    
+    document.addEventListener( 'pointerlockchange',         i_.pointerlockchange, false );
+    document.addEventListener( 'mozpointerlockchange',      i_.pointerlockchange, false );
+    document.addEventListener( 'webkitpointerlockchange',   i_.pointerlockchange, false );
+
+    document.addEventListener( 'pointerlockerror',          i_.pointerlockerror, false );
+    document.addEventListener( 'mozpointerlockerror',       i_.pointerlockerror, false );
+    document.addEventListener( 'webkitpointerlockerror',    i_.pointerlockerror, false );
+    
+    // Ask the browser to lock the pointer        
+    /*
+    var element = document.body;
+    element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+    element.requestPointerLock(); 
+    */
+    var e = document.createEvent('MouseEvents');
+        e.initMouseEvent('click', true, true, window, 0,300,300,300,300,false,false,false,false,0,null);
+        document.getElementById('blocker').dispatchEvent(e);
 };
 
 
-document.addEventListener( 'keydown', i_.onKeyDown, false );
-document.addEventListener( 'keyup', i_.onKeyUp, false );
+
+

@@ -10,20 +10,44 @@ u_.menu = new function(){
     t.current = null;
     
     t.init = function( o ){        
+        console.log('u_.menu.init()')
         t.screens = o;        
-        u_.openmenu('root');
+        //u_.openmenu('root');                                               
     };
     
     t.back = function(){
-        //$('#blocker').trigger('click');
+        console.log('u_.menu.back()')
+        
+        
+        // Ask the browser to lock the pointer        
+        /*
+        var element = document.body;
+        element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;        
+        element.requestPointerLock();
+        */
+        
+        
+       /*
+        var e = document.createEvent('MouseEvents');
+        e.initMouseEvent('click', true, true, window, 0,300,300,300,300,false,false,false,false,0,null);
+        document.getElementById('blocker').dispatchEvent(e);
+        */
+       
+        simulate(document.getElementById("blocker"), "click");
+       
         // sound
         s_.play( s_.menuback );
     };
     
     t.select = function(){
         var i = $('#menu .selector').attr('ind');
-        
-        console.log('--->',i);
+        var fn = t.screens[ t.current ].items[i].action;        
+         
+        if (typeof fn == 'function') {
+            fn();
+        } else {
+            console.log('no function assigned');
+        }
         
         // sound
         s_.play( s_.menuselect );
@@ -71,6 +95,8 @@ u_.menu = new function(){
 u_.openmenu = function( menuID ){
     console.log('u_.openmenu(',menuID,')');
     
+    $('#blocker').show();
+    
     var o = u_.menu.screens[ menuID ];
     u_.menu.current = menuID;
     
@@ -117,9 +143,10 @@ u_.inmenu = function(){
     return $('#blocker').is(':visible');
 };
 
-$('#blocker').bind( 'click', function ( e ) {
 
-    $('#blocker').hide();
+$('#blocker').bind( 'click', function ( e ) {
+console.log('->',e)
+    //$('#blocker').hide();
     var element = document.body;
 
     // Ask the browser to lock the pointer
@@ -158,3 +185,6 @@ $('#blocker').bind( 'click', function ( e ) {
     }
 
 });
+
+
+//$('#blocker').trigger( 'click')

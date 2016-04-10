@@ -134,8 +134,7 @@ r_.init = function() {
     document.body.appendChild( r_.renderer.domElement );
 
     window.addEventListener( 'resize', r_.onWindowResize, false );
-    
-    i_.init();
+    i_.init();    
     r_.modInit();
 };     
 

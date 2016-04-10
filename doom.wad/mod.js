@@ -51,22 +51,19 @@ u_.menu.init({
                 img: 'M_QUITG.png',
                 action: c_.exit
             }
-        ]
+        ],
+        animate: function(){
+            var i = $('#menu .selector').attr('anim');
+            var img = u_.menu.selector.img;
+
+            i = ( i < img.length-1 ) ? parseInt(i)+1 : 0;
+
+            $('#menu .selector')
+                .attr('src', cfg.mod +'/gra/'+ img[i] )
+                .attr('anim', i);
+        } 
     }
 });
-
-// animate menu selector
-u_.menu.timer = window.setInterval(function(){
-    var i = $('#menu .selector').attr('anim');
-    var img = u_.menu.selector.img;
-    
-    i = ( i < img.length-1 ) ? parseInt(i)+1 : 0;
-    
-    $('#menu .selector')
-        .attr('src', cfg.mod +'/gra/'+ img[i] )
-        .attr('anim', i);
-
-},1000); 
 
 ////////////////////////////////////////////////////////////////////////////////
 // sound
@@ -117,9 +114,10 @@ r_.img.load({
 });  
 
 // load maps
-//o_.map.add({ });
-
+o_.map.add('e0m0');
 
 // load mod scripts
 core.include( 'doom.wad/render.js' );
+
+
 
