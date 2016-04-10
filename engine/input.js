@@ -92,17 +92,23 @@ i_.onKeyDown = function(e){
     // menu navigations
     if (u_.inmenu) {
         
-        // esc
-        if (e.keyCode == 27) {
-            $('#blocker').trigger('click');
-        } 
-        
-        if (e.keyCode == 40) {
-            u_.mnu.down();
-        }
-        
-        if (e.keyCode == 38) {
-            u_.mnu.up();
+        switch (e.keyCode) {
+                    
+            case 27: // esc
+                    u_.menu.back();
+                break;
+            
+            case 40: // down
+                    u_.menu.down();           
+                break;
+            
+            case 38: // up
+                    u_.menu.up();
+                break;
+            
+            case 13: // enter
+                    u_.menu.select();            
+                break;
         }
     }
 };

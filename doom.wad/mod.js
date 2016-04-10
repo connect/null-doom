@@ -12,7 +12,7 @@ g_.title = 'NULL DOOM';
 $('title').html(g_.title);
 
 // set favicon
-$('head').append('<link rel="icon" href="doom.wad/gra/favicon.gif" />');
+$('head').append('<link rel="icon" href="doom.wad/gra/favicon.png" />');
 
 // load css
 $('head').append('<link rel="stylesheet" type="text/css" href="doom.wad/mod.css" />');
@@ -23,7 +23,7 @@ $('head').append('<link rel="stylesheet" type="text/css" href="doom.wad/mod.css"
 ////////////////////////////////////////////////////////////////////////////////
 // setup menu  
 
-u_.mnu.init({
+u_.menu.init({
     
     root: {
         heading: 'M_DOOM.png',
@@ -56,17 +56,31 @@ u_.mnu.init({
 });
 
 // animate menu selector
-u_.mnu.timer = window.setInterval(function(){
-    var i = $('#menu .selector').attr('ind');
-    var img = u_.mnu.selector.img;
+u_.menu.timer = window.setInterval(function(){
+    var i = $('#menu .selector').attr('anim');
+    var img = u_.menu.selector.img;
     
     i = ( i < img.length-1 ) ? parseInt(i)+1 : 0;
     
     $('#menu .selector')
         .attr('src', cfg.mod +'/gra/'+ img[i] )
-        .attr('ind', i);
+        .attr('anim', i);
 
 },1000); 
+
+////////////////////////////////////////////////////////////////////////////////
+// sound
+s_.load([
+    'DSPSTOP.ogg',
+    'DSPISTOL.ogg',
+    'DSSWTCHN.ogg',
+    'DSSWTCHX.ogg'
+]);
+
+s_.menuopen     = 'DSSWTCHN.ogg';
+s_.menunext     = 'DSPSTOP.ogg';
+s_.menuback     = 'DSSWTCHX.ogg';
+s_.menuselect   = 'DSPISTOL.ogg';
 
 
 ////////////////////////////////////////////////////////////////////////////////

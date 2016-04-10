@@ -16,7 +16,8 @@ var core = new function() {
         i_ : 'input',
         o_ : 'objects',
         u_ : 'interface',
-        r_ : 'render'
+        r_ : 'render',
+        s_ : 'sound'
     };
     
     t.include = function( f ) {

@@ -31,3 +31,7 @@ canvas {
     transform: translate(-50%,-50%);
     z-index: 1;
 }
+
+#sound {
+    display: none;
+}

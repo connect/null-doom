@@ -43,5 +43,5 @@ body {
 #menu .selector {
     position: absolute;
     /* left: -25%; */
-    transform: translate(-150%, -25%);
+    transform: translate(-150%, -20%);
 }
