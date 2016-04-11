@@ -2,7 +2,6 @@ u_.gui = {
         
 };
 
-
 u_.menu = new function(){
     var t = this;
     
@@ -16,24 +15,9 @@ u_.menu = new function(){
     };
     
     t.back = function(){
-        console.log('u_.menu.back()')
+        console.log('u_.menu.back()')        
         
-        
-        // Ask the browser to lock the pointer        
-        /*
-        var element = document.body;
-        element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;        
-        element.requestPointerLock();
-        */
-        
-        
-       /*
-        var e = document.createEvent('MouseEvents');
-        e.initMouseEvent('click', true, true, window, 0,300,300,300,300,false,false,false,false,0,null);
-        document.getElementById('blocker').dispatchEvent(e);
-        */
-       
-        simulate(document.getElementById("blocker"), "click");
+        $('#blocker').hide();
        
         // sound
         s_.play( s_.menuback );
@@ -142,49 +126,5 @@ u_.inmenu = function(){
     
     return $('#blocker').is(':visible');
 };
-
-
-$('#blocker').bind( 'click', function ( e ) {
-console.log('->',e)
-    //$('#blocker').hide();
-    var element = document.body;
-
-    // Ask the browser to lock the pointer
-    element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
-
-    if ( /Firefox/i.test( navigator.userAgent ) ) {
-
-        if (cfg.fullscreen) {
-
-            var fullscreenchange = function ( e ) {
-
-                if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
-
-                    document.removeEventListener( 'fullscreenchange', fullscreenchange );
-                    document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
-
-                    element.requestPointerLock();
-                }
-
-            };
-
-            document.addEventListener( 'fullscreenchange', fullscreenchange, false );
-            document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
-
-            element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
-            element.requestFullscreen();
-
-        } else {
-
-            element.requestPointerLock();
-        }
-
-    } else {
-
-            element.requestPointerLock();
-    }
-
-});
-
 
 //$('#blocker').trigger( 'click')

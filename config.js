@@ -7,7 +7,7 @@
 
 var cfg = {
     mod                 : 'doom.wad',
-    screenmode          : '800x600',
+    screenmode          : '640x480',
     fullscreen          : 0,
     
     bind: {

@@ -12,8 +12,9 @@
 
 
 //var controlsEnabled = false;
-var prevTime = performance.now();
-var velocity = new THREE.Vector3();   
+r_.prevTime = performance.now();
+r_.velocity = new THREE.Vector3();   
+r_.objects  = [];
 
 r_.imgs = {}; // texture cache
 
@@ -38,9 +39,9 @@ r_.mode = new function(){
     var t = this;
     console.log('r_.mode()');
     
-    t.current = cfg.screenmode;
-    
-    t.list = [ '640x480', '800x600', '1024x768', '1280x800' ];
+    t.list      = [ '640x480', '800x600', '1024x768', '1280x800' ];
+    t.current   = cfg.screenmode;    
+    r_.scale    = cfg.screenmode.split('x')[0] / 320;
     
     t.next = function(){
         // get index of current mode
@@ -71,13 +72,15 @@ r_.mode = new function(){
     };
     
     t.set = function( val ){
-        var scrMode = val.split('x');
-        console.log('r_.mode.set()');        
+        console.log('r_.mode.set()');
         
+        var scrMode = val.split('x');
+                       
         // update render
         r_.camera.aspect = scrMode[0] / scrMode[1];
         r_.camera.updateProjectionMatrix();
         r_.renderer.setSize( scrMode[0], scrMode[1] );
+        r_.scale = scrMode[0] / 320;
         
         t.current = val;
     };
@@ -94,12 +97,10 @@ r_.render = function() {
 
 r_.init = function() {
     console.log('r_.init()');
-    
-    var raycaster;    
+       
     var scrMode     = r_.mode.current.split('x');
     var scrWidth    = scrMode[0];
     var scrHeight   = scrMode[1];
-    r_.scale        = scrMode[0] / 320;
     
     //
     // Hud
@@ -120,11 +121,11 @@ r_.init = function() {
     r_.scene = new THREE.Scene();
     //scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
 
-    var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
-    light.position.set( 0.5, 1, 0.75 );
-    r_.scene.add( light );
+    r_.light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+    r_.light.position.set( 0.5, 1, 0.75 );
+    r_.scene.add( r_.light );
  
-    raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+    r_.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
     r_.renderer = new THREE.WebGLRenderer({ antialias:true });
     r_.renderer.setClearColor( 0xffffff );
@@ -134,8 +135,50 @@ r_.init = function() {
     document.body.appendChild( r_.renderer.domElement );
 
     window.addEventListener( 'resize', r_.onWindowResize, false );
+    
     i_.init();    
     r_.modInit();
+    
+    $('canvas').bind( 'click', function ( e ) {
+
+        var element = document.body;
+
+        // Ask the browser to lock the pointer
+        element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+
+        if ( /Firefox/i.test( navigator.userAgent ) ) {
+
+            if (cfg.fullscreen) {
+
+                var fullscreenchange = function ( e ) {
+
+                    if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
+
+                        document.removeEventListener( 'fullscreenchange', fullscreenchange );
+                        document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
+
+                        element.requestPointerLock();
+                    }
+
+                };
+
+                document.addEventListener( 'fullscreenchange', fullscreenchange, false );
+                document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
+
+                element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+                element.requestFullscreen();
+
+            } else {
+
+                element.requestPointerLock();
+            }
+
+        } else {
+
+                element.requestPointerLock();
+        }
+
+    });
 };     
 
 r_.onWindowResize = function () {
@@ -150,8 +193,8 @@ r_.onWindowResize = function () {
 };
 
 r_.hudDraw = function(o){
-    console.log('r_.hudDraw()')
-return; /*
+    console.log('r_.hudDraw()');
+
     var direction = o.direction || 'ltr';
 
     for (var i in o.text){
@@ -178,56 +221,79 @@ return; /*
             sprite.position.set( o.x - ((o.text.length - i) * r_.scale * 14), o.z, 11);
         }
         r_.hudScene.add(sprite);
-    }*/
-}
+    }
+};
 
 r_.animate = function () {
     
+    var scrMode     = r_.mode.current.split('x');
+    var scrWidth    = scrMode[0];
+    var scrHeight   = scrMode[1]; 
+    
     requestAnimationFrame( r_.animate );
-/*
-    if ( controlsEnabled ) {
-        raycaster.ray.origin.copy( controls.getObject().position );
-        raycaster.ray.origin.y -= 10;
 
-        var intersections = raycaster.intersectObjects( objects );
+    if ( i_.controls.enabled ) {
+        r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+        r_.raycaster.ray.origin.y -= 10;
+
+        var intersections = r_.raycaster.intersectObjects( r_.objects );
 
         var isOnObject = intersections.length > 0;
 
         var time = performance.now();
-        var delta = ( time - prevTime ) / 1000;
+        var delta = ( time - r_.prevTime ) / 1000;
 
-        velocity.x -= velocity.x * 5.0 * delta; // 5.0 = speed
-        velocity.z -= velocity.z * 5.0 * delta;
+        r_.velocity.x -= r_.velocity.x * 5.0 * delta; // 5.0 = speed
+        r_.velocity.z -= r_.velocity.z * 5.0 * delta;
+        r_.velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass
 
-        velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass
+        if ( i_.act.forward ) r_.velocity.z -= 400.0 * delta;
+        if ( i_.act.back )    r_.velocity.z += 400.0 * delta;
 
-        if ( i_.act.forward ) velocity.z -= 400.0 * delta;
-        if ( i_.act.back ) velocity.z += 400.0 * delta;
-
-        if ( i_.act.left ) velocity.x -= 400.0 * delta;
-        if ( i_.act.right ) velocity.x += 400.0 * delta;
+        if ( i_.act.left )    r_.velocity.x -= 400.0 * delta;
+        if ( i_.act.right )   r_.velocity.x += 400.0 * delta;
 
         if ( isOnObject === true ) {
-                velocity.y = Math.max( 0, velocity.y );
-
-                i_.act.jump = true;
+            r_.velocity.y = Math.max( 0, r_.velocity.y );
+            i_.act.jump = true;
         }
 
-        controls.getObject().translateX( velocity.x * delta );
-        controls.getObject().translateY( velocity.y * delta );
-        controls.getObject().translateZ( velocity.z * delta );
+        i_.controls.getObject().translateX( r_.velocity.x * delta );
+        i_.controls.getObject().translateY( r_.velocity.y * delta );
+        i_.controls.getObject().translateZ( r_.velocity.z * delta );
 
-        if ( controls.getObject().position.y < 10 ) {
+        if ( i_.controls.getObject().position.y < 10 ) {
 
-                velocity.y = 0;
-                controls.getObject().position.y = 10;
-
-                i_.act.jump = true;
+            r_.velocity.y = 0;
+            i_.controls.getObject().position.y = 10;
+            i_.act.jump = true;
         }
 
-        prevTime = time;
+
+
+        if (r_.wpn.reading) {
+
+            var thisPos = r_.wpn.obj.position.y += 75.0 * delta;
+            var stopPos = (scrHeight/-2) + (60 * r_.scale);
+
+
+            if (thisPos <= stopPos) {
+
+                r_.wpn.obj.position.set(0, thisPos, 5);
+
+            } else {
+
+                r_.wpn.obj.position.set(0, stopPos, 5);
+                r_.wpn.reading = false;
+            }
+            
+        }
+
+
+
+
+        r_.prevTime = time;
     }
-*/
 
     r_.render();
 };

@@ -1,5 +1,5 @@
 body {
-    /* background: url('gra/FLOOR7_2.png'); */
+    background: url('gra/FLOOR7_2.png') !important;
 }
 
 #back {
@@ -36,7 +36,6 @@ body {
     color: #ffffff;
     text-align: left;
 
-    cursor: pointer;
     transform: translate(-50%, -50%) scale(2,2) ;
 }
 

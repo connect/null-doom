@@ -12,7 +12,7 @@ g_.title = 'NULL DOOM';
 $('title').html(g_.title);
 
 // set favicon
-$('head').append('<link rel="icon" href="doom.wad/gra/favicon.png" />');
+$('head').append('<link rel="icon" href="doom.wad/gra/YSKUB0.png" />');
 
 // load css
 $('head').append('<link rel="stylesheet" type="text/css" href="doom.wad/mod.css" />');
