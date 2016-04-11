@@ -142,6 +142,28 @@ i_.onKeyUp = function(e){
     }
 };
 
+i_.onClick = function(e){
+    
+    if (!u_.inmenu()) {
+        var action = i_.bindlist[ 'mouse'+ e.which ];
+        
+        if (action[0] == '+' || action[0] == '-') {
+        
+            var cmd = action.substring(1);
+        
+            if (action[0] == '+'){
+                i_.act[ cmd ] = true;
+            }
+       
+        } else {
+        
+            i_.act[ action ] = true;
+        }        
+    }
+    e.preventDefault();
+    return false;
+}
+
 i_.pointerlockchange = function ( e ) {
     //console.log('pointerlock change',e);
     
@@ -171,9 +193,10 @@ i_.init = function(){
     i_.controls = new THREE.PointerLockControls( r_.camera );
     r_.scene.add( i_.controls.getObject() );
     
-    document.addEventListener( 'keydown', i_.onKeyDown, false );
-    document.addEventListener( 'keyup', i_.onKeyUp, false );
-    
+    document.addEventListener( 'keydown',     i_.onKeyDown, false );
+    document.addEventListener( 'keyup',       i_.onKeyUp,   false );
+    document.addEventListener( 'click',       i_.onClick,   false );
+    document.addEventListener( 'contextmenu', i_.onClick,   false );
     
     // Hook pointer lock state change events
     //
@@ -184,7 +207,7 @@ i_.init = function(){
     document.addEventListener( 'pointerlockerror',          i_.pointerlockerror, false );
     document.addEventListener( 'mozpointerlockerror',       i_.pointerlockerror, false );
     document.addEventListener( 'webkitpointerlockerror',    i_.pointerlockerror, false );
-    
+        
 };
 
 

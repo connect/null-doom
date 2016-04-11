@@ -7,7 +7,7 @@
  */
 
 s_.init = function(){
-    $('body').prepend('<audio id="sound" preload="auto"></audio>');
+    $('body').prepend('<audio id="music" preload="auto" loop></audio>');
 };
 // init sound system
 s_.init();
@@ -17,9 +17,9 @@ s_.items = [];
 s_.load = function(o){
     
     if (typeof o == 'object' && o.length != undefined) {
+        
         // array declaration
         for (var i in o) {
-            //$('#sound').append('<source src="'+ cfg.mod +'/snd/'+ i +'.'+ o[i] +'" type="audio/'+ o[i] +'">');
             s_.items.push(o[i]);
         }
     } else {
@@ -29,7 +29,19 @@ s_.load = function(o){
 };
 
 s_.play = function(o){
-    $('#sound')
+    $('<audio />')
+        .attr('src', cfg.mod +'/snd/'+ o )
+        .attr('preload', 'auto')
+        .on('ended', function() {            
+            $(this).remove();
+        })
+        .trigger('play');    
+};
+
+s_.playMusic = function(o){
+    $('#music')
         .attr('src', cfg.mod +'/snd/'+ o )
         .trigger('play');    
 };
+
+s_.volume = cfg.volume || 100;

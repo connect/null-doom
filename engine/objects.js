@@ -40,10 +40,15 @@ o_.map = new function(){
 
         // WEAPON
         //       
-        var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.SHTGA0});
-        r_.wpn.obj = new THREE.Sprite(spriteMaterial);            
+        r_.mats.wpn = [ 
+            new THREE.SpriteMaterial({map: r_.imgs.SHTGA0}), 
+            new THREE.SpriteMaterial({map: r_.imgs.SHTGB0}),
+            new THREE.SpriteMaterial({map: r_.imgs.SHTGC0}),
+            new THREE.SpriteMaterial({map: r_.imgs.SHTGD0})
+        ];
+        r_.wpn.obj = new THREE.Sprite(r_.mats.wpn[0]);            
         r_.wpn.obj.scale.set( 79 * scale , 60 * scale ,1);
-        r_.wpn.obj.position.set(0, (scrHeight/-2) + (60 * scale) * -1.5  , 5); // (scrHeight/-2) + (60 * scale)   
+        r_.wpn.obj.position.set(0, (scrHeight/-2) + (60 * scale) * -1  , 5); // (scrHeight/-2) + (60 * scale)   
         r_.wpn.reading = true;
         r_.hudScene.add(r_.wpn.obj);
 
@@ -55,14 +60,43 @@ o_.map = new function(){
         sprite.scale.set(320 * scale, 32 * scale ,1);
         sprite.position.set(0, (scrHeight/-2) + (32 * scale / 2) , 10);
         r_.hudScene.add(sprite);
+        
+        // ARMS
+        //
+        
+        var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STARMS});
+        var sprite = new THREE.Sprite(spriteMaterial);            
+        sprite.scale.set(40 * scale, 32 * scale ,1);
+        sprite.position.set((scrWidth/-2) + (scrWidth * 0.385), (scrHeight/-2) + (32 * scale / 2) , 11);
+        r_.hudScene.add(sprite);
 
         // FACE
-        //     
-        var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STFST00});
-        var sprite = new THREE.Sprite(spriteMaterial);            
-        sprite.scale.set( 24 * scale, 29 * scale, 1);
-        sprite.position.set( 0, (scrHeight/-2) + (29 * scale / 2), 11);
-        r_.hudScene.add(sprite);
+        //                     
+        
+        r_.mats.face = [ 
+            new THREE.SpriteMaterial({map: r_.imgs.STFST00}), 
+            new THREE.SpriteMaterial({map: r_.imgs.STFST01}),
+            new THREE.SpriteMaterial({map: r_.imgs.STFST02})
+        ];
+        r_.hud.face = new THREE.Sprite(r_.mats.face[0]);
+        r_.hud.face.scale.set( 24 * scale, 29 * scale, 1);
+        r_.hud.face.position.set( 0, (scrHeight/-2) + (29 * scale / 2), 11);
+        r_.hudScene.add( r_.hud.face );
+        
+        // animate
+        r_.animateFace = function(){            
+            r_.hud.face.material = r_.mats.face[ c_.random(0,2) ];            
+            window.setTimeout(r_.animateFace, c_.random(500, 5000));
+        };
+        r_.animateFace();
+
+        // AMMO
+        //
+        r_.hudDraw({
+            text: '150', prefix: 'STT', direction: 'rtl',
+            x: (scrWidth/-2) + (scrWidth * 0.16),
+            z: (scrHeight/-2) + (scrHeight * 0.09)    
+        });
 
         // HEALTH
         //
@@ -155,7 +189,7 @@ o_.map = new function(){
         material = new THREE.MeshPhongMaterial({ map: r_.imgs.W28_5 });                                            
         material.map.repeat.set(1, 1);
 
-        for ( var i = 0; i < 30; i ++ ) {
+        for ( var i = 0; i < 150; i ++ ) {
             var mesh = new THREE.Mesh( geometry, material );
             mesh.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
             //mesh.position.y = Math.floor( Math.random() * 20 ) * 20 + 10;
@@ -191,6 +225,9 @@ o_.map = new function(){
         
         
         $('#blocker').hide();
+        
+        // music
+        s_.playMusic('D_E1M8.mp3');
 
     };
     

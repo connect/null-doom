@@ -68,10 +68,16 @@ u_.menu.init({
 ////////////////////////////////////////////////////////////////////////////////
 // sound
 s_.load([
+    
+    // effects
     'DSPSTOP.ogg',
     'DSPISTOL.ogg',
     'DSSWTCHN.ogg',
-    'DSSWTCHX.ogg'
+    'DSSWTCHX.ogg',
+    
+    // music
+    'D_INTRO.mp3',
+    'D_E1M8.mp3'
 ]);
 
 s_.menuopen     = 'DSSWTCHN.ogg';
@@ -79,6 +85,8 @@ s_.menunext     = 'DSPSTOP.ogg';
 s_.menuback     = 'DSSWTCHX.ogg';
 s_.menuselect   = 'DSPISTOL.ogg';
 
+
+s_.play('D_INTRO.mp3');
 
 ////////////////////////////////////////////////////////////////////////////////
 // bind keys
@@ -89,10 +97,23 @@ i_.bind( cfg.bind );
 // load textures
 r_.img.load({
     type: 'png',
-    files: [             
+    files: [           
+        // Shotgun
         'SHTGA0',
+        'SHTGB0',
+        'SHTGC0',
+        'SHTGD0',
+        
+        // Status
+        'STARMS',
         'STBAR',
+        
+        // Face
         'STFST00',
+        'STFST01',
+        'STFST02',
+        
+        // Big red font
         'STTMINUS',
         'STTNUM0',
         'STTNUM1',
@@ -105,6 +126,7 @@ r_.img.load({
         'STTNUM8',
         'STTNUM9',
         'STTPRCNT',
+        
         'TITLEPIC',
         'W28_5',
         'W94_1',

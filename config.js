@@ -7,8 +7,8 @@
 
 var cfg = {
     mod                 : 'doom.wad',
-    screenmode          : '640x480',
-    fullscreen          : 0,
+    screenmode          : '1024x768',
+    fullscreen          : 1,
     
     bind: {
         38  : '+forward',   // uparrow
@@ -22,6 +22,8 @@ var cfg = {
         32  : '+jump',      // space
         
         61  : 'zoomin',
-        173 : 'zoomout'
+        173 : 'zoomout',
+        
+        mouse1 : '+attack'
     }
 };

@@ -15,8 +15,9 @@
 r_.prevTime = performance.now();
 r_.velocity = new THREE.Vector3();   
 r_.objects  = [];
-
+r_.mats = {}; // material cachce
 r_.imgs = {}; // texture cache
+r_.hud = {};
 
 r_.img = new function(){
     var t = this;
@@ -226,11 +227,37 @@ r_.hudDraw = function(o){
 
 r_.animate = function () {
     
+    requestAnimationFrame( r_.animate );
+    
     var scrMode     = r_.mode.current.split('x');
     var scrWidth    = scrMode[0];
-    var scrHeight   = scrMode[1]; 
+    var scrHeight   = scrMode[1];        
     
-    requestAnimationFrame( r_.animate );
+    var time = performance.now();
+    var delta = ( time - r_.prevTime ) / 1000;
+    
+    if (r_.wpn.reading) {
+
+        var thisPos = r_.wpn.obj.position.y += 400.0 * delta;
+        var stopPos = (scrHeight/-2) + (60 * r_.scale);
+
+
+        if (thisPos <= stopPos) {
+
+            r_.wpn.obj.position.set(0, thisPos, 5);
+
+        } else {
+
+            r_.wpn.obj.position.set(0, stopPos, 5);
+            r_.wpn.reading = false;
+        }
+
+    } else if ( i_.act.attack) {
+        //console.log(delta);
+        //r_.wpn.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
+    }
+
+        
 
     if ( i_.controls.enabled ) {
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
@@ -240,8 +267,7 @@ r_.animate = function () {
 
         var isOnObject = intersections.length > 0;
 
-        var time = performance.now();
-        var delta = ( time - r_.prevTime ) / 1000;
+        
 
         r_.velocity.x -= r_.velocity.x * 5.0 * delta; // 5.0 = speed
         r_.velocity.z -= r_.velocity.z * 5.0 * delta;
@@ -267,33 +293,9 @@ r_.animate = function () {
             r_.velocity.y = 0;
             i_.controls.getObject().position.y = 10;
             i_.act.jump = true;
-        }
-
-
-
-        if (r_.wpn.reading) {
-
-            var thisPos = r_.wpn.obj.position.y += 75.0 * delta;
-            var stopPos = (scrHeight/-2) + (60 * r_.scale);
-
-
-            if (thisPos <= stopPos) {
-
-                r_.wpn.obj.position.set(0, thisPos, 5);
-
-            } else {
-
-                r_.wpn.obj.position.set(0, stopPos, 5);
-                r_.wpn.reading = false;
-            }
-            
-        }
-
-
-
-
-        r_.prevTime = time;
+        }       
     }
 
+    r_.prevTime = time;
     r_.render();
 };

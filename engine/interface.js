@@ -17,6 +17,13 @@ u_.menu = new function(){
     t.back = function(){
         console.log('u_.menu.back()')        
         
+        var o = t.screens[ t.current ];
+        
+        if ( typeof o.animate == 'function') {
+            // stop animation
+            window.clearInterval( t.timer );
+        }
+        
         $('#blocker').hide();
        
         // sound
@@ -24,9 +31,15 @@ u_.menu = new function(){
     };
     
     t.select = function(){
-        var i = $('#menu .selector').attr('ind');
-        var fn = t.screens[ t.current ].items[i].action;        
-         
+        var i  = $('#menu .selector').attr('ind');
+        var fn = t.screens[ t.current ].items[i].action;  
+        var o  = t.screens[ t.current ];
+        
+        if ( typeof o.animate == 'function') {
+            // stop animation
+            window.clearInterval( t.timer );
+        }
+        
         if (typeof fn == 'function') {
             fn();
         } else {
@@ -112,9 +125,13 @@ u_.openmenu = function( menuID ){
                         left: pos.left /2, 
                         top: pos.top /2
                     });
-                    
+                
                 // sound
                 s_.play( s_.menuopen );
+                
+                if (typeof o.animate == 'function') {
+                    u_.menu.timer = window.setInterval(o.animate,500);
+                }                                    
             },200);
         }
     }
