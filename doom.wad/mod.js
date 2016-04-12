@@ -128,6 +128,8 @@ r_.img.load({
         'STTPRCNT',
         
         'TITLEPIC',
+        'CREDIT',
+        
         'W28_5',
         'W94_1',
         'WALL03_7',  

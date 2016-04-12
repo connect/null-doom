@@ -15,8 +15,18 @@ r_.modInit = function(){
 
     // initial screen
     
-    var spriteMaterial = new THREE.SpriteMaterial({ map: r_.imgs.TITLEPIC });
-    r_.back = new THREE.Sprite(spriteMaterial);
+    r_.mats.title = [
+        new THREE.SpriteMaterial({ map: r_.imgs.TITLEPIC }),
+        new THREE.SpriteMaterial({ map: r_.imgs.CREDIT })
+    ];
+    
+    r_.timerTitle = window.setInterval(function(){
+        
+        r_.back.material = (r_.back.material == r_.mats.title[0]) ? r_.mats.title[1] : r_.mats.title[0];
+        
+    },15000);
+    
+    r_.back = new THREE.Sprite( r_.mats.title[0] );
     r_.back.scale.set( scrWidth, scrHeight, 1);
     r_.hudScene.add(r_.back);
     
