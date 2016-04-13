@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Test falloff effext</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body 
+            {
+                    font-family: Monospace;
+                    font-weight: bold;
+                    background-color: #ccccff;
+                    margin: 0px;
+                    overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+<div id="ThreeJS"></div>
+<script src="config.js"></script>
+<script src="engine/jquery/jquery-2.2.0.min.js"></script>
+<script src="engine/three/three.min.js"></script>  
+<script>
+    
+//@author Omar Shehata. 2015.
+//We are loading the Three.js library from the cdn here: http://cdnjs.com/libraries/three.js/
+
+///////////////////This is the basic scene setup
+var imgs = {};
+var mats = {}; // materials
+var scene = new THREE.Scene();
+var width = 800;
+var height = 600;
+var camera = new THREE.OrthographicCamera(
+        width  / -2, width  /  2,
+        height /  2, height / -2, 
+        -500, 1000 
+    );
+    
+var scale = width / 320;
+camera.position.set(0,0,0);
+var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+scene.add(light);
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(width, height);
+document.body.appendChild(renderer.domElement);
+
+///////////////////This is where we create our off-screen render target
+//Create a different scene to hold our buffer objects
+var bufferScene = new THREE.Scene();
+//Create the texture that will store our result
+var bufferTexture = new THREE.WebGLRenderTarget(width, height, {
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.NearestFilter
+});
+
+
+bufferScene.add(light);
+
+imgs.TITLEPIC = new THREE.TextureLoader().load( 'doom.wad/gra/TITLEPIC.png' );
+mats.TITLEPIC = new THREE.SpriteMaterial({ map: imgs.TITLEPIC  });
+var back = new THREE.Sprite( mats.TITLEPIC );
+back.scale.set(width, height, 1);
+back.position.set(0,0,1);
+bufferScene.add(back);
+
+//Let's create a red box
+var redMaterial = new THREE.MeshBasicMaterial({
+    color: 0xF06565
+});
+var boxGeometry = new THREE.BoxGeometry(100, 100, 10);
+var boxObject = new THREE.Mesh(boxGeometry, redMaterial);
+boxObject.position.set(0,0,0);
+bufferScene.add(boxObject); //We add it to the bufferScene instead of the normal scene!
+
+///And a blue plane behind it
+var blueMaterial = new THREE.MeshBasicMaterial({
+    color: 0x7074FF
+})
+var plane = new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight);
+var planeObject = new THREE.Mesh(plane, blueMaterial);
+planeObject.position.z = -15;
+bufferScene.add(planeObject); //We add it to the bufferScene instead of the normal scene!
+
+
+////////////////////////////Now we use our bufferTexture as a material to render it onto our main scene
+var boxMaterial = new THREE.MeshBasicMaterial({
+    map: bufferTexture
+});
+var boxGeometry2 = new THREE.BoxGeometry(width, height, 1);
+var mainBoxObject = new THREE.Mesh(boxGeometry2, boxMaterial);
+mainBoxObject.position.z = -10;
+scene.add(mainBoxObject);
+
+//Render everything!
+function render() {
+
+  requestAnimationFrame(render);
+
+  //Render onto our off screen texture
+  renderer.render(bufferScene, camera, bufferTexture);
+
+  //Finally, draw to the screen
+  renderer.render(scene, camera);
+
+}
+render();
+
+$('body').bind('keydown',function(e){
+    
+    if (e.keyCode == 13){
+        var count  = 10;
+        var twidth = width / count;
+                
+        for (var i = 0; i < count; i++) {
+            var ttex = bufferTexture.clone();
+            ttex.needsUpdate = true;
+            ttex.offsetX = cou;
+            var tmat = new THREE.SpriteMaterial({ map: bufferTexture });
+            var chunk = new THREE.Sprite( tmat );
+        }
+    } 
+});
+
+</script>        
+</body>
+</html>

@@ -29,7 +29,7 @@ r_.img = new function(){
         for (var i in o.files) {
             f = o.files[i];
             
-            r_.imgs[ f ] = THREE.ImageUtils.loadTexture(cfg.mod+ "/gra/"+ f +"."+ o.type);
+            r_.imgs[ f ] = THREE.TextureLoader().load( cfg.mod+ "/gra/"+ f +"."+ o.type );
             r_.imgs[ f ].magFilter = THREE.NearestFilter;
             r_.imgs[ f ].minFilter = THREE.LinearMipMapLinearFilter;   
         }

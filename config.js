@@ -7,8 +7,8 @@
 
 var cfg = {
     mod                 : 'doom.wad',
-    screenmode          : '1024x768',
-    fullscreen          : 1,
+    screenmode          : '800x600',
+    fullscreen          : 0,
     
     bind: {
         38  : '+forward',   // uparrow

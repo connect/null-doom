@@ -3,8 +3,14 @@ o_.map = new function(){
     var t = this;
     
     t.current   = -1; // none
-    t.data      = [];
     t.list      = [];
+    
+    t.data      = [];
+    t.things    = [];
+    t.vertexes  = [];
+    t.linedefs  = [];
+    t.sidedefs  = [];
+    t.sectors   = [];
     
     t.add = function(o){
         
@@ -25,11 +31,9 @@ o_.map = new function(){
         
         //
         // start map load sequence
-        //
+        //        
         
-        // remove initial back screen
-        r_.hudScene.remove( r_.back );
-        
+        $('#blocker').hide();
         
         var scrMode     = r_.mode.current.split('x');
         var scrWidth    = scrMode[0];
@@ -223,8 +227,8 @@ o_.map = new function(){
             r_.objects.push( mesh );
         }
         
-        
-        $('#blocker').hide();
+        // remove initial back screen
+        r_.hudScene.remove( r_.back );      
         
         // music
         s_.playMusic('D_E1M8.mp3');
@@ -237,5 +241,30 @@ o_.map = new function(){
         
         t.current = i;
         t.load( t.list[i] );
+    };
+    
+    t.readUDMF = function(f){
+        // load file to memory
+        //
+        $.get( cfg.mod +'/maps/'+ f +'.udmf')
+            .done(function(res){
+                // parse file
+                //
+
+                // parse things
+                //
+
+                // parse vertexes
+                //
+
+                // parse linedefs
+                //
+
+                // parse sidedefs
+                //
+
+                // sectors
+                //
+            });
     };
 };
