@@ -21,8 +21,8 @@ var cfg = {
         68  : '+right',     // d
         32  : '+jump',      // space
         
-        61  : 'zoomin',
-        173 : 'zoomout',
+        187  : 'zoomin',
+        189 : 'zoomout',
         
         mouse1 : '+attack'
     }

@@ -96,26 +96,68 @@ o_.map = new function(){
 
         // AMMO
         //
-        r_.hudDraw({
-            text: '150', prefix: 'STT', direction: 'rtl',
+        r_.drawText({            
+            text: '150', prefix: 'STT', 
+            width: 14, height: 16, direction: 'rtl',
             x: (scrWidth/-2) + (scrWidth * 0.16),
             z: (scrHeight/-2) + (scrHeight * 0.09)    
         });
 
         // HEALTH
         //
-        r_.hudDraw({
-            text: '100%', prefix: 'STT', direction: 'rtl',
+        r_.drawText({
+            text: '100%', prefix: 'STT', 
+            width: 14, height: 16, direction: 'rtl',
             x: (scrWidth/-2) + (scrWidth * 0.345),
             z: (scrHeight/-2) + (scrHeight * 0.09)    
         });
 
         // ARMOR
         //
-        r_.hudDraw({
-            text: '150%', prefix: 'STT', direction: 'rtl',
+        r_.drawText({
+            text: '150%', prefix: 'STT', 
+            width:14, height:16, direction: 'rtl',
             x: (scrWidth/-2) + (scrWidth * 0.755)  ,
             z: (scrHeight/-2) + (scrHeight * 0.09)  
+        });
+        
+        // Arms numbers
+        //
+        r_.drawText({
+            text: '2', prefix: 'STYS',
+            width: 4, height: 6, direction: 'ltr',
+            x: (scrWidth/-2) + (scrWidth * 0.348)  ,
+            z: (scrHeight/-2) + (scrHeight * 0.105)  
+        });
+        r_.drawText({
+            text: '3', prefix: 'STYS',
+            width: 4, height: 6, direction: 'ltr',
+            x: (scrWidth/-2) + (scrWidth * 0.39)  ,
+            z: (scrHeight/-2) + (scrHeight * 0.105)  
+        });
+        r_.drawText({
+            text: '4', prefix: 'STG',
+            width: 4, height: 6, direction: 'ltr',
+            x: (scrWidth/-2) + (scrWidth * 0.425)  ,
+            z: (scrHeight/-2) + (scrHeight * 0.105)  
+        });
+        r_.drawText({
+            text: '5', prefix: 'STG',
+            width: 4, height: 6, direction: 'ltr',
+            x: (scrWidth/-2) + (scrWidth * 0.348)  ,
+            z: (scrHeight/-2) + (scrHeight * 0.065)  
+        });
+        r_.drawText({
+            text: '6', prefix: 'STG',
+            width: 4, height: 6, direction: 'ltr',
+            x: (scrWidth/-2) + (scrWidth * 0.39)  ,
+            z: (scrHeight/-2) + (scrHeight * 0.065)  
+        });
+        r_.drawText({
+            text: '7', prefix: 'STG',
+            width: 4, height: 6, direction: 'ltr',
+            x: (scrWidth/-2) + (scrWidth * 0.425)  ,
+            z: (scrHeight/-2) + (scrHeight * 0.065)  
         });
         
 

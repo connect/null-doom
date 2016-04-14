@@ -202,39 +202,10 @@ r_.onWindowResize = function () {
     //renderer.setSize( scrWidth, scrHeight );
 };
 
-r_.hudDraw = function(o){
-    console.log('r_.hudDraw()');
-
-    var direction = o.direction || 'ltr';
-
-    for (var i in o.text){
-        var n = o.text[i];
-
-        if (n == '%') {
-            n = 'PRCNT';
-        } else if (n == '-') {
-            n = 'MINUS';
-        } else if ( parseInt(n) >= 0 && parseInt(n) <= 9 ) {
-            n = 'NUM'+ n;
-        }
-
-        var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs[ o.prefix + n ]});
-        var sprite = new THREE.Sprite(spriteMaterial);            
-        sprite.scale.set( 14 * r_.scale, 16 * r_.scale, 1);
-
-        if (direction == 'ltr') {
-
-            sprite.position.set( o.x + (i * r_.scale * 14), o.z, 11);
-
-        } else {
-
-            sprite.position.set( o.x - ((o.text.length - i) * r_.scale * 14), o.z, 11);
-        }
-        r_.hudScene.add(sprite);
-    }
-};
-
 r_.drawText = function(o){
+    var w = o.width;
+    var h = o.height;
+    
     for (var i in o.text){
         var n = o.text[i];
 
@@ -248,15 +219,15 @@ r_.drawText = function(o){
 
         var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs[ o.prefix + n ]});
         var sprite = new THREE.Sprite(spriteMaterial);            
-        sprite.scale.set( 14 * r_.scale, 16 * r_.scale, 1);
+        sprite.scale.set( w * r_.scale, h * r_.scale, 1);
 
-        if (direction == 'ltr') {
+        if (o.direction == 'ltr') {
 
-            sprite.position.set( o.x + (i * r_.scale * 14), o.z, 11);
+            sprite.position.set( o.x + (i * r_.scale * w), o.z, 12);
 
         } else {
 
-            sprite.position.set( o.x - ((o.text.length - i) * r_.scale * 14), o.z, 11);
+            sprite.position.set( o.x - ((o.text.length - i) * r_.scale * w), o.z, 12);
         }
         r_.hudScene.add(sprite);
     }

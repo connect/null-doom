@@ -127,6 +127,42 @@ r_.img.load({
         'STTNUM9',
         'STTPRCNT',
         
+        // Yellow small font
+        'STYSNUM0',
+        'STYSNUM1',
+        'STYSNUM2',
+        'STYSNUM3',
+        'STYSNUM4',
+        'STYSNUM5',
+        'STYSNUM6',
+        'STYSNUM7',
+        'STYSNUM8',
+        'STYSNUM9',
+        
+        //
+        'STGNUM0',
+        'STGNUM1',
+        'STGNUM2',
+        'STGNUM3',
+        'STGNUM4',
+        'STGNUM5',
+        'STGNUM6',
+        'STGNUM7',
+        'STGNUM8',
+        'STGNUM9',
+        
+        //
+        'AMMNUM0',
+        'AMMNUM1',
+        'AMMNUM2',
+        'AMMNUM3',
+        'AMMNUM4',
+        'AMMNUM5',
+        'AMMNUM6',
+        'AMMNUM7',
+        'AMMNUM8',
+        'AMMNUM9',        
+        
         'TITLEPIC',
         'CREDIT',
         
