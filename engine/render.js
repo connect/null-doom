@@ -26,13 +26,22 @@ r_.img = new function(){
         var f;
         console.log('r_.img.load()');
         
+        
         for (var i in o.files) {
             f = o.files[i];
             
-            r_.imgs[ f ] = THREE.TextureLoader().load( cfg.mod+ "/gra/"+ f +"."+ o.type );
-            r_.imgs[ f ].magFilter = THREE.NearestFilter;
-            r_.imgs[ f ].minFilter = THREE.LinearMipMapLinearFilter;   
+            r_.imgs[ f ] = new THREE.TextureLoader().load( cfg.mod+ "/gra/"+ f +"."+ o.type , function(texture){
+                // complete
+                texture.magFilter = THREE.NearestFilter;
+                texture.minFilter = THREE.LinearMipMapLinearFilter;   
+            },function(e){
+                // progress
+            },function(e){
+                // error
+                console.log('Texture loading error:',e)
+            });            
         }
+        
     };
 };
 
@@ -198,6 +207,34 @@ r_.hudDraw = function(o){
 
     var direction = o.direction || 'ltr';
 
+    for (var i in o.text){
+        var n = o.text[i];
+
+        if (n == '%') {
+            n = 'PRCNT';
+        } else if (n == '-') {
+            n = 'MINUS';
+        } else if ( parseInt(n) >= 0 && parseInt(n) <= 9 ) {
+            n = 'NUM'+ n;
+        }
+
+        var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs[ o.prefix + n ]});
+        var sprite = new THREE.Sprite(spriteMaterial);            
+        sprite.scale.set( 14 * r_.scale, 16 * r_.scale, 1);
+
+        if (direction == 'ltr') {
+
+            sprite.position.set( o.x + (i * r_.scale * 14), o.z, 11);
+
+        } else {
+
+            sprite.position.set( o.x - ((o.text.length - i) * r_.scale * 14), o.z, 11);
+        }
+        r_.hudScene.add(sprite);
+    }
+};
+
+r_.drawText = function(o){
     for (var i in o.text){
         var n = o.text[i];
 

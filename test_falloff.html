@@ -14,7 +14,7 @@ and open the template in the editor.
             {
                     font-family: Monospace;
                     font-weight: bold;
-                    background-color: #ccccff;
+                    background-color: #fff;
                     margin: 0px;
                     overflow: hidden;
             }
@@ -30,12 +30,14 @@ and open the template in the editor.
 //@author Omar Shehata. 2015.
 //We are loading the Three.js library from the cdn here: http://cdnjs.com/libraries/three.js/
 
+var falloff = false;
+
 ///////////////////This is the basic scene setup
 var imgs = {};
 var mats = {}; // materials
 var scene = new THREE.Scene();
-var width = 800;
-var height = 600;
+var width = 1024;
+var height = 768;
 var camera = new THREE.OrthographicCamera(
         width  / -2, width  /  2,
         height /  2, height / -2, 
@@ -59,7 +61,7 @@ var bufferTexture = new THREE.WebGLRenderTarget(width, height, {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.NearestFilter
 });
-
+bufferTexture.needsUpdate = true;
 
 bufferScene.add(light);
 
@@ -70,9 +72,10 @@ back.scale.set(width, height, 1);
 back.position.set(0,0,1);
 bufferScene.add(back);
 
-//Let's create a red box
+//Let's create a blue box
+/*
 var redMaterial = new THREE.MeshBasicMaterial({
-    color: 0xF06565
+    color: 0x0000FF
 });
 var boxGeometry = new THREE.BoxGeometry(100, 100, 10);
 var boxObject = new THREE.Mesh(boxGeometry, redMaterial);
@@ -87,7 +90,7 @@ var plane = new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight)
 var planeObject = new THREE.Mesh(plane, blueMaterial);
 planeObject.position.z = -15;
 bufferScene.add(planeObject); //We add it to the bufferScene instead of the normal scene!
-
+*/
 
 ////////////////////////////Now we use our bufferTexture as a material to render it onto our main scene
 var boxMaterial = new THREE.MeshBasicMaterial({
@@ -98,10 +101,28 @@ var mainBoxObject = new THREE.Mesh(boxGeometry2, boxMaterial);
 mainBoxObject.position.z = -10;
 scene.add(mainBoxObject);
 
+random = function(min, max) {
+    return Math.round(Math.random() * (max - min) + min);
+};
+
 //Render everything!
 function render() {
 
   requestAnimationFrame(render);
+  
+  // falloff animation
+  var fall = 0;
+  if (falloff) {
+      for (var i in chunks) {
+          
+          chunks[i].position.y -= random(1, 20);          
+          
+          if (chunks[i].position.y < height*-1.5) {
+              falloff = false;
+          }
+      }      
+  }
+  
 
   //Render onto our off screen texture
   renderer.render(bufferScene, camera, bufferTexture);
@@ -112,22 +133,49 @@ function render() {
 }
 render();
 
-$('body').bind('keydown',function(e){
+var chunks = []; //
+
+$('canvas').bind('click',function(e){
     
-    if (e.keyCode == 13){
-        var count  = 10;
-        var twidth = width / count;
-                
+    scene.remove( mainBoxObject );
+    
+        var count  = 300;
+        var q      = 1/count;
+        var twidth = width / count;   ;
+        var mat = new THREE.MeshBasicMaterial({
+                map: bufferTexture
+        });                
+        
+        var map = [
+            [ new THREE.Vector2(0, 0), new THREE.Vector2(.5, 0), new THREE.Vector2(.5, 1), new THREE.Vector2(0, 1) ],
+            [ new THREE.Vector2(.5, 0), new THREE.Vector2(1, 0), new THREE.Vector2(1, 1), new THREE.Vector2(.5, 1) ]            
+        ];
+        
         for (var i = 0; i < count; i++) {
-            var ttex = bufferTexture.clone();
-            ttex.needsUpdate = true;
-            ttex.offsetX = cou;
-            var tmat = new THREE.SpriteMaterial({ map: bufferTexture });
-            var chunk = new THREE.Sprite( tmat );
+            // left-bottom, right-bottom, right-upper, left-uppr                                            
+            var map = [ 
+                new THREE.Vector2( q*i,   0 ), 
+                new THREE.Vector2( q*i+q, 0 ), 
+                new THREE.Vector2( q*i+q, 1 ), 
+                new THREE.Vector2( q*i,   1 ) 
+            ];
+            var tgeo = new THREE.PlaneGeometry(twidth, height);               
+            tgeo.faceVertexUvs[0][0] = [ map[3], map[0], map[2] ];
+            tgeo.faceVertexUvs[0][1] = [ map[0], map[1], map[2] ];
+            
+            var chunk = new THREE.Mesh(tgeo, mat);
+            chunk.position.set( (width/-2)+(twidth/2)+(i*twidth)  , 0,1);                        
+            chunks.push(chunk);            
+            scene.add( chunk );
         }
-    } 
+        
+        setTimeout(function(){
+            falloff = true;
+        },500);
+    
 });
 
 </script>        
 </body>
 </html>
+

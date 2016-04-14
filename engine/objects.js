@@ -13,7 +13,7 @@ o_.map = new function(){
     t.sectors   = [];
     
     t.add = function(o){
-        
+        console.log('o_.map.add()')
         if (typeof o == 'object' && o.length != undefined) {
             // array 
             for (var i in o){
