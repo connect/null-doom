@@ -286,27 +286,112 @@ o_.map = new function(){
     };
     
     t.readUDMF = function(f){
+        // Structures
+        //
+        // counders
+        var linedef_c       = 0;
+        var thing_c         = 0;
+        
+        var linedef_t = function(o) {
+            var t = this;
+            o               = o                 || {};
+            t.id            = o.id              || linedef_c;
+            t.v1            = o.v1              || 0;
+            t.v2            = o.v2              || 0;
+            t.blocking      = o.blocking        || false;
+            t.blockmonsters = o.blockmonsters   || false;
+            t.twosided      = o.twosided        || false;
+            t.dontpegtop    = o.dontpegtop      || false;
+            t.dontpegbottom = o.dontpegbottom   || false;
+            t.secret        = o.secret          || false;
+            t.blocksound    = o.blocksound      || false;
+            t.dontdraw      = o.dontdraw        || false;
+            t.mapped        = o.mapped          || false;
+            t.comment       = o.comment         || '';
+            linedef_c++;
+        };
+        
+        var thing_t = function(o){
+            console.log(o)
+            var t = {};
+            o               = o                 || {};
+            t.id            = o.id              || thing_c;
+            t.x             = o.x               || 0.000;
+            t.y             = o.y               || 0.000;
+            t.height        = o.height          || 0.000;
+            t.angle         = o.angle           || 0.000;
+            t.type          = o.type            || 0.000;
+            t.skill1        = o.skill1          || false;
+            t.skill2        = o.skill2          || false;
+            t.skill3        = o.skill3          || false;
+            t.skill4        = o.skill4          || false;
+            t.skill5        = o.skill5          || false;
+            t.ambush        = o.ambush          || false;
+            t.single        = o.single          || false;
+            t.dm            = o.dm              || false;
+            t.coop          = o.coop            || false;
+            t.friend        = o.friend          || false;
+            t.comment       = o.comment         || '';
+            thing_c++;
+            
+            return t;
+        };
+        
         // load file to memory
         //
         $.get( cfg.mod +'/maps/'+ f +'.udmf')
             .done(function(res){
-                // parse file
-                //
+                
+                var t, o, l, type, namespace;
+                //res = res.split('\n');
+                res = res.split('}');
+                
+                // parse file line by line
+                //                                
+                for (var i in res) {
+                    // convert to js object
+                    //
+                    o = res[i]
+                            .replace('\n{',';')
+                            .replace(/\n/g,'')
+                            .replace(/=/g,':')
+                            .split(';');
+                    if (i == 0) {
+                        // get namespace
+                        namespace = o.shift();
+                    }
+                    type = o.shift();
+                    type = type.substring(0, type.indexOf('//') ).trim();
+                    
+                    t = {};
+                    for (var j in o) {
+                        l = o[j].split(' : ');
+                        t[ l[0] ] = l[1];
+                    }                   
+                    
+                    switch (type) {
+                        case 'thing':
+                                t = thing_t(t);
+                            break;
+                    }
+                    
+                    //console.log(t)
+                    
+                    // parse things
+                    //
 
-                // parse things
-                //
+                    // parse vertexes
+                    //
 
-                // parse vertexes
-                //
+                    // parse linedefs
+                    //
 
-                // parse linedefs
-                //
+                    // parse sidedefs
+                    //
 
-                // parse sidedefs
-                //
-
-                // sectors
-                //
+                    // sectors
+                    //
+                }
             });
     };
 };
