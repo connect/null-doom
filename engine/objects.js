@@ -6,11 +6,11 @@ o_.map = new function(){
     t.list      = [];
     
     t.data      = [];
-    t.things    = [];
-    t.vertexes  = [];
-    t.linedefs  = [];
-    t.sidedefs  = [];
-    t.sectors   = [];
+    t.thing     = [];
+    t.vertex    = [];
+    t.linedef   = [];
+    t.sidedef   = [];
+    t.sector    = [];
     
     t.add = function(o){
         console.log('o_.map.add()')
@@ -26,7 +26,127 @@ o_.map = new function(){
         
     };
     
+    t.createStartSpot = function(){
+        
+    };
+    
     t.load = function(){
+        // consider all necessary data is already in arrays after .readUDMF()
+        
+        $('#blocker').hide();
+        
+        var scrMode     = r_.mode.current.split('x');
+        var scrWidth    = scrMode[0];
+        var scrHeight   = scrMode[1];
+        var scale       = r_.scale;
+        
+        var mesh, geometry, material;
+        
+        t.loadTest();
+        
+        // load sectors
+        t.loadSectors();
+        
+        // load walls
+        t.loadWalls();
+        
+        // load sprites
+        t.loadSprites();
+        
+        // create start spot
+        t.createStartSpot();         
+        
+        // remove initial back screen
+        r_.hudScene.remove( r_.back );      
+        
+        // music
+        s_.playMusic('D_E1M8.mp3');
+        
+    };
+    
+    t.loadSectors = function(){
+        // get special lights
+        
+        
+        for (var s in t.sector) {
+            
+        }
+    };
+    
+    t.loadSprites = function(){
+        
+    };
+    
+    // draw sector 0
+    t.loadTest = function(){
+        var sides = {};
+        var lines = {};
+        var sec = t.sector[0];
+
+        for (var i in t.sidedef){           
+        
+            // get sides
+            if (t.sidedef[i].sector == sec.id) {
+                sides[i] = t.sidedef[i];
+                
+                for (var j in t.linedef) {
+                    
+                    if (t.linedef[j].sidefront == i) {
+                        
+                        lines[j] = t.linedef[j];
+                    }
+                }
+            }            
+        }             
+            
+        console.log('sides',sides)
+        console.log('lines',lines)
+    };
+    
+    t.loadWalls = function(){
+        var sides = [];
+        var lines = [];
+        
+        // First mark each sidedef with the sector it belongs to
+        for (var s in t.sector){
+            
+            if ( t.sector[s].id ) {
+                
+            }            
+        }
+       
+        // DEBUG
+        var sec = t.sector[0];
+        for (var i in t.sidedef){
+            if (t.sidedef[i].sector == sec.id) {
+                sides.push(i);
+            }
+        }
+        for (i in sides ){            
+            var geometry = new THREE.PlaneGeometry( 1000, 1000, 100, 100 );
+            geometry.rotateX( - Math.PI / 2 );
+
+            var material = new THREE.MeshBasicMaterial({ map: r_.imgs.WALL03_7 });
+            material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+            material.map.repeat.set(100, 100);
+
+            var mesh = new THREE.Mesh( geometry, material );
+            r_.scene.add( mesh );        
+        }
+        
+        
+        // Now copy wall properties to their matching sidedefs
+        
+        
+        // Set line properties that Doom doesn't store per-sidedef
+        
+        
+        // Finish setting sector properties that depend on walls
+        
+        
+    };
+    
+    t.loadDISABLED = function(){
         console.log('o_.map.load()')
         
         //
@@ -282,68 +402,101 @@ o_.map = new function(){
         var i = ( t.current < t.list.length -1 ) ? t.current + 1 : 0;                
         
         t.current = i;
-        t.load( t.list[i] );
+        t.readUDMF( t.list[i] );
     };
     
     t.readUDMF = function(f){
         // Structures
         //
-        // counders
-        var linedef_c       = 0;
-        var thing_c         = 0;
         
-        var linedef_t = function(o) {
-            var t = this;
-            o               = o                 || {};
-            t.id            = o.id              || linedef_c;
-            t.v1            = o.v1              || 0;
-            t.v2            = o.v2              || 0;
-            t.blocking      = o.blocking        || false;
-            t.blockmonsters = o.blockmonsters   || false;
-            t.twosided      = o.twosided        || false;
-            t.dontpegtop    = o.dontpegtop      || false;
-            t.dontpegbottom = o.dontpegbottom   || false;
-            t.secret        = o.secret          || false;
-            t.blocksound    = o.blocksound      || false;
-            t.dontdraw      = o.dontdraw        || false;
-            t.mapped        = o.mapped          || false;
-            t.comment       = o.comment         || '';
-            linedef_c++;
-        };
-        
-        var thing_t = function(o){
-            console.log(o)
-            var t = {};
-            o               = o                 || {};
-            t.id            = o.id              || thing_c;
-            t.x             = o.x               || 0.000;
-            t.y             = o.y               || 0.000;
-            t.height        = o.height          || 0.000;
-            t.angle         = o.angle           || 0.000;
-            t.type          = o.type            || 0.000;
-            t.skill1        = o.skill1          || false;
-            t.skill2        = o.skill2          || false;
-            t.skill3        = o.skill3          || false;
-            t.skill4        = o.skill4          || false;
-            t.skill5        = o.skill5          || false;
-            t.ambush        = o.ambush          || false;
-            t.single        = o.single          || false;
-            t.dm            = o.dm              || false;
-            t.coop          = o.coop            || false;
-            t.friend        = o.friend          || false;
-            t.comment       = o.comment         || '';
-            thing_c++;
+        var Factory = function(type, o){
             
-            return t;
+            var f = this;
+            
+            if ( type.length == 0 || t[ type ] == undefined ) return false;
+       
+            f.linedef = {
+                id              : t.linedef.length, // <integer>; // ID of line. Interpreted as tag or scripting id.
+                                                    // Default = -1. *** see below.
+                v1              : null,     // <integer>; // Index of first vertex. No valid default.
+                v2              : null,     // <integer>; // Index of second vertex. No valid default.
+                blocking        : false,    // <bool>; // true = line blocks things.
+                blockmonsters   : false,    // <bool>; // true = line blocks monsters.
+                twosided        : false,    // <bool>; // true = line is 2S.
+                dontpegtop      : false,    // <bool>; // true = upper texture unpegged.
+                dontpegbottom   : false,    // <bool>; // true = lower texture unpegged.
+                secret          : false,    // <bool>; // true = drawn as 1S on map.
+                blocksound      : false,    // <bool>; // true = blocks sound.
+                dontdraw        : false,    // <bool>; // true = line never drawn on map.
+                mapped          : false,    // <bool>; // true = always appears on map.
+                comment         : ''        // <string>; // A comment. Implementors should attach no special
+                                            // semantic meaning to this field.
+            };
+       
+            f.sidedef = {
+                offsetx         : 0,        // <integer>; // X Offset. Default = 0.
+                offsety         : 0,        // <integer>; // Y Offset. Default = 0.
+                texturetop      : '-',      // <string>; // Upper texture. Default = "-".
+                texturebottom   : '-',      // <string>; // Lower texture. Default = "-".
+                texturemiddle   : '-',      // <string>; // Middle texture. Default = "-".
+                sector          : null,     // <integer>; // Sector index. No valid default.
+                comment         : ''        // <string>; // A comment. Implementors should attach no special
+                                            // semantic meaning to this field.
+            };
+      
+            f.vertex  = {
+                x               : null,     // <float>; // X coordinate. No valid default.
+                y               : null      // <float>; // Y coordinate. No valid default.
+            };
+        
+            f.sector  = {
+                heightfloor     : 0,        // <integer>; // Floor height. Default = 0.
+                heightceiling   : 0,        // <integer>; // Ceiling height. Default = 0.
+                texturefloor    : '',       // <string>; // Floor flat. No valid default.
+                textureceiling  : '',       // <string>; // Ceiling flat. No valid default.
+                lightlevel      : 160,      // <integer>; // Light level. Default = 160.
+                special         : 0,        // <integer>; // Sector special. Default = 0.
+                id              : t.sector.length, // <integer>; // Sector tag/id. Default = 0.
+                comment         : ''        // <string>; // A comment. Implementors should attach no special
+                                            // semantic meaning to this field.
+            };
+        
+            f.thing   = {
+                id            : t.thing.length, // <integer>; // Thing ID. Default = 0.
+                x             : null,       // <float>; // X coordinate. No valid default.
+                y             : null,       // <float>; // Y coordinate. No valid default.
+                height        : null,       // <float>; // Z height relative to floor. Default = 0.
+                                            // (Relative to ceiling for SPAWNCEILING items).
+                angle         : null,       // <integer>; // Map angle of thing in degrees. Default = 0 (East).
+                type          : null,       // <integer>; // DoomedNum. No valid default.
+                skill1        : false,      // <bool>; // true = in skill 1.
+                skill2        : false,      // <bool>; // true = in skill 2.
+                skill3        : false,      // <bool>; // true = in skill 3.
+                skill4        : false,      // <bool>; // true = in skill 4.
+                skill5        : false,      // <bool>; // true = in skill 5.
+                ambush        : false,      // <bool>; // true = thing is deaf.
+                single        : false,      // <bool>; // true = in SP mode.
+                dm            : false,      // <bool>; // true = in DM mode.
+                coop          : false,      // <bool>; // true = in Coop.
+                friend        : false,      // <bool>; // true = MBF friend.
+                comment       : ''          // <string>; // A comment. Implementors should attach no special
+                                            // semantic meaning to this field.
+            };
+        
+            var obj = $.extend( f[ type ], o );
+
+            t[ type ].push( obj );
+
+            return obj;                
         };
         
-        // load file to memory
+        // load file to memory, then call .load()
         //
         $.get( cfg.mod +'/maps/'+ f +'.udmf')
             .done(function(res){
                 
-                var t, o, l, type, namespace;
-                //res = res.split('\n');
+                var obj, o, l, type, namespace, option, value;
+        
                 res = res.split('}');
                 
                 // parse file line by line
@@ -353,44 +506,53 @@ o_.map = new function(){
                     //
                     o = res[i]
                             .replace('\n{',';')
+                            .replace(/\s/g,'')
                             .replace(/\n/g,'')
-                            .replace(/=/g,':')
+                            .replace(/=/g,':')                         
                             .split(';');
+                    
                     if (i == 0) {
                         // get namespace
                         namespace = o.shift();
                     }
+                    
                     type = o.shift();
                     type = type.substring(0, type.indexOf('//') ).trim();
                     
-                    t = {};
+                    obj = {};
+                    
                     for (var j in o) {
-                        l = o[j].split(' : ');
-                        t[ l[0] ] = l[1];
-                    }                   
-                    
-                    switch (type) {
-                        case 'thing':
-                                t = thing_t(t);
-                            break;
+                        if ( o[j].length > 0 ) {
+
+                            l = o[j].split(':');
+
+                            option  = l[0].trim();
+                            
+                            if (isNaN(Number( l[1] ))) {
+                                
+                                value = l[1].replace(/\"/g,'');
+                                
+                                if (value == "true") {
+                                    value = true;
+                                } else if (value == "false"){
+                                    value = false;
+                                }
+                            } else {
+                                
+                                value = Number( l[1] );
+                            }
+                                                     
+                            obj[ option ] = value;
+                        }
                     }
+                    // create udmf entity and push to proper array
+                    o = Factory( type, obj );
                     
-                    //console.log(t)
-                    
-                    // parse things
-                    //
-
-                    // parse vertexes
-                    //
-
-                    // parse linedefs
-                    //
-
-                    // parse sidedefs
-                    //
-
-                    // sectors
-                    //
+                    if (i == res.length-1 ){
+                        // last
+                        
+                        t.load();
+                    }
                 }
             });
     };
