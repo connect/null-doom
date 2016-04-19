@@ -82,15 +82,13 @@ o_.map = new function(){
         var sides = {};
         var lines = {};
         var vertexes = {};
-        var sec = t.sector[0];
 
         for (var s in t.sector) {
-            sec = t.sector[s];
             
             for (var i in t.sidedef){           
 
                 // get sides
-                if (t.sidedef[i].sector == sec.id) {
+                if (t.sidedef[i].sector == t.sector[s].id) {
                     sides[i] = t.sidedef[i];
 
                     for (var j in t.linedef) {
@@ -101,6 +99,14 @@ o_.map = new function(){
 
                             // get vertexes
                             vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
+                            vertexes[ lines[j].v2 ] = t.vertex[ lines[j].v2 ];
+                        } else if (t.linedef[j].sideback == i) {
+
+                            lines[j] = t.linedef[j];
+
+                            // get vertexes
+                            vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
+                            vertexes[ lines[j].v2 ] = t.vertex[ lines[j].v2 ];
                         }
                     }
                 }            
@@ -118,11 +124,11 @@ o_.map = new function(){
         var material = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
         var geometry = new THREE.BoxGeometry( 5, 5, 5 );
         
-        for (var i in o_.map.vertex) {                                   
+        for (var i in t.vertex) {                                   
 
             var mesh = new THREE.Mesh( geometry, material );
-            mesh.position.x = o_.map.vertex[i].x;
-            mesh.position.z = o_.map.vertex[i].y;
+            mesh.position.x = t.vertex[i].x;
+            mesh.position.z = t.vertex[i].y;
             r_.scene.add(mesh);
         }
         
