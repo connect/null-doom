@@ -81,26 +81,57 @@ o_.map = new function(){
     t.loadTest = function(){
         var sides = {};
         var lines = {};
+        var vertexes = {};
         var sec = t.sector[0];
 
-        for (var i in t.sidedef){           
-        
-            // get sides
-            if (t.sidedef[i].sector == sec.id) {
-                sides[i] = t.sidedef[i];
-                
-                for (var j in t.linedef) {
-                    
-                    if (t.linedef[j].sidefront == i) {
-                        
-                        lines[j] = t.linedef[j];
-                    }
-                }
-            }            
-        }             
+        for (var s in t.sector) {
+            sec = t.sector[s];
             
-        console.log('sides',sides)
-        console.log('lines',lines)
+            for (var i in t.sidedef){           
+
+                // get sides
+                if (t.sidedef[i].sector == sec.id) {
+                    sides[i] = t.sidedef[i];
+
+                    for (var j in t.linedef) {
+
+                        if (t.linedef[j].sidefront == i) {
+
+                            lines[j] = t.linedef[j];
+
+                            // get vertexes
+                            vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
+                        }
+                    }
+                }            
+            }             
+        }
+            
+        //console.log('sides',sides)
+        //console.log('lines',lines)
+        //console.log('vertexes',vertexes)
+        
+        //
+        // draw vertexes
+        //
+        
+        var material = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+        var geometry = new THREE.BoxGeometry( 5, 5, 5 );
+        
+        for (var i in o_.map.vertex) {                                   
+
+            var mesh = new THREE.Mesh( geometry, material );
+            mesh.position.x = o_.map.vertex[i].x;
+            mesh.position.z = o_.map.vertex[i].y;
+            r_.scene.add(mesh);
+        }
+        
+        // setup start spot
+        for (i in t.thing) {
+            if (t.thing[i].type == 1) {
+                i_.controls.getObject().position.set( t.thing[i].x, 0, t.thing[i].y );
+            }
+        }
     };
     
     t.loadWalls = function(){
@@ -123,15 +154,7 @@ o_.map = new function(){
             }
         }
         for (i in sides ){            
-            var geometry = new THREE.PlaneGeometry( 1000, 1000, 100, 100 );
-            geometry.rotateX( - Math.PI / 2 );
-
-            var material = new THREE.MeshBasicMaterial({ map: r_.imgs.WALL03_7 });
-            material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
-            material.map.repeat.set(100, 100);
-
-            var mesh = new THREE.Mesh( geometry, material );
-            r_.scene.add( mesh );        
+                
         }
         
         

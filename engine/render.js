@@ -137,7 +137,7 @@ r_.init = function() {
  
     r_.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
-    r_.renderer = new THREE.WebGLRenderer({ antialias:true });
+    r_.renderer = new THREE.WebGLRenderer({ antialias:false });
     r_.renderer.setClearColor( 0xffffff );
     r_.renderer.setPixelRatio( window.devicePixelRatio );
     r_.renderer.setSize( scrWidth, scrHeight );
