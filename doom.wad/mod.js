@@ -105,6 +105,18 @@ r_.img.load({
         // Health potion
         'BON1A0',
         
+        //
+        'COMP03_1',
+        'COMP03_2',
+        
+        'CREDIT',
+        
+        'FLAT14',
+        'FLOOR4_8',
+        'FLOOR5_1',
+        'FLOOR5_2',
+        'FLOOR5_3',
+        
         // Shotgun
         'SHTGA0',
         'SHTGB0',
@@ -170,8 +182,7 @@ r_.img.load({
         'AMMNUM8',
         'AMMNUM9',        
         
-        'TITLEPIC',
-        'CREDIT',
+        'TITLEPIC',        
         
         'W28_5',
         'W94_1',

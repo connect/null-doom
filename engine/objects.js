@@ -30,6 +30,28 @@ o_.map = new function(){
         
     };
     
+    t.getSector = function(x,y){
+        /*
+        for (var i in t.sector){
+            
+            // get vertices of sector
+            for (var j in t.linedef) {
+                
+                if ( t.linedef[j].sidefront > 0 )
+                
+                if (t.linedef.s)
+                
+            }
+            
+            
+            if ( r_.inPoly([x,y], ) ) {
+                return i;
+            }
+        }
+        */
+        return false;
+    };
+    
     t.load = function(){
         // consider all necessary data is already in arrays after .readUDMF()
         
@@ -85,14 +107,17 @@ o_.map = new function(){
         
         var matLine = new THREE.LineBasicMaterial({ color: 0xff0000 });
         var matLineB = new THREE.LineDashedMaterial({ color: 0x0000ff, dashSize: 4, gapSize: 2  });
+        
         var matVert = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
-        var geoVert = new THREE.BoxGeometry( 5, 5, 5 );
+        var geoVert = new THREE.BoxGeometry( 3, 3, 3 );
+        
+        var matThing = new THREE.MeshBasicMaterial({ color: 0x999900, wireframe: true });
         
 
         for (var s in t.sector) {
             
             var tsector = t.sector[s];
-            //console.log(tsector.id);
+            vertexes = {};
             
             for (var i in t.sidedef){           
 
@@ -110,10 +135,17 @@ o_.map = new function(){
                             vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
                             vertexes[ lines[j].v2 ] = t.vertex[ lines[j].v2 ];
                             
-                            //add line
+                            //add hline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );        
+                            var line = new THREE.Line( geoLine, matLine );                            
+                            r_.scene.add(line);
+                            
+                            //add hline2
+                            var geoLine = new THREE.Geometry();
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
                             var line = new THREE.Line( geoLine, matLine );                            
                             r_.scene.add(line);
                             
@@ -123,24 +155,44 @@ o_.map = new function(){
                             vert.position.set(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y);
                             r_.scene.add(vert);
                             
+                            //add vline
+                            var geoLine = new THREE.Geometry();
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );        
+                            var line = new THREE.Line( geoLine, matLine );                            
+                            r_.scene.add(line);
+                            
                             // add vertex2
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y);
-                            r_.scene.add(vert);
+                            r_.scene.add(vert);       
                             
+                            //add vline
+                            var geoLine = new THREE.Geometry();
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
+                            var line = new THREE.Line( geoLine, matLine );                            
+                            r_.scene.add(line);
                             
                         } else if (t.linedef[j].sideback == i) {
-
+                            
                             lines[j] = t.linedef[j];
 
                             // get vertexes
                             vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
                             vertexes[ lines[j].v2 ] = t.vertex[ lines[j].v2 ];
                             
-                            //add line
+                            //add hline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );        
+                            var line = new THREE.Line( geoLine, matLineB );                            
+                            r_.scene.add(line);
+                            
+                            //add hline2
+                            var geoLine = new THREE.Geometry();
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
                             var line = new THREE.Line( geoLine, matLineB );                            
                             r_.scene.add(line);
                             
@@ -150,14 +202,58 @@ o_.map = new function(){
                             vert.position.set(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y);
                             r_.scene.add(vert);
                             
+                            
+                            //add vline
+                            var geoLine = new THREE.Geometry();
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );        
+                            var line = new THREE.Line( geoLine, matLineB );                            
+                            r_.scene.add(line);
+                            
+                            
                             // add vertex2
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y);
                             r_.scene.add(vert);
+                            
+                            
+                            //add vline
+                            var geoLine = new THREE.Geometry();
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );
+                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
+                            var line = new THREE.Line( geoLine, matLineB );                            
+                            r_.scene.add(line);
+                            
+                            
                         }
                     }
                 }            
-            }             
+            }    
+            
+            // draw floor polygon
+            /*
+            var shape = new THREE.Shape();
+            var first = null;
+            for (var v in vertexes) {
+                if (first == null) {
+                    shape.moveTo( vertexes[v].x, vertexes[v].y );
+                    first = vertexes[v];
+                } else {
+                    shape.lineTo( vertexes[v].x, vertexes[v].y );
+                }
+            }
+            // enclose shape
+            shape.lineTo( first.x, first.y );
+            var geoPoly = new THREE.ShapeGeometry( shape );
+            
+            if (r_.imgs[ tsector.texturefloor ] == undefined) {
+                r_.img.load({ files: [ tsector.texturefloor ], type: 'png' });
+            }
+            
+            var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.imgs[ tsector.texturefloor ]  }) );
+            floor.position.y = tsector.heightfloor;
+            floor.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
+            r_.scene.add(floor);*/
         }
         
         
@@ -188,8 +284,9 @@ o_.map = new function(){
                 i_.controls.getObject().position.set( -o.x, 30, o.y );
             }
             
+            /*
             // spawn health potion
-            if (o.type == 2014){
+            else if (o.type == 2014){
                 var matSprite = new THREE.SpriteMaterial({ map: r_.imgs.BON1A0 });
                 var sprite = new THREE.Sprite( matSprite );
                 sprite.scale.set(14 * r_.scale/2, 18 * r_.scale/2, 1);
@@ -198,13 +295,19 @@ o_.map = new function(){
             }
             
             // spawn barrel 
-            if (o.type == 2035){
+            else if (o.type == 2035){
                 var matSprite = new THREE.SpriteMaterial({ map: r_.imgs.BAR1A0 });
                 var sprite = new THREE.Sprite( matSprite );
                 sprite.scale.set( 23 * r_.scale/2, 32 * r_.scale/2, 1);
                 sprite.position.set( -o.x, 32 * r_.scale/4, o.y );
                 r_.scene.add(sprite);
             }
+            */
+           
+            // add thing placeholder
+            var thing = new THREE.Mesh( geoVert, matThing );
+            thing.position.set(-o.x, 0, o.y);             
+            r_.scene.add(thing);
         }
         
     };
