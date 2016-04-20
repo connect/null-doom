@@ -97,7 +97,14 @@ i_.bind( cfg.bind );
 // load textures
 r_.img.load({
     type: 'png',
-    files: [           
+    files: [     
+        
+        // Barrel
+        'BAR1A0',
+        
+        // Health potion
+        'BON1A0',
+        
         // Shotgun
         'SHTGA0',
         'SHTGB0',

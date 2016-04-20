@@ -269,23 +269,22 @@ r_.animate = function () {
 
     if ( i_.controls.enabled ) {
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-        r_.raycaster.ray.origin.y -= 10;
+        r_.raycaster.ray.origin.y -= 30;
 
         var intersections = r_.raycaster.intersectObjects( r_.objects );
 
         var isOnObject = intersections.length > 0;
-
-        
+      
 
         r_.velocity.x -= r_.velocity.x * 5.0 * delta; // 5.0 = speed
         r_.velocity.z -= r_.velocity.z * 5.0 * delta;
         r_.velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass
 
         if ( i_.act.forward ) r_.velocity.z -= 1600.0 * delta; // @FIXME: 400 * delta
-        if ( i_.act.back )    r_.velocity.z += 400.0 * delta;
+        if ( i_.act.back )    r_.velocity.z += 1600.0 * delta;
 
-        if ( i_.act.left )    r_.velocity.x -= 400.0 * delta;
-        if ( i_.act.right )   r_.velocity.x += 400.0 * delta;
+        if ( i_.act.left )    r_.velocity.x -= 1600.0 * delta;
+        if ( i_.act.right )   r_.velocity.x += 1600.0 * delta;
 
         if ( isOnObject === true ) {
             r_.velocity.y = Math.max( 0, r_.velocity.y );
@@ -296,10 +295,10 @@ r_.animate = function () {
         i_.controls.getObject().translateY( r_.velocity.y * delta );
         i_.controls.getObject().translateZ( r_.velocity.z * delta );
 
-        if ( i_.controls.getObject().position.y < 10 ) {
+        if ( i_.controls.getObject().position.y < 30 ) {
 
             r_.velocity.y = 0;
-            i_.controls.getObject().position.y = 10;
+            i_.controls.getObject().position.y = 30;
             i_.act.jump = true;
         }       
     }
