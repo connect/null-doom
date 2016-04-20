@@ -82,6 +82,9 @@ o_.map = new function(){
         var sides = {};
         var lines = {};
         var vertexes = {};
+        
+        var material = new THREE.LineBasicMaterial({ color: 0xff0000 });
+        var geometry = new THREE.Geometry();
 
         for (var s in t.sector) {
             
@@ -100,6 +103,12 @@ o_.map = new function(){
                             // get vertexes
                             vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
                             vertexes[ lines[j].v2 ] = t.vertex[ lines[j].v2 ];
+                            
+                            //add line
+                            
+                            geometry.vertices.push(t.vertex[ lines[j].v1 ].x, 0, t.vertex[ lines[j].v1 ].y);
+                            geometry.vertices.push(t.vertex[ lines[j].v2 ].x, 0, t.vertex[ lines[j].v2 ].y);                                                        
+                            
                         } else if (t.linedef[j].sideback == i) {
 
                             lines[j] = t.linedef[j];
@@ -107,11 +116,24 @@ o_.map = new function(){
                             // get vertexes
                             vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
                             vertexes[ lines[j].v2 ] = t.vertex[ lines[j].v2 ];
+                            
+                            //add line
+                            /*
+                            var material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+                            var geometry = new THREE.Geometry();
+                            geometry.vertices.push(t.vertex[ lines[j].v1 ].x, 0, t.vertex[ lines[j].v1 ].y);
+                            geometry.vertices.push(t.vertex[ lines[j].v2 ].x, 0, t.vertex[ lines[j].v2 ].y);
+                            var line = new THREE.Line( geometry, material );                            
+                            r_.scene.add(line);
+                            */
                         }
                     }
                 }            
             }             
         }
+        
+        var line = new THREE.Line( geometry, material );                            
+        r_.scene.add(line);
             
         //console.log('sides',sides)
         //console.log('lines',lines)

@@ -281,7 +281,7 @@ r_.animate = function () {
         r_.velocity.z -= r_.velocity.z * 5.0 * delta;
         r_.velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass
 
-        if ( i_.act.forward ) r_.velocity.z -= 400.0 * delta;
+        if ( i_.act.forward ) r_.velocity.z -= 1600.0 * delta; // @FIXME: 400 * delta
         if ( i_.act.back )    r_.velocity.z += 400.0 * delta;
 
         if ( i_.act.left )    r_.velocity.x -= 400.0 * delta;
