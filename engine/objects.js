@@ -130,6 +130,8 @@ o_.map = new function(){
                         if (t.linedef[j].sidefront == i) {
 
                             lines[j] = t.linedef[j];
+                            var v1 = t.vertex[ lines[j].v1 ];
+                            var v2 = t.vertex[ lines[j].v2 ];
 
                             // get vertexes
                             vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
@@ -173,6 +175,39 @@ o_.map = new function(){
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
                             var line = new THREE.Line( geoLine, matLine );                            
                             r_.scene.add(line);
+                            
+                            // add wall
+                            /*
+                            var points = [
+                                new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y),                                
+                                new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y),
+                                new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y),
+                                new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y),
+                            ];
+                            var geoWall = new THREE.ConvexGeometry( points );
+                            var matWall = new THREE.MeshPhongMaterial({ color: 0x009999  });
+                            var wall = new THREE.Mesh(geoWall, matWall);
+                            r_.scene.add(wall);
+                            */                            
+                            
+                            /*
+                            var shape = new THREE.Shape();
+                            shape.moveTo( v1.x, v1.y );                            
+                            shape.lineTo( v1.x, tsector.heightceiling - tsector.heightfloor);
+                            shape.lineTo( v2.x, tsector.heightceiling - tsector.heightfloor);
+                            shape.lineTo( v2.x, v2.y );
+                            shape.lineTo( v1.x, v1.y ); // enclose shape
+                            var geoPoly = new THREE.ShapeGeometry( shape );
+                            
+                            if (r_.imgs[ tsector.texturefloor ] == undefined) {
+                                r_.img.load({ files: [ tsector.texturefloor ], type: 'png' });
+                            }
+                            
+                            var wall = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 0x999999 }) );
+                            //wall.position.y = tsector.heightfloor;
+                            //wall.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
+                            r_.scene.add(wall);
+                            */
                             
                         } else if (t.linedef[j].sideback == i) {
                             
