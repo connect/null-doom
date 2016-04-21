@@ -43,6 +43,10 @@ r_.img = new function(){
         }
         
     };
+    
+    t.ignored = [
+        '-'
+    ];
 };
 
 r_.mode = new function(){

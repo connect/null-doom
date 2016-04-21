@@ -175,41 +175,34 @@ o_.map = new function(){
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
                             var line = new THREE.Line( geoLine, matLine );                            
                             r_.scene.add(line);
-                            
-                            // add wall
-                            /*
-                            var points = [
-                                new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y),                                
-                                new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y),
-                                new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y),
-                                new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y),
-                            ];
-                            var geoWall = new THREE.ConvexGeometry( points );
-                            var matWall = new THREE.MeshPhongMaterial({ color: 0x009999  });
-                            var wall = new THREE.Mesh(geoWall, matWall);
-                            r_.scene.add(wall);
-                            */                            
-                            
-                            /*
-                            var shape = new THREE.Shape();
-                            shape.moveTo( v1.x, v1.y );                            
-                            shape.lineTo( v1.x, tsector.heightceiling - tsector.heightfloor);
-                            shape.lineTo( v2.x, tsector.heightceiling - tsector.heightfloor);
-                            shape.lineTo( v2.x, v2.y );
-                            shape.lineTo( v1.x, v1.y ); // enclose shape
-                            var geoPoly = new THREE.ShapeGeometry( shape );
-                            
-                            if (r_.imgs[ tsector.texturefloor ] == undefined) {
-                                r_.img.load({ files: [ tsector.texturefloor ], type: 'png' });
+                                                                                 
+                            if (r_.imgs[ sides[i].texturemiddle ] == undefined &&  r_.img.ignored.indexOf( sides[i].texturemiddle) == -1) {
+                                r_.img.load({ files: [ sides[i].texturemiddle ], type: 'png' });
                             }
                             
-                            var wall = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, color: 0x999999 }) );
-                            //wall.position.y = tsector.heightfloor;
-                            //wall.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
-                            r_.scene.add(wall);
-                            */
                             
-                        } else if (t.linedef[j].sideback == i) {
+                            var wallWidth = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ); 
+                            var wallHeight = tsector.heightceiling - tsector.heightfloor;
+                            var geoWall = new THREE.PlaneGeometry( wallWidth, wallHeight );
+                            
+                            if ( r_.img.ignored.indexOf( sides[i].texturemiddle) == -1 ) {                            
+                                var matWall = new THREE.MeshBasicMaterial({ map: r_.imgs[ sides[i].texturemiddle ], side: THREE.DoubleSide, transparent: true, opacity: 1 });
+                                var wallAngle = Math.atan2(v2.y - v1.y, v2.x - v1.x);
+                                var wall = new THREE.Mesh( geoWall, matWall );                            
+                                wall.rotateY( wallAngle );
+                                wall.position.set( 
+                                    (-v1.x -v2.x)/2, 
+                                    tsector.heightfloor + (wallHeight/2), 
+                                    (v1.y + v2.y)/2
+                                );
+                                r_.scene.add(wall);
+                            } else {
+                                //var matWall = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.1 });
+                            }
+                            
+                            
+                            
+                        } else if (t.linedef[j].sideback == i) { 
                             
                             lines[j] = t.linedef[j];
 
@@ -259,7 +252,28 @@ o_.map = new function(){
                             var line = new THREE.Line( geoLine, matLineB );                            
                             r_.scene.add(line);
                             
+                            if (r_.imgs[ sides[i].texturemiddle ] == undefined && r_.img.ignored.indexOf( sides[i].texturemiddle) == -1 ) {
+                                r_.img.load({ files: [ sides[i].texturemiddle ], type: 'png' });
+                            }
                             
+                            var wallWidth = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ); 
+                            var wallHeight = tsector.heightceiling - tsector.heightfloor;
+                            var geoWall = new THREE.PlaneGeometry( wallWidth, wallHeight );
+                            
+                            if (r_.img.ignored.indexOf( sides[i].texturemiddle ) == -1) {                            
+                                var matWall = new THREE.MeshBasicMaterial({ map: r_.imgs[ sides[i].texturemiddle ], side: THREE.DoubleSide, transparent: true, opacity: 1 });
+                                var wallAngle = Math.atan2(v2.y - v1.y, v2.x - v1.x);
+                                var wall = new THREE.Mesh( geoWall, matWall );                            
+                                wall.rotateY( wallAngle );
+                                wall.position.set( 
+                                    (-v1.x -v2.x)/2, 
+                                    tsector.heightfloor + (wallHeight/2), 
+                                    (v1.y + v2.y)/2
+                                );
+                                r_.scene.add(wall);
+                            } else {
+                                //var matWall = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.1 });
+                            }                            
                         }
                     }
                 }            
