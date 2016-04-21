@@ -81,8 +81,11 @@ o_.map = new function(){
         // remove initial back screen
         r_.hudScene.remove( r_.back );      
         
+        // draw hud
+        r_.drawHud();
+        
         // music
-        s_.playMusic('D_E1M8.mp3');
+        s_.playMusic('D_E1M1.mp3');
         
     };
     
@@ -118,6 +121,7 @@ o_.map = new function(){
             
             var tsector = t.sector[s];
             vertexes = {};
+            lines = {};
             
             for (var i in t.sidedef){           
 
@@ -137,11 +141,13 @@ o_.map = new function(){
                             vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
                             vertexes[ lines[j].v2 ] = t.vertex[ lines[j].v2 ];
                             
+                            
                             //add hline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );        
-                            var line = new THREE.Line( geoLine, matLine );                            
+                            var line = new THREE.Line( geoLine, matLine );      
+                            r_.objects.push(line);
                             r_.scene.add(line);
                             
                             //add hline2
@@ -149,33 +155,39 @@ o_.map = new function(){
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
                             var line = new THREE.Line( geoLine, matLine );                            
+                            r_.objects.push(line);
                             r_.scene.add(line);
                             
                             
                             // add vertex1
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y);
+                            r_.objects.push(vert);
                             r_.scene.add(vert);
                             
                             //add vline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );        
-                            var line = new THREE.Line( geoLine, matLine );                            
+                            var line = new THREE.Line( geoLine, matLine );    
+                            r_.objects.push(line);
                             r_.scene.add(line);
                             
                             // add vertex2
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y);
+                            r_.objects.push(vert);
                             r_.scene.add(vert);       
                             
                             //add vline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
-                            var line = new THREE.Line( geoLine, matLine );                            
+                            var line = new THREE.Line( geoLine, matLine );
+                            r_.objects.push(line);
                             r_.scene.add(line);
-                                                                                 
+                            
+                            
                             if (r_.imgs[ sides[i].texturemiddle ] == undefined &&  r_.img.ignored.indexOf( sides[i].texturemiddle) == -1) {
                                 r_.img.load({ files: [ sides[i].texturemiddle ], type: 'png' });
                             }
@@ -195,6 +207,7 @@ o_.map = new function(){
                                     tsector.heightfloor + (wallHeight/2), 
                                     (v1.y + v2.y)/2
                                 );
+                                r_.objects.push(wall);
                                 r_.scene.add(wall);
                             } else {
                                 //var matWall = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.1 });
@@ -210,24 +223,28 @@ o_.map = new function(){
                             vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
                             vertexes[ lines[j].v2 ] = t.vertex[ lines[j].v2 ];
                             
+                            
                             //add hline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );        
-                            var line = new THREE.Line( geoLine, matLineB );                            
+                            var line = new THREE.Line( geoLine, matLineB );
+                            r_.objects.push(line);
                             r_.scene.add(line);
                             
                             //add hline2
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
-                            var line = new THREE.Line( geoLine, matLineB );                            
+                            var line = new THREE.Line( geoLine, matLineB );  
+                            r_.objects.push(line);
                             r_.scene.add(line);
                             
                             
                             // add vertex1
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y);
+                            r_.objects.push(vert);
                             r_.scene.add(vert);
                             
                             
@@ -235,13 +252,15 @@ o_.map = new function(){
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );        
-                            var line = new THREE.Line( geoLine, matLineB );                            
+                            var line = new THREE.Line( geoLine, matLineB );
+                            r_.objects.push(line);
                             r_.scene.add(line);
                             
                             
                             // add vertex2
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y);
+                            r_.objects.push(vert);
                             r_.scene.add(vert);
                             
                             
@@ -249,8 +268,10 @@ o_.map = new function(){
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
-                            var line = new THREE.Line( geoLine, matLineB );                            
+                            var line = new THREE.Line( geoLine, matLineB );          
+                            r_.objects.push(line);
                             r_.scene.add(line);
+                            
                             
                             if (r_.imgs[ sides[i].texturemiddle ] == undefined && r_.img.ignored.indexOf( sides[i].texturemiddle) == -1 ) {
                                 r_.img.load({ files: [ sides[i].texturemiddle ], type: 'png' });
@@ -270,6 +291,7 @@ o_.map = new function(){
                                     tsector.heightfloor + (wallHeight/2), 
                                     (v1.y + v2.y)/2
                                 );
+                                r_.objects.push(wall);
                                 r_.scene.add(wall);
                             } else {
                                 //var matWall = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.1 });
@@ -277,12 +299,72 @@ o_.map = new function(){
                         }
                     }
                 }            
-            }    
+            } 
             
+            //
             // draw floor polygon
-            
+            //
             var shape = new THREE.Shape();
-            var first = null;
+            
+            // we need to pick vertexes in right order to get enclosed polygon
+            
+            var first = null;//t.vertex[ sides[0].v1 ];
+            var tvert = null;
+            var vert_known = [];            
+            
+            // take each sidedef of sector      
+            for (var i in lines) {
+                //console.log('->', lines[i])
+                var v1 = t.vertex[ lines[i].v1 ];
+                v1.ind = lines[i].v1;
+
+                var v2 = t.vertex[ lines[i].v2 ];
+                v2.ind = lines[i].v2;
+                
+                break;
+            }
+            shape.moveTo( v1.x, v1.y );
+            shape.lineTo( v2.x, v2.y );
+            first = v1;
+            vert_known.push( v1.ind );
+            vert_known.push( v2.ind );
+            tvert = v2;
+            
+            var c = 0;                    
+            while (tvert.ind != first.ind) {
+                                
+                for (var i in lines) {
+                    
+                    if (c == 0) continue; // skip first line, already taken
+                    
+                    v1 = t.vertex[ lines[i].v1 ];
+                    v1.ind = lines[i].v1;
+
+                    v2 = t.vertex[ lines[i].v2 ];
+                    v2.ind = lines[i].v2;                                        
+                    
+                    
+                    if (v1.ind == tvert.ind) {
+                        if (vert_known.indexOf(v2.ind) == -1) {
+                            shape.lineTo( v2.x, v2.y );
+                            tvert = v2;
+                            //continue;
+                        }
+                    } else if (v2.ind == tvert.ind){
+                        if (vert_known.indexOf(v1.ind) == -1) {
+                            shape.lineTo( v1.x, v1.y );
+                            tvert = v1;
+                            //continue;
+                        }
+                    }
+                                        
+                }    
+                c++;
+                if (c >= '100') break;
+            }
+            //console.log('ok')
+            /*
+            
             for (var v in vertexes) {
                 if (first == null) {
                     shape.moveTo( vertexes[v].x, vertexes[v].y );
@@ -293,32 +375,36 @@ o_.map = new function(){
             }
             // enclose shape
             //shape.lineTo( first.x, first.y );
+            */
             var geoPoly = new THREE.ShapeGeometry( shape );
             
             if (r_.imgs[ tsector.texturefloor ] == undefined) {
                 r_.img.load({ files: [ tsector.texturefloor ], type: 'png' });
             }
             
-            var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.imgs[ tsector.texturefloor ]  }) );            
-            floor.position.y = tsector.heightfloor;
+            
+            var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.imgs[ tsector.texturefloor ], transparent: true, opacity: 1 }) );            
+            floor.position.y = tsector.heightfloor +2;
             floor.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
             r_.objects.push(floor);
+            r_.floors.push(floor);
             r_.scene.add(floor);
             
-            /*
+            
             // draw ceiling polygon
             //
-            if (tsector.textureceiling.indexOf('SKY') != -1) {
+            if (tsector.textureceiling.indexOf('SKY') == -1) {
             
                 if (r_.imgs[ tsector.textureceiling ] == undefined) {
                     r_.img.load({ files: [ tsector.textureceiling ], type: 'png' });
                 }
 
-                var ceiling = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.imgs[ tsector.textureceiling ]  }) );
-                ceiling.position.y = tsector.heightceiling;
+                var ceiling = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.BackSide, map: r_.imgs[ tsector.textureceiling ], transparent: true, opacity: 1  }) );
+                ceiling.position.y = tsector.heightceiling -2;
                 ceiling.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
+                r_.objects.push(ceiling);
                 r_.scene.add(ceiling);
-            }*/
+            }
         }
         
         
@@ -371,7 +457,8 @@ o_.map = new function(){
            
             // add thing placeholder
             var thing = new THREE.Mesh( geoVert, matThing );
-            thing.position.set(-o.x, 0, o.y);             
+            thing.position.set(-o.x, 0, o.y);  
+            r_.objects.push(thing);
             r_.scene.add(thing);
         }
         
@@ -659,13 +746,27 @@ o_.map = new function(){
         r_.hudScene.remove( r_.back );      
         
         // music
-        s_.playMusic('D_E1M8.mp3');
+        s_.playMusic('D_E1M1.mp3');
 
     };
     
     t.next = function(){        
         
         var i = ( t.current < t.list.length -1 ) ? t.current + 1 : 0;                
+        
+        // clear
+        t.thing     = [];
+        t.vertex    = [];
+        t.linedef   = [];
+        t.sidedef   = [];
+        t.sector    = [];
+        
+        // clear scene
+        for (var j in r_.objects){
+            r_.scene.remove( r_.objects[j] );
+        }
+        r_.objects  = [];
+        r_.floors   = [];
         
         t.current = i;
         t.readUDMF( t.list[i] );

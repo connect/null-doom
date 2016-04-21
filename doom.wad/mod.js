@@ -192,7 +192,11 @@ r_.img.load({
 });  
 
 // load maps
-o_.map.add('e1m1');
+o_.map.add([
+    'e1m1',
+    'e1m2',
+    'e1m3'
+]);
 
 // load mod scripts
 core.include( 'doom.wad/render.js' );

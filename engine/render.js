@@ -18,6 +18,7 @@ r_.objects  = [];
 r_.mats = {}; // material cachce
 r_.imgs = {}; // texture cache
 r_.hud = {};
+r_.floor = [];
 
 r_.img = new function(){
     var t = this;
@@ -261,6 +262,136 @@ r_.drawText = function(o){
     }
 };
 
+r_.drawHud = function(){
+    var scrMode     = r_.mode.current.split('x');
+    var scrWidth    = scrMode[0];
+    var scrHeight   = scrMode[1];
+    var scale       = r_.scale;
+    var mesh, geometry, material;
+
+    // WEAPON
+    //       
+    r_.mats.wpn = [ 
+        new THREE.SpriteMaterial({map: r_.imgs.SHTGA0}), 
+        new THREE.SpriteMaterial({map: r_.imgs.SHTGB0}),
+        new THREE.SpriteMaterial({map: r_.imgs.SHTGC0}),
+        new THREE.SpriteMaterial({map: r_.imgs.SHTGD0})
+    ];
+    r_.wpn.obj = new THREE.Sprite(r_.mats.wpn[0]);            
+    r_.wpn.obj.scale.set( 79 * scale , 60 * scale ,1);
+    r_.wpn.obj.position.set(0, (scrHeight/-2) + (60 * scale) * -1  , 5); // (scrHeight/-2) + (60 * scale)   
+    r_.wpn.reading = true;
+    r_.objects.push(r_.wpn.obj);
+    r_.hudScene.add(r_.wpn.obj);
+
+    // STATUS
+    //   
+
+    var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STBAR});
+    var sprite = new THREE.Sprite(spriteMaterial);            
+    sprite.scale.set(320 * scale, 32 * scale ,1);
+    sprite.position.set(0, (scrHeight/-2) + (32 * scale / 2) , 10);
+    r_.objects.push(sprite);
+    r_.hudScene.add(sprite);
+
+    // ARMS
+    //
+
+    var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STARMS});
+    var sprite = new THREE.Sprite(spriteMaterial);            
+    sprite.scale.set(40 * scale, 32 * scale ,1);
+    sprite.position.set((scrWidth/-2) + (scrWidth * 0.385), (scrHeight/-2) + (32 * scale / 2) , 11);
+    r_.objects.push(sprite);
+    r_.hudScene.add(sprite);
+
+    // FACE
+    //                     
+
+    r_.mats.face = [ 
+        new THREE.SpriteMaterial({map: r_.imgs.STFST00}), 
+        new THREE.SpriteMaterial({map: r_.imgs.STFST01}),
+        new THREE.SpriteMaterial({map: r_.imgs.STFST02})
+    ];
+    r_.hud.face = new THREE.Sprite(r_.mats.face[0]);
+    r_.hud.face.scale.set( 24 * scale, 29 * scale, 1);
+    r_.hud.face.position.set( 0, (scrHeight/-2) + (29 * scale / 2), 11);
+    r_.objects.push( r_.hud.face );
+    r_.hudScene.add( r_.hud.face );
+
+    // animate
+    r_.animateFace = function(){            
+        r_.hud.face.material = r_.mats.face[ c_.random(0,2) ];            
+        window.setTimeout(r_.animateFace, c_.random(500, 5000));
+    };
+    r_.animateFace();
+
+    // AMMO
+    //
+    r_.drawText({            
+        text: '150', prefix: 'STT', 
+        width: 14, height: 16, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.16),
+        z: (scrHeight/-2) + (scrHeight * 0.09)    
+    });
+
+    // HEALTH
+    //
+    r_.drawText({
+        text: '100%', prefix: 'STT', 
+        width: 14, height: 16, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.345),
+        z: (scrHeight/-2) + (scrHeight * 0.09)    
+    });
+
+    // ARMOR
+    //
+    r_.drawText({
+        text: '150%', prefix: 'STT', 
+        width:14, height:16, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.755)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.09)  
+    });
+
+    // Arms numbers
+    //
+    r_.drawText({
+        text: '2', prefix: 'STYS',
+        width: 4, height: 6, direction: 'ltr',
+        x: (scrWidth/-2) + (scrWidth * 0.348)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.105)  
+    });
+    r_.drawText({
+        text: '3', prefix: 'STYS',
+        width: 4, height: 6, direction: 'ltr',
+        x: (scrWidth/-2) + (scrWidth * 0.39)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.105)  
+    });
+    r_.drawText({
+        text: '4', prefix: 'STG',
+        width: 4, height: 6, direction: 'ltr',
+        x: (scrWidth/-2) + (scrWidth * 0.425)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.105)  
+    });
+    r_.drawText({
+        text: '5', prefix: 'STG',
+        width: 4, height: 6, direction: 'ltr',
+        x: (scrWidth/-2) + (scrWidth * 0.348)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.065)  
+    });
+    r_.drawText({
+        text: '6', prefix: 'STG',
+        width: 4, height: 6, direction: 'ltr',
+        x: (scrWidth/-2) + (scrWidth * 0.39)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.065)  
+    });
+    r_.drawText({
+        text: '7', prefix: 'STG',
+        width: 4, height: 6, direction: 'ltr',
+        x: (scrWidth/-2) + (scrWidth * 0.425)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.065)  
+    });
+};
+
 r_.animate = function () {
     
     requestAnimationFrame( r_.animate );
@@ -318,14 +449,19 @@ r_.animate = function () {
         //var isOnObject = intersects.length > 0;
         
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-        r_.raycaster.ray.origin.y += cfg.playerHeight;
+        r_.raycaster.ray.origin.y += 100;//cfg.playerHeight;
 
-        var hits = r_.raycaster.intersectObjects( r_.objects );
+        var hits = r_.raycaster.intersectObjects( r_.floors );
         
-        if (hits[0] != undefined)
-        if (hits[0].distance < cfg.playerHeight) {
-            console.log( hits[0].object)
-            //i_.controls.getObject().position.y = hits[0].object.position.y + hits[0].object. + cfg.playerHeight;
+        if (hits[0] != undefined) {
+            if (hits[0].distance < cfg.playerHeight) {
+                //console.log( hits[0].object)
+                i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight;
+            } else if (hits[0].distance > cfg.playerHeight) {
+                i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight;
+            }
+        } else {
+             //i_.controls.getObject().position.y = cfg.playerHeight;
         }
         
         var isOnObject = true; 
@@ -349,13 +485,14 @@ r_.animate = function () {
         i_.controls.getObject().translateY( r_.velocity.y * delta );
         i_.controls.getObject().translateZ( r_.velocity.z * delta );
 
-        
+        /*
         if ( i_.controls.getObject().position.y < cfg.playerHeight ) {
 
             r_.velocity.y = 0;
             i_.controls.getObject().position.y = cfg.playerHeight;
             i_.act.jump = true;
-        }  
+        } 
+        */
     }
 
     r_.prevTime = time;
