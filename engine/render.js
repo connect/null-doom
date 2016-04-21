@@ -150,6 +150,9 @@ r_.init = function() {
 
     window.addEventListener( 'resize', r_.onWindowResize, false );
     
+    r_.raycaster = new THREE.Raycaster();
+    r_.raycaster.ray.direction.set( 0, -1, 0 );
+    
     i_.init();    
     r_.modInit();
     
@@ -293,13 +296,39 @@ r_.animate = function () {
         
 
     if ( i_.controls.enabled ) {
+        //r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+        //r_.raycaster.ray.origin.y -= cfg.playerHeight;                
+        
+        //r_.raycaster.set(i_.controls.getObject().position, THREE.Vector3(0, -1, 0));
+        //var distance = 30;
+        //var velocity = new THREE.Vector3();
+        //var intersects = r_.raycaster.intersectObjects( r_.objects );
+        
+        //if (distance > intersects[0].distance) {        
+        //    i_.controls.getObject().position.y += (distance - intersects[0].distance) - 1; // the -1 is a fix for a shake effect I had
+        //}
+        /*
+        //gravity and prevent falling through floor
+        if (distance >= intersects[0].distance && r_.velocity.y <= 0) {
+            r_.velocity.y = 0;
+        } else if (distance <= intersects[0].distance && r_.velocity.y === 0) {
+            r_.velocity.y -= delta ;
+        }
+        */
+        //var isOnObject = intersects.length > 0;
+        
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-        r_.raycaster.ray.origin.y -= 30;
+        r_.raycaster.ray.origin.y += cfg.playerHeight;
 
-        var intersections = r_.raycaster.intersectObjects( r_.objects );
-
-        var isOnObject = intersections.length > 0;
-      
+        var hits = r_.raycaster.intersectObjects( r_.objects );
+        
+        if (hits[0] != undefined)
+        if (hits[0].distance < cfg.playerHeight) {
+            console.log( hits[0].object)
+            //i_.controls.getObject().position.y = hits[0].object.position.y + hits[0].object. + cfg.playerHeight;
+        }
+        
+        var isOnObject = true; 
 
         r_.velocity.x -= r_.velocity.x * 5.0 * delta; // 5.0 = speed
         r_.velocity.z -= r_.velocity.z * 5.0 * delta;
@@ -320,12 +349,13 @@ r_.animate = function () {
         i_.controls.getObject().translateY( r_.velocity.y * delta );
         i_.controls.getObject().translateZ( r_.velocity.z * delta );
 
-        if ( i_.controls.getObject().position.y < 30 ) {
+        
+        if ( i_.controls.getObject().position.y < cfg.playerHeight ) {
 
             r_.velocity.y = 0;
-            i_.controls.getObject().position.y = 30;
+            i_.controls.getObject().position.y = cfg.playerHeight;
             i_.act.jump = true;
-        }       
+        }  
     }
 
     r_.prevTime = time;

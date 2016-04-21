@@ -9,6 +9,7 @@ var cfg = {
     mod                 : 'doom.wad',
     screenmode          : '800x600',
     fullscreen          : 0,
+    playerHeight        : 30,
     
     bind: {
         38  : '+forward',   // uparrow

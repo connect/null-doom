@@ -280,7 +280,7 @@ o_.map = new function(){
             }    
             
             // draw floor polygon
-            /*
+            
             var shape = new THREE.Shape();
             var first = null;
             for (var v in vertexes) {
@@ -292,17 +292,33 @@ o_.map = new function(){
                 }
             }
             // enclose shape
-            shape.lineTo( first.x, first.y );
+            //shape.lineTo( first.x, first.y );
             var geoPoly = new THREE.ShapeGeometry( shape );
             
             if (r_.imgs[ tsector.texturefloor ] == undefined) {
                 r_.img.load({ files: [ tsector.texturefloor ], type: 'png' });
             }
             
-            var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.imgs[ tsector.texturefloor ]  }) );
+            var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.imgs[ tsector.texturefloor ]  }) );            
             floor.position.y = tsector.heightfloor;
             floor.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
-            r_.scene.add(floor);*/
+            r_.objects.push(floor);
+            r_.scene.add(floor);
+            
+            /*
+            // draw ceiling polygon
+            //
+            if (tsector.textureceiling.indexOf('SKY') != -1) {
+            
+                if (r_.imgs[ tsector.textureceiling ] == undefined) {
+                    r_.img.load({ files: [ tsector.textureceiling ], type: 'png' });
+                }
+
+                var ceiling = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.imgs[ tsector.textureceiling ]  }) );
+                ceiling.position.y = tsector.heightceiling;
+                ceiling.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
+                r_.scene.add(ceiling);
+            }*/
         }
         
         
