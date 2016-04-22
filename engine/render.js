@@ -279,7 +279,7 @@ r_.findFloor = function(x,z){
         return hits[0];
         
     } else {
-        console.log('no floor:',x,z);
+        //console.log('no floor:',x,z);
         return false;
     }
 };
@@ -287,18 +287,26 @@ r_.findFloor = function(x,z){
 r_.img = new function(){
     var t = this;
     
-    t.load = function(o){
+    t.load = function(o, success){
         var f;
         //console.log('r_.img.load()');
         
+        o.type = (o.type != undefined) ? o.type : 'png';
         
         for (var i in o.files) {
             f = o.files[i];
+            console.log('load image:',f);
             
             r_.imgs[ f ] = new THREE.TextureLoader().load( cfg.mod+ "/gra/"+ f +"."+ o.type , function(texture){
                 // complete
                 texture.magFilter = THREE.NearestFilter;
-                texture.minFilter = THREE.LinearMipMapLinearFilter;   
+                texture.minFilter = THREE.LinearMipMapLinearFilter;      
+                
+                if (typeof success == 'function'){
+                    
+                    success(texture);
+                }
+                
             },function(e){
                 // progress
             },function(e){
@@ -312,6 +320,17 @@ r_.img = new function(){
     t.ignored = [
         '-'
     ];
+};
+
+// return picture from cache, or cache it
+r_.pic = function(f){
+    
+    if ( r_.imgs[ f ] == undefined )
+    {
+        r_.img.load({ files: [ f ] });
+    }
+    
+    return r_.imgs[ f ];
 };
 
 r_.init = function() {

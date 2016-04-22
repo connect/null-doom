@@ -430,7 +430,7 @@ o_.map = new function(){
             
             var o = t.thing[i];
             
-            //floorheight = r_.findFloor( -o.x, o.y );
+            floorheight = r_.findFloor( -o.x, o.y );
             //floorheight = (floorheight != false) ? floorheight.object.position.y : 0;
             floorheight = 0;
             
@@ -442,6 +442,15 @@ o_.map = new function(){
                         //i_.controls.getObject().rotateY( o.angle * Math.PI / -90 );
                     break;
 
+                // spawn tech column
+                case 48:
+                        var matSprite = new THREE.SpriteMaterial({ map: r_.pic('ELECA0') });
+                        var sprite = new THREE.Sprite( matSprite );
+                        sprite.scale.set(38 * r_.scale/2, 128 * r_.scale/2, 1);
+                        sprite.position.set(-o.x, floorheight + (128 * r_.scale/4), o.y);
+                        r_.objects.push(sprite);
+                        r_.scene.add(sprite);
+                    break;
 
                 // spawn health potion
                 case 2014:
@@ -449,6 +458,7 @@ o_.map = new function(){
                         var sprite = new THREE.Sprite( matSprite );
                         sprite.scale.set(14 * r_.scale/4, 18 * r_.scale/4, 1);
                         sprite.position.set( -o.x, floorheight + (18 * r_.scale/8) , o.y );
+                        r_.objects.push(sprite);
                         r_.scene.add(sprite);
                     break;
 
@@ -458,6 +468,7 @@ o_.map = new function(){
                         var sprite = new THREE.Sprite( matSprite );
                         sprite.scale.set( 23 * r_.scale/2, 32 * r_.scale/2, 1);
                         sprite.position.set( -o.x, floorheight + (32 * r_.scale/8), o.y );
+                        r_.objects.push(sprite);
                         r_.scene.add(sprite);
                     break;
 
