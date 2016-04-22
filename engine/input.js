@@ -191,6 +191,19 @@ i_.init = function(){
     console.log('i_.init()');
     
     i_.controls = new THREE.PointerLockControls( r_.camera );
+    /*
+    i_.controls = new THREE.FirstPersonControls(r_.camera);
+    i_.controls.lookSpeed = 0.4;
+    i_.controls.movementSpeed = 20;
+    i_.controls.noFly = true;
+    i_.controls.lookVertical = true;
+    i_.controls.constrainVertical = true;
+    i_.controls.verticalMin = 1.0;
+    i_.controls.verticalMax = 2.0;
+    i_.controls.lon = -150;
+    i_.controls.lat = 120;
+    */
+   
     r_.scene.add( i_.controls.getObject() );
     
     document.addEventListener( 'keydown',     i_.onKeyDown, false );

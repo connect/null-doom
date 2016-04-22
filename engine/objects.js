@@ -107,6 +107,7 @@ o_.map = new function(){
         var sides = {};
         var lines = {};
         var vertexes = {};
+        var floorheight = 0;
         
         var matLine = new THREE.LineBasicMaterial({ color: 0xff0000 });
         var matLineB = new THREE.LineDashedMaterial({ color: 0x0000ff, dashSize: 4, gapSize: 2  });
@@ -309,29 +310,34 @@ o_.map = new function(){
             // we need to pick vertexes in right order to get enclosed polygon
             
             var first = null;//t.vertex[ sides[0].v1 ];
-            var tvert = null;
+            var tvrtx = null;
             var vert_known = [];            
             
             // take each sidedef of sector      
             for (var i in lines) {
-                //console.log('->', lines[i])
+                
                 var v1 = t.vertex[ lines[i].v1 ];
                 v1.ind = lines[i].v1;
+                //r_.spawnNumber('1', -v1.x,  tsector.heightfloor, v1.y );
 
                 var v2 = t.vertex[ lines[i].v2 ];
-                v2.ind = lines[i].v2;
+                v2.ind = lines[i].v2;        
+                //r_.spawnNumber('2', -v2.x,  tsector.heightfloor, v2.y );
                 
-                break;
+                //r_.spawnNumber('12', (-v1.x - v2.x)/2,  tsector.heightfloor, (v1.y + v2.y)/2 );
+                
+                break; // takes only first line
             }
             shape.moveTo( v1.x, v1.y );
             shape.lineTo( v2.x, v2.y );
             first = v1;
             vert_known.push( v1.ind );
             vert_known.push( v2.ind );
-            tvert = v2;
+            tvrtx = v2;
             
-            var c = 0;                    
-            while (tvert.ind != first.ind) {
+            var c = 0;   
+            var c2 = 0;
+            while (tvrtx.ind != first.ind) {
                                 
                 for (var i in lines) {
                     
@@ -344,38 +350,44 @@ o_.map = new function(){
                     v2.ind = lines[i].v2;                                        
                     
                     
-                    if (v1.ind == tvert.ind) {
+                    if (v1.ind == tvrtx.ind) {
+                        
                         if (vert_known.indexOf(v2.ind) == -1) {
+                            
                             shape.lineTo( v2.x, v2.y );
-                            tvert = v2;
-                            //continue;
+                            tvrtx = v2; 
+                            vert_known.push( v2.ind );
+                            //c2++;
+                            //r_.spawnNumber( c.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
                         }
-                    } else if (v2.ind == tvert.ind){
+                                                                      
+                    } else if (v2.ind == tvrtx.ind){
+                        
                         if (vert_known.indexOf(v1.ind) == -1) {
+                            
                             shape.lineTo( v1.x, v1.y );
-                            tvert = v1;
-                            //continue;
-                        }
-                    }
+                            tvrtx = v1;   
+                            vert_known.push( v1.ind );
+                            //c2++;
+                            //r_.spawnNumber( c.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
+                        }                     
+                        
+                    }                   
                                         
                 }    
                 c++;
                 if (c >= '100') break;
             }
-            //console.log('ok')
-            /*
-            
-            for (var v in vertexes) {
-                if (first == null) {
-                    shape.moveTo( vertexes[v].x, vertexes[v].y );
-                    first = vertexes[v];
-                } else {
-                    shape.lineTo( vertexes[v].x, vertexes[v].y );
-                }
-            }
             // enclose shape
-            //shape.lineTo( first.x, first.y );
-            */
+            shape.lineTo( first.x, first.y );
+            
+            // mark last
+            // add vertex
+            var vert = new THREE.Mesh( geoVert, matVert );
+            vert.position.set(-tvrtx.x, tsector.heightfloor - 5, tvrtx.y);
+            r_.objects.push(vert);
+            r_.scene.add(vert);
+            
             var geoPoly = new THREE.ShapeGeometry( shape );
             
             if (r_.imgs[ tsector.texturefloor ] == undefined) {
@@ -384,7 +396,7 @@ o_.map = new function(){
             
             
             var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.imgs[ tsector.texturefloor ], transparent: true, opacity: 1 }) );            
-            floor.position.y = tsector.heightfloor +2;
+            floor.position.y = tsector.heightfloor;
             floor.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
             r_.objects.push(floor);
             r_.floors.push(floor);
@@ -405,61 +417,59 @@ o_.map = new function(){
                 r_.objects.push(ceiling);
                 r_.scene.add(ceiling);
             }
+            
+            //break; // process only first sector
         }
         
-        
-            
-        //console.log('sides',sides)
-        //console.log('lines',lines)
-        //console.log('vertexes',vertexes)
-        
-        //
-        // draw all vertexes
-        //
-        /*
-        for (var i in t.vertex) {                                   
 
-            var mesh = new THREE.Mesh( geoVert, matVert );
-            mesh.position.x = t.vertex[i].x;
-            mesh.position.z = t.vertex[i].y;
-            r_.scene.add(mesh);
-        }*/
         
-        
+        //
+        // Spawn Things
+        //
         for (i in t.thing) {
             
             var o = t.thing[i];
             
-            // setup start spot
-            if (o.type == 1) {
-                i_.controls.getObject().position.set( -o.x, 30, o.y );
-            }
+            //floorheight = r_.findFloor( -o.x, o.y );
+            //floorheight = (floorheight != false) ? floorheight.object.position.y : 0;
+            floorheight = 0;
             
-            /*
-            // spawn health potion
-            else if (o.type == 2014){
-                var matSprite = new THREE.SpriteMaterial({ map: r_.imgs.BON1A0 });
-                var sprite = new THREE.Sprite( matSprite );
-                sprite.scale.set(14 * r_.scale/2, 18 * r_.scale/2, 1);
-                sprite.position.set( -o.x, 18 * r_.scale/4, o.y );
-                r_.scene.add(sprite);
-            }
+            switch (o.type) {
             
-            // spawn barrel 
-            else if (o.type == 2035){
-                var matSprite = new THREE.SpriteMaterial({ map: r_.imgs.BAR1A0 });
-                var sprite = new THREE.Sprite( matSprite );
-                sprite.scale.set( 23 * r_.scale/2, 32 * r_.scale/2, 1);
-                sprite.position.set( -o.x, 32 * r_.scale/4, o.y );
-                r_.scene.add(sprite);
+                // setup start spot
+                case 1: 
+                        i_.controls.getObject().position.set( -o.x, floorheight + cfg.playerHeight, o.y );
+                        //i_.controls.getObject().rotateY( o.angle * Math.PI / -90 );
+                    break;
+
+
+                // spawn health potion
+                case 2014:
+                        var matSprite = new THREE.SpriteMaterial({ map: r_.imgs.BON1A0 });
+                        var sprite = new THREE.Sprite( matSprite );
+                        sprite.scale.set(14 * r_.scale/4, 18 * r_.scale/4, 1);
+                        sprite.position.set( -o.x, floorheight + (18 * r_.scale/8) , o.y );
+                        r_.scene.add(sprite);
+                    break;
+
+                // spawn barrel 
+                case 2035:
+                        var matSprite = new THREE.SpriteMaterial({ map: r_.imgs.BAR1A0 });
+                        var sprite = new THREE.Sprite( matSprite );
+                        sprite.scale.set( 23 * r_.scale/2, 32 * r_.scale/2, 1);
+                        sprite.position.set( -o.x, floorheight + (32 * r_.scale/8), o.y );
+                        r_.scene.add(sprite);
+                    break;
+
+
+                // add thing placeholder for rest
+                default:
+                        var thing = new THREE.Mesh( geoVert, matThing );
+                        thing.position.set(-o.x, floorheight+3, o.y);  
+                        r_.objects.push(thing);
+                        r_.scene.add(thing);
+                    break;
             }
-            */
-           
-            // add thing placeholder
-            var thing = new THREE.Mesh( geoVert, matThing );
-            thing.position.set(-o.x, 0, o.y);  
-            r_.objects.push(thing);
-            r_.scene.add(thing);
         }
         
     };

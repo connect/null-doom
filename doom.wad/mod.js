@@ -191,6 +191,11 @@ r_.img.load({
     ]
 });  
 
+
+//console.log('->', r_.imgs.FLOOR4_8 )
+r_.imgs.FLOOR4_8.wrapS = r_.imgs.FLOOR4_8.wrapT = THREE.RepeatWrapping; 
+r_.imgs.FLOOR4_8.repeat.set( 30, 30 );
+
 // load maps
 o_.map.add([
     'e1m1',
