@@ -295,12 +295,12 @@ r_.img = new function(){
         
         for (var i in o.files) {
             f = o.files[i];
-            console.log('load image:',f);
+            //console.log('load image:',f);
             
             r_.imgs[ f ] = new THREE.TextureLoader().load( cfg.mod+ "/gra/"+ f +"."+ o.type , function(texture){
                 // complete
                 texture.magFilter = THREE.NearestFilter;
-                texture.minFilter = THREE.LinearMipMapLinearFilter;      
+                texture.minFilter = THREE.LinearMipMapLinearFilter;                     
                 
                 if (typeof success == 'function'){
                     
@@ -323,11 +323,15 @@ r_.img = new function(){
 };
 
 // return picture from cache, or cache it
-r_.pic = function(f){
+r_.pic = function(f, repeatX, repeatY){
     
-    if ( r_.imgs[ f ] == undefined )
-    {
-        r_.img.load({ files: [ f ] });
+    if ( r_.imgs[ f ] == undefined ) {
+        r_.img.load({ files: [ f ] });                
+    }
+    
+    if (repeatX != undefined && repeatY != undefined) {
+        r_.imgs[ f ].wrapS = r_.imgs[ f ].wrapT = THREE.RepeatWrapping; 
+        r_.imgs[ f ].repeat.set( repeatX, repeatY );
     }
     
     return r_.imgs[ f ];
