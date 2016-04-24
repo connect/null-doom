@@ -102,7 +102,6 @@ o_.map = new function(){
         
     };
     
-    
     t.loadTest = function(){
         var sides = {};
         var lines = {};
@@ -119,6 +118,9 @@ o_.map = new function(){
         
 
         for (var s in t.sector) {
+            
+            //if (s != 1) continue;
+            
             
             var tsector = t.sector[s];
             vertexes = {};
@@ -159,28 +161,28 @@ o_.map = new function(){
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
                             var line = new THREE.Line( geoLine, matLine );                            
                             r_.objects.push(line);
-                            r_.scene.add(line);
+                            r_.scene.add(line);*/
                                                       
                             // add vertex1
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y);
                             r_.objects.push(vert);
                             r_.scene.add(vert);
-                            
+                            /*
                             //add vline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );        
                             var line = new THREE.Line( geoLine, matLine );    
                             r_.objects.push(line);
-                            r_.scene.add(line);
+                            r_.scene.add(line);*/
                             
                             // add vertex2
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y);
                             r_.objects.push(vert);
                             r_.scene.add(vert);       
-                            
+                            /*
                             //add vline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );
@@ -233,7 +235,7 @@ o_.map = new function(){
                             // bottom texture
                             if ( sides[i].texturebottom != '-' ) {                            
                                 var wallWidth = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ); 
-                                var wallHeight = t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightfloor - tsector.heightfloor + 4;
+                                var wallHeight = t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightfloor - tsector.heightfloor +1;
                                 var geoWall = new THREE.PlaneGeometry( wallWidth, wallHeight );                                                        
                                 var matWall = new THREE.MeshBasicMaterial({ map: r_.pic( sides[i].texturebottom ), transparent: true, side: THREE.BackSide });
                                 var wallAngle = Math.atan2(v2.y - v1.y, v2.x - v1.x);
@@ -241,7 +243,7 @@ o_.map = new function(){
                                 wall.rotateY( wallAngle );
                                 wall.position.set( 
                                     (-v1.x -v2.x)/2, 
-                                    tsector.heightfloor + (wallHeight/2) - 2, 
+                                    t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightfloor - (wallHeight/2) + 1, 
                                     (v1.y + v2.y)/2
                                 );
                                 r_.objects.push(wall);
@@ -371,7 +373,7 @@ o_.map = new function(){
                         }
                     }
                 }            
-            } 
+            }
             
             //
             // draw floor polygon
@@ -407,7 +409,7 @@ o_.map = new function(){
             tvrtx = v2;
             
             var c = 0;   
-            var c2 = 0;
+            
             while (tvrtx.ind != first.ind) {
                                 
                 for (var i in lines) {
@@ -428,18 +430,18 @@ o_.map = new function(){
                             shape.lineTo( v2.x, v2.y );
                             tvrtx = v2; 
                             vert_known.push( v2.ind );
-                            //c2++;
-                            //r_.spawnNumber( c.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
+                            
+                            //r_.spawnNumber( vert_known.length.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
                         }
                                                                       
-                    } else if (v2.ind == tvrtx.ind){
+                    } else if (v2.ind == tvrtx.ind ){
                         
                         if (vert_known.indexOf(v1.ind) == -1) {
                             
                             shape.lineTo( v1.x, v1.y );
                             tvrtx = v1;   
                             vert_known.push( v1.ind );
-                            //c2++;
+
                             //r_.spawnNumber( c.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
                         }                     
                         
@@ -447,7 +449,7 @@ o_.map = new function(){
                                         
                 }    
                 c++;
-                if (c >= '100') break;
+                if (c >= '50') break;
             }
             // enclose shape
             shape.lineTo( first.x, first.y );                        
@@ -500,8 +502,8 @@ o_.map = new function(){
                 case 48:
                         var matSprite = new THREE.SpriteMaterial({ map: r_.pic('ELECA0') });
                         var sprite = new THREE.Sprite( matSprite );
-                        sprite.scale.set(38 * r_.scale/2, 128 * r_.scale/2, 1);
-                        sprite.position.set(-o.x, floorheight + (128 * r_.scale/4), o.y);
+                        sprite.scale.set(38 * r_.scale/3, 128 * r_.scale/3, 1);
+                        sprite.position.set(-o.x, floorheight + (128 * r_.scale/6)+ 30, o.y);
                         r_.objects.push(sprite);
                         r_.scene.add(sprite);
                     break;

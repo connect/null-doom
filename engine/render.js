@@ -31,25 +31,49 @@ r_.animate = function () {
     var time = performance.now();
     var delta = ( time - r_.prevTime ) / 1000;
     
-    if (r_.wpn.reading) {
+    if (r_.wpn.obj != null) {
+    
+        if (r_.wpn.status == 0) { // preparing
 
-        var thisPos = r_.wpn.obj.position.y += 400.0 * delta;
-        var stopPos = (scrHeight/-2) + (60 * r_.scale);
+            var thisPos = r_.wpn.obj.position.y += 400.0 * delta;
+            var stopPos = (scrHeight/-2) + (60 * r_.scale);
 
 
-        if (thisPos <= stopPos) {
+            if (thisPos <= stopPos) {
 
-            r_.wpn.obj.position.set(0, thisPos, 5);
+                r_.wpn.obj.position.set(0, thisPos, 5);
 
-        } else {
+            } else {
 
-            r_.wpn.obj.position.set(0, stopPos, 5);
-            r_.wpn.reading = false;
+                r_.wpn.obj.position.set(0, stopPos, 5);
+                r_.wpn.status = 1;
+            }
+
+        } else if ( r_.wpn.status == -1) {
+
+            var thisPos = r_.wpn.obj.position.y -= 400.0 * delta;
+            var stopPos = (scrHeight/-2) + (60 * r_.scale);
+
+
+            if (thisPos <= stopPos) {
+
+                r_.wpn.obj.position.set(0, thisPos, 5);
+
+            } else {
+
+                r_.wpn.obj.position.set(0, stopPos, 5);
+                r_.wpn.status = 1;
+            }
         }
-
-    } else if ( i_.act.attack) {
-        //console.log(delta);
-        //r_.wpn.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
+        
+        if ( i_.act.attack) {
+            //console.log(delta);
+            //r_.wpn.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
+            s_.play('DSPISTOL.ogg');
+            i_.act.attack = false;
+            
+        }
+    
     }
 
         
@@ -116,16 +140,15 @@ r_.drawHud = function(){
 
     // WEAPON
     //       
-    r_.mats.wpn = [ 
-        new THREE.SpriteMaterial({map: r_.imgs.SHTGA0}), 
-        new THREE.SpriteMaterial({map: r_.imgs.SHTGB0}),
-        new THREE.SpriteMaterial({map: r_.imgs.SHTGC0}),
-        new THREE.SpriteMaterial({map: r_.imgs.SHTGD0})
+    r_.mats.wpn = [        
+        new THREE.SpriteMaterial({map: r_.pic('PISGA0') }), 
     ];
-    r_.wpn.obj = new THREE.Sprite(r_.mats.wpn[0]);            
-    r_.wpn.obj.scale.set( 79 * scale , 60 * scale ,1);
-    r_.wpn.obj.position.set(0, (scrHeight/-2) + (60 * scale) * -1  , 5); // (scrHeight/-2) + (60 * scale)   
-    r_.wpn.reading = true;
+    r_.wpn.obj = new THREE.Sprite( r_.mats.wpn[0] );                
+    
+    // pistol
+    r_.wpn.obj.scale.set( 57 * scale , 62 * scale ,1);
+    r_.wpn.obj.position.set(0, (scrHeight/-2) + (62 * scale) * -1  , 5); // (scrHeight/-2) + (60 * scale)          
+    r_.wpn.status = 0;
     r_.objects.push(r_.wpn.obj);
     r_.hudScene.add(r_.wpn.obj);
 
@@ -173,7 +196,7 @@ r_.drawHud = function(){
     // AMMO
     //
     r_.drawText({            
-        text: '150', prefix: 'STT', 
+        text: '50', prefix: 'STT', 
         width: 14, height: 16, direction: 'rtl',
         x: (scrWidth/-2) + (scrWidth * 0.16),
         z: (scrHeight/-2) + (scrHeight * 0.09)    
@@ -191,7 +214,7 @@ r_.drawHud = function(){
     // ARMOR
     //
     r_.drawText({
-        text: '150%', prefix: 'STT', 
+        text: '0%', prefix: 'STT', 
         width:14, height:16, direction: 'rtl',
         x: (scrWidth/-2) + (scrWidth * 0.755)  ,
         z: (scrHeight/-2) + (scrHeight * 0.09)  
