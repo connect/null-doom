@@ -380,10 +380,55 @@ o_.map = new function(){
             //
             // draw floor polygon
             //
-            // 1. need to find all joined shapes
-            // 2. need to find all holes
-            //
-            var shapes = [];
+            // 1. need to find sector shapes
+            // 2. shapes to holes
+            // 3. shapes to joined
+            
+            var shapes      = [];   // <array of arrays> all shapes of current sector                        
+            var tline       = null; // current line
+            var knownLines  = [];   // keep lines track
+            
+            while (lines.length > 0) { // repeat until every line is parsed
+                
+                for (var l in lines) { // scan every line
+                
+                    tline = lines[l]; // pick the line
+                
+                    // line vertexes
+                    v1 = t.vertex[ tline.v1 ];
+                    v2 = t.vertex[ tline.v2 ];
+
+                    // did we already know this line?
+                    if ( knownLines.indexOf(l) == -1 ) {
+                        
+                        // unknown line                        
+                        // does this line belongs to known shape?
+                        for (s in shapes){
+
+                            if ( shapes[s].indexOf(v1) != -1){
+                                
+                                // v1 vertex is in this shape
+                                // add v2
+                                shapes[s].push(v2);
+                                
+                            } else if ( shapes[s].indexOf(v2) != -1){
+                                
+                                // v2 vertex is in this shape
+                                // add v1
+                                shapes[s].push(v1);
+                            }
+                        }
+                        
+                        // take it as first line of new shape
+                        
+                        // remember this line
+                        knownLines.push( l );
+                    }
+
+                    
+                }                                
+            };
+            
             
             var shape = new THREE.Shape();
             
@@ -391,7 +436,7 @@ o_.map = new function(){
             
             var first = null;//t.vertex[ sides[0].v1 ];
             var tvrtx = null;
-            var knownLines = []; 
+            
             var vertexes = [];
             
             // take each sidedef of sector      
