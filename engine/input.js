@@ -223,6 +223,10 @@ i_.init = function(){
         
 };
 
+i_.postInit = function(o){
+    
+};
 
+core.loadNext();
 
 

@@ -1004,3 +1004,9 @@ o_.map = new function(){
             });
     };
 };
+
+o_.postInit = function(o){
+    
+};
+
+core.loadNext();

@@ -3,11 +3,13 @@
  * 
  * Configuration File
  * 
+ * @module core/config
+ * @author kod.connect
  */
 
 var cfg = {
     mod                 : 'doom.wad',
-    screenmode          : '1024x768',
+    screenmode          : '800x600',
     fullscreen          : 0,
     playerHeight        : 30,
     
@@ -22,7 +24,7 @@ var cfg = {
         68  : '+right',     // d
         32  : '+jump',      // space
         
-        187  : 'zoomin',
+        187 : 'zoomin',
         189 : 'zoomout',
         
         mouse1 : '+attack'

@@ -360,7 +360,7 @@ r_.pic = function(f, repeatX, repeatY){
     return r_.imgs[ f ];
 };
 
-r_.init = function() {
+r_.postInit = function() {
     console.log('r_.init()');
        
     var scrMode     = r_.mode.current.split('x');
@@ -471,9 +471,10 @@ r_.inPoly = function(point, vs) {
 };
 
 r_.mode = new function(){
-    var t = this;
-    console.log('r_.mode()');
+    console.log('....r_.mode()');
     
+    var t = this;
+        
     t.list      = [ '640x480', '800x600', '1024x768', '1280x800' ];
     t.current   = cfg.screenmode;    
     r_.scale    = cfg.screenmode.split('x')[0] / 320;
@@ -553,3 +554,5 @@ r_.spawnNumber = function (n,x,y,z){
         r_.scene.add(sprite);
     }
 };
+
+core.loadNext();

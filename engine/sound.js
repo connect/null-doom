@@ -7,6 +7,8 @@
  */
 
 s_.init = function(){
+    console.log('....s_.init()')
+    
     $('body').prepend('<audio id="music" preload="auto" loop></audio>');
 };
 // init sound system
@@ -44,4 +46,9 @@ s_.playMusic = function(o){
         .trigger('play');    
 };
 
-s_.volume = cfg.volume || 100;
+s_.positInit = function(o){
+    
+    s_.volume = cfg.volume || 100;
+};
+
+core.loadNext();

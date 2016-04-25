@@ -145,3 +145,9 @@ u_.inmenu = function(){
 };
 
 //$('#blocker').trigger( 'click')
+
+u_.postInit = function(o){
+    
+};
+
+core.loadNext();
