@@ -108,6 +108,9 @@ o_.map = new function(){
         var vertexes = {};
         var floorheight = 0;
         
+        var drawWalls = 0;
+        var drawNums  = 1;
+        
         var matLine = new THREE.LineBasicMaterial({ color: 0xff0000 });
         var matLineB = new THREE.LineDashedMaterial({ color: 0x0000ff, dashSize: 4, gapSize: 2  });
         
@@ -119,11 +122,10 @@ o_.map = new function(){
 
         for (var s in t.sector) {
             
-            //if (s != 1) continue;
+            if (s != 1) continue;
             
             
             var tsector = t.sector[s];
-            vertexes = {};
             lines = {};
             
             for (var i in t.sidedef){           
@@ -209,7 +211,7 @@ o_.map = new function(){
                                     (v1.y + v2.y)/2
                                 );
                                 r_.objects.push(wall);
-                                r_.scene.add(wall);
+                                if (drawWalls) r_.scene.add(wall);
                             }
                             
                             // Middle texture                                                        
@@ -227,7 +229,7 @@ o_.map = new function(){
                                     (v1.y + v2.y)/2
                                 );
                                 r_.objects.push(wall);
-                                r_.scene.add(wall);
+                                if (drawWalls) r_.scene.add(wall);
                             } else {
                                 //var matWall = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.1 });
                             }
@@ -247,7 +249,7 @@ o_.map = new function(){
                                     (v1.y + v2.y)/2
                                 );
                                 r_.objects.push(wall);
-                                r_.scene.add(wall);
+                                if (drawWalls) r_.scene.add(wall);
                             }
                             
                         } else if (t.linedef[j].sideback == i ) { 
@@ -378,25 +380,31 @@ o_.map = new function(){
             //
             // draw floor polygon
             //
+            // 1. need to find all joined shapes
+            // 2. need to find all holes
+            //
+            var shapes = [];
+            
             var shape = new THREE.Shape();
             
             // we need to pick vertexes in right order to get enclosed polygon
             
             var first = null;//t.vertex[ sides[0].v1 ];
             var tvrtx = null;
-            var vert_known = [];            
+            var knownLines = []; 
+            var vertexes = [];
             
             // take each sidedef of sector      
             for (var i in lines) {
                 
                 var v1 = t.vertex[ lines[i].v1 ];
                 v1.ind = lines[i].v1;
-                //r_.spawnNumber('1', -v1.x,  tsector.heightfloor, v1.y );
-
+                if (drawNums) r_.spawnNumber('1', -v1.x,  tsector.heightfloor, v1.y );
+               
                 var v2 = t.vertex[ lines[i].v2 ];
                 v2.ind = lines[i].v2;        
-                //r_.spawnNumber('2', -v2.x,  tsector.heightfloor, v2.y );
-                
+                if (drawNums) r_.spawnNumber('2', -v2.x,  tsector.heightfloor, v2.y );
+                               
                 //r_.spawnNumber('12', (-v1.x - v2.x)/2,  tsector.heightfloor, (v1.y + v2.y)/2 );
                 
                 break; // takes only first line
@@ -404,12 +412,13 @@ o_.map = new function(){
             shape.moveTo( v1.x, v1.y );
             shape.lineTo( v2.x, v2.y );
             first = v1;
-            vert_known.push( v1.ind );
-            vert_known.push( v2.ind );
             tvrtx = v2;
-            
+            knownLines.push( i );
+            vertexes.push(v1); 
+            vertexes.push(v2);
             var c = 0;   
             
+            // trying to build enclosed shape
             while (tvrtx.ind != first.ind) {
                                 
                 for (var i in lines) {
@@ -420,39 +429,84 @@ o_.map = new function(){
                     v1.ind = lines[i].v1;
 
                     v2 = t.vertex[ lines[i].v2 ];
-                    v2.ind = lines[i].v2;                                        
-                    
+                    v2.ind = lines[i].v2;                                                         
                     
                     if (v1.ind == tvrtx.ind) {
                         
-                        if (vert_known.indexOf(v2.ind) == -1) {
+                        if (knownLines.indexOf(i) == -1) {
                             
                             shape.lineTo( v2.x, v2.y );
                             tvrtx = v2; 
-                            vert_known.push( v2.ind );
+                            knownLines.push( i );
+                            vertexes.push(v2);
                             
-                            //r_.spawnNumber( vert_known.length.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
+                            //if (drawNums) r_.spawnNumber( vert_known.length.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
                         }
                                                                       
                     } else if (v2.ind == tvrtx.ind ){
                         
-                        if (vert_known.indexOf(v1.ind) == -1) {
+                        if (knownLines.indexOf(i) == -1) {
                             
                             shape.lineTo( v1.x, v1.y );
                             tvrtx = v1;   
-                            vert_known.push( v1.ind );
-
-                            //r_.spawnNumber( c.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
+                            knownLines.push( i );
+                            vertexes.push(v1);
+                            
+                            //if (drawNums) r_.spawnNumber( c.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
                         }                     
                         
                     }                   
                                         
                 }    
                 c++;
-                if (c >= '50') break;
+                if (c >= '50') { 
+                    console.log('exceeded')
+                    break;
+                }
             }
             // enclose shape
-            shape.lineTo( first.x, first.y );                        
+            shape.lineTo( first.x, first.y );  
+            
+            // ok, first enclosed shape is found. look for another line
+            //shapes.push( knownLines );
+            
+            var hole = new THREE.Path();
+            
+            c = 0;
+            for (var i in lines) {
+                
+                if (knownLines.indexOf(i) == -1) {
+                    console.log('more lines:',i);
+                    
+                    // is it hole or additional shape?
+                    v1 = t.vertex[ lines[i].v1 ];
+                    v2 = t.vertex[ lines[i].v2 ];
+                    
+                    /*
+                    if ( r_.inPoly( v1, vertexes ) || r_.inPoly( v2, vertexes) ) {
+                        console.log('it is hole');
+                    } else {
+                        console.log('it is shape');
+                    }*/
+                    
+                    if (c == 0) {
+                        console.log(c,i,v1,v2)
+                        hole.moveTo(v1.x, v1.y);
+                        hole.lineTo(v2.x, v2.y);
+                    } else {
+                        console.log(c,i,v1,v2)
+                        //hole.lineTo(-v1.x, v1.y);
+                        //hole.lineTo(v2.x, v2.y);
+                    }
+                    
+                    //if (drawNums) r_.spawnNumber('0', -v1.x,  tsector.heightfloor, v1.y );
+                }
+                
+                c++;
+            }
+            
+            //shape.holes.push(hole);
+            
             
             var geoPoly = new THREE.ShapeGeometry( shape );                                    
             var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.pic( tsector.texturefloor, 0.015, 0.015 ), transparent: true, opacity: 1 }) );            

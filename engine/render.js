@@ -459,8 +459,8 @@ r_.inPoly = function(point, vs) {
     
     var inside = false;
     for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-        var xi = vs[i][0], yi = vs[i][1];
-        var xj = vs[j][0], yj = vs[j][1];
+        var xi = vs[i].x, yi = vs[i].y;
+        var xj = vs[j].x, yj = vs[j].y;
         
         var intersect = ((yi > y) != (yj > y))
             && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+<head>
+    <title>TODO supply a title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body 
+        {
+                font-family: Monospace;
+                font-weight: bold;
+                background-color: #ffffff;
+                margin: 0px;
+                overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<div id="ThreeJS"></div>
+<script src="../engine/jquery/jquery-2.2.0.min.js"></script>
+<script src="../engine/three/three.min.js"></script>  
+
+<script>
+var scene = new THREE.Scene();
+var width = 1024;
+var height = 768;
+var camera = new THREE.OrthographicCamera(
+        width  / -2, width  /  2,
+        height /  2, height / -2, 
+        -500, 1000 
+    );
+
+var scale = width / 320;
+camera.position.set(0,0,0);
+//var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+//scene.add(light);
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(width, height);
+document.body.appendChild(renderer.domElement);
+
+
+var s = new THREE.Shape();
+
+s.moveTo(0, 0);
+s.lineTo(200, 0);
+s.lineTo(400, 200);
+s.lineTo(200, 400);
+s.lineTo(0, 200);
+
+s.lineTo(0, 0);
+
+var hole = new THREE.Path();
+hole.moveTo(10,10);
+hole.lineTo(20,10);
+hole.lineTo(30,20);
+hole.lineTo(10,10);
+
+s.holes.push(hole);
+
+var geoPoly = new THREE.ShapeGeometry( s );    
+var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ color: 0xff0000 }) );            
+
+floor.position.set(0,0,0)
+scene.add(floor);
+
+
+/*
+var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+var geom = new THREE.BoxGeometry(100,100,100);
+var mesh = new THREE.Mesh( geom, material);
+scene.add(mesh);
+*/
+
+function render() {
+    
+    requestAnimationFrame(render);
+    
+    renderer.render(scene, camera);
+};
+
+render();
+
+</script>
+</body>
+</html>
