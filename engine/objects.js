@@ -122,11 +122,10 @@ o_.map = new function(){
 
         for (var s in t.sector) {
             
-            if (s != 1) continue;
+            if (s != 1) continue;           
             
-            
-            var tsector = t.sector[s];
-            lines = {};
+            var tsector  = t.sector[s];
+            lines        = { count: 0 };
             
             for (var i in t.sidedef){           
 
@@ -141,6 +140,7 @@ o_.map = new function(){
                         if (t.linedef[j].sidefront == i) {
 
                             lines[j] = t.linedef[j];
+                            lines.count++;
                             var v1 = t.vertex[ lines[j].v1 ];
                             var v2 = t.vertex[ lines[j].v2 ];
 
@@ -259,6 +259,7 @@ o_.map = new function(){
                             //
                             
                             lines[j] = t.linedef[j];
+                            lines.count++;
                             /*
                             // get vertexes
                             //vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
@@ -380,180 +381,97 @@ o_.map = new function(){
             //
             // draw floor polygon
             //
-            // 1. need to find sector shapes
-            // 2. shapes to holes
-            // 3. shapes to joined
             
-            var shapes      = [];   // <array of arrays> all shapes of current sector                        
-            var tline       = null; // current line
-            var knownLines  = [];   // keep lines track
+            console.log('....build floor particles');
             
-            while (lines.length > 0) { // repeat until every line is parsed
+            var linesKnown  = [];
+            var shapes      = [];
+            var tshape      = [];
+            
+            while (lines.count > linesKnown.length){
                 
-                for (var l in lines) { // scan every line
-                
-                    tline = lines[l]; // pick the line
-                
-                    // line vertexes
-                    v1 = t.vertex[ tline.v1 ];
-                    v2 = t.vertex[ tline.v2 ];
-
-                    // did we already know this line?
-                    if ( knownLines.indexOf(l) == -1 ) {
+                //for every line
+                for (var l in lines){
+                    
+                    if ( linesKnown.indexOf(l) != -1 ) continue; // skip known lines
+                    
+                    // get line vertexes
+                    var v1 = t.vertex[ lines[l].v1 ];
+                    var v2 = t.vertex[ lines[l].v2 ];                    
+                    
+                    // are there any shape yet?
+                    if (shapes.length == 0){
                         
-                        // unknown line                        
-                        // does this line belongs to known shape?
-                        for (s in shapes){
-
-                            if ( shapes[s].indexOf(v1) != -1){
+                        // create first one
+                        shapes.push([
+                            new THREE.Vector2( v1.x, v1.y ),
+                            new THREE.Vector2( v2.x, v2.y )
+                        ]);
+                        
+                        // remember the line
+                        linesKnown.push(l);
+                        
+                    } else {
+                        
+                        // there are some shapes already
+                        // find one is not finished yet
+                        for (var s in shapes){
+                            
+                            tshape = shapes[s];
+                            
+                            // if shape not completed
+                            if ( tshape[0] != tshape[ tshape.length -1 ] ){
                                 
-                                // v1 vertex is in this shape
-                                // add v2
-                                shapes[s].push(v2);
+                                var last = tshape[ tshape.length-1 ];
                                 
-                            } else if ( shapes[s].indexOf(v2) != -1){
+                                // compare this line vertexes to last shape vertex
+                                var fv1 = ( last.x == v1.x && last.y == v1.y ) ? true : false;
+                                var fv2 = ( last.x == v2.x && last.y == v2.y ) ? true : false;
                                 
-                                // v2 vertex is in this shape
-                                // add v1
-                                shapes[s].push(v1);
+                                if ( fv1 || fv2 ){
+                                    
+                                    var first = tshape[0];
+                                    
+                                    if ( fv1 ){
+                                        
+                                        tshape.push( new THREE.Vector2( v2.x, v2.y ) );
+                                        
+                                    } else {
+                                        
+                                        tshape.push( new THREE.Vector2( v1.x, v1.y ) );
+                                    }
+                                    
+                                    // remember the line
+                                    linesKnown.push(l);
+                                }
+                                
+                                break; // don't proceed to next shape until this one is finished
                             }
                         }
-                        
-                        // take it as first line of new shape
-                        
-                        // remember this line
-                        knownLines.push( l );
                     }
-
-                    
-                }                                
-            };
-            
-            
-            var shape = new THREE.Shape();
-            
-            // we need to pick vertexes in right order to get enclosed polygon
-            
-            var first = null;//t.vertex[ sides[0].v1 ];
-            var tvrtx = null;
-            
-            var vertexes = [];
-            
-            // take each sidedef of sector      
-            for (var i in lines) {
-                
-                var v1 = t.vertex[ lines[i].v1 ];
-                v1.ind = lines[i].v1;
-                if (drawNums) r_.spawnNumber('1', -v1.x,  tsector.heightfloor, v1.y );
-               
-                var v2 = t.vertex[ lines[i].v2 ];
-                v2.ind = lines[i].v2;        
-                if (drawNums) r_.spawnNumber('2', -v2.x,  tsector.heightfloor, v2.y );
-                               
-                //r_.spawnNumber('12', (-v1.x - v2.x)/2,  tsector.heightfloor, (v1.y + v2.y)/2 );
-                
-                break; // takes only first line
-            }
-            shape.moveTo( v1.x, v1.y );
-            shape.lineTo( v2.x, v2.y );
-            first = v1;
-            tvrtx = v2;
-            knownLines.push( i );
-            vertexes.push(v1); 
-            vertexes.push(v2);
-            var c = 0;   
-            
-            // trying to build enclosed shape
-            while (tvrtx.ind != first.ind) {
-                                
-                for (var i in lines) {
-                    
-                    if (c == 0) continue; // skip first line, already taken
-                    
-                    v1 = t.vertex[ lines[i].v1 ];
-                    v1.ind = lines[i].v1;
-
-                    v2 = t.vertex[ lines[i].v2 ];
-                    v2.ind = lines[i].v2;                                                         
-                    
-                    if (v1.ind == tvrtx.ind) {
-                        
-                        if (knownLines.indexOf(i) == -1) {
-                            
-                            shape.lineTo( v2.x, v2.y );
-                            tvrtx = v2; 
-                            knownLines.push( i );
-                            vertexes.push(v2);
-                            
-                            //if (drawNums) r_.spawnNumber( vert_known.length.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
-                        }
-                                                                      
-                    } else if (v2.ind == tvrtx.ind ){
-                        
-                        if (knownLines.indexOf(i) == -1) {
-                            
-                            shape.lineTo( v1.x, v1.y );
-                            tvrtx = v1;   
-                            knownLines.push( i );
-                            vertexes.push(v1);
-                            
-                            //if (drawNums) r_.spawnNumber( c.toString(), -tvrtx.x,  tsector.heightfloor, tvrtx.y );
-                        }                     
-                        
-                    }                   
-                                        
-                }    
-                c++;
-                if (c >= '50') { 
-                    console.log('exceeded')
-                    break;
                 }
+                console.log('....linesKnown:',linesKnown.length);
             }
-            // enclose shape
-            shape.lineTo( first.x, first.y );  
             
-            // ok, first enclosed shape is found. look for another line
-            //shapes.push( knownLines );
+            console.log('----shapes:', shapes);
             
-            var hole = new THREE.Path();
-            
-            c = 0;
-            for (var i in lines) {
+            // join shapes
+            var jshape = [];
+            for (s in shapes){
                 
-                if (knownLines.indexOf(i) == -1) {
-                    console.log('more lines:',i);
+                var ashape = [];
+                var tshape = shapes[s];
+                
+                for(var v in tshape){
                     
-                    // is it hole or additional shape?
-                    v1 = t.vertex[ lines[i].v1 ];
-                    v2 = t.vertex[ lines[i].v2 ];
-                    
-                    /*
-                    if ( r_.inPoly( v1, vertexes ) || r_.inPoly( v2, vertexes) ) {
-                        console.log('it is hole');
-                    } else {
-                        console.log('it is shape');
-                    }*/
-                    
-                    if (c == 0) {
-                        console.log(c,i,v1,v2)
-                        hole.moveTo(v1.x, v1.y);
-                        hole.lineTo(v2.x, v2.y);
-                    } else {
-                        console.log(c,i,v1,v2)
-                        //hole.lineTo(-v1.x, v1.y);
-                        //hole.lineTo(v2.x, v2.y);
-                    }
-                    
-                    //if (drawNums) r_.spawnNumber('0', -v1.x,  tsector.heightfloor, v1.y );
+                    ashape.push( new THREE.Vector2( tshape[v].x, tshape[v].y )  );
                 }
                 
-                c++;
+                jshape.push(tshape);
             }
             
-            //shape.holes.push(hole);
             
-            
-            var geoPoly = new THREE.ShapeGeometry( shape );                                    
+            var geoPoly = new THREE.ShapeGeometry( jshape );                                    
             var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.pic( tsector.texturefloor, 0.015, 0.015 ), transparent: true, opacity: 1 }) );            
             floor.position.y = tsector.heightfloor;
             floor.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);

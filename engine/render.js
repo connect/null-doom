@@ -455,7 +455,7 @@ r_.inPoly = function(point, vs) {
     // ray-casting algorithm based on
     // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
     
-    var x = point[0], y = point[1];
+    var x = point.x, y = point.y;
     
     var inside = false;
     for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
