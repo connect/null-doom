@@ -16,6 +16,8 @@ r_.prevTime = performance.now();
 r_.velocity = new THREE.Vector3();   
 r_.objects  = [];
 r_.floors = [];
+r_.walls = [];
+r_.sprites = [];
 r_.mats = {}; // material cachce
 r_.imgs = {}; // texture cache
 r_.hud = {};
@@ -125,6 +127,27 @@ r_.animate = function () {
             i_.act.jump = true;
         } 
         */
+       
+         
+       
+        // update things
+        for (var i in r_.sprites){
+            
+            var o = r_.sprites[i];
+                        
+            r_.raycaster2.ray.origin.copy( o.position );
+            r_.raycaster2.ray.origin.y += 200;
+
+            var hits = r_.raycaster2.intersectObjects( r_.floors );
+
+            if (hits[0] != undefined) {
+                // update things position
+                o.position.y = hits[0].object.position.y + (o.geometry.parameters.height /2 );                
+            } 
+            
+            // rotate things to allways face the player
+            o.rotation.y = i_.controls.getObject().rotation._y;
+        }
     }
 
     r_.prevTime = time;
@@ -292,10 +315,11 @@ r_.drawText = function(o){
 };
 
 r_.findFloor = function(x,z){
+    console.log('findFloor(',x,z);
     
-    r_.raycaster.ray.origin.set({ x: x, y: 200, z: z });
+    r_.raycaster2.ray.origin.set({ x: x, y: 100, z: z });
 
-    var hits = r_.raycaster.intersectObjects( r_.floors );
+    var hits = r_.raycaster2.intersectObjects( r_.floors );
     
     if (hits[0] != undefined) {
         console.log('floor found:',x,z)
@@ -361,7 +385,7 @@ r_.pic = function(f, repeatX, repeatY){
 };
 
 r_.postInit = function() {
-    console.log('r_.init()');
+    console.log('r_.postInit()');
        
     var scrMode     = r_.mode.current.split('x');
     var scrWidth    = scrMode[0];
@@ -389,9 +413,7 @@ r_.postInit = function() {
     r_.light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
     r_.light.position.set( 0.5, 1, 0.75 );
     r_.scene.add( r_.light );
- 
-    r_.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
-
+     
     r_.renderer = new THREE.WebGLRenderer({ antialias:false });
     r_.renderer.setClearColor( 0xffffff );
     r_.renderer.setPixelRatio( window.devicePixelRatio );
@@ -403,6 +425,9 @@ r_.postInit = function() {
     
     r_.raycaster = new THREE.Raycaster();
     r_.raycaster.ray.direction.set( 0, -1, 0 );
+    
+    r_.raycaster2 = new THREE.Raycaster();
+    r_.raycaster2.ray.direction.set( 0, -1, 0 );
     
     i_.init();    
     r_.modInit();
@@ -449,11 +474,11 @@ r_.postInit = function() {
     });
 };     
 
+// function based on
+// https://github.com/substack/point-in-polygon/blob/master/index.js
+// ray-casting algorithm based on
+// http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 r_.inPoly = function(point, vs) {
-    // function based on
-    // https://github.com/substack/point-in-polygon/blob/master/index.js
-    // ray-casting algorithm based on
-    // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
     
     var x = point.x, y = point.y;
     
@@ -553,6 +578,19 @@ r_.spawnNumber = function (n,x,y,z){
         sprite.position.set( x , y + (i * step) + (16 * r_.scale/4) , z );
         r_.scene.add(sprite);
     }
+};
+
+r_.spawnThing = function( map, width, height, x, y, blocking ){                       
+    var matPlane = new THREE.MeshBasicMaterial({ map: r_.pic(map), transparent: true, alphaTest: 0.5 });
+    var geoPlane = new THREE.PlaneGeometry(width * r_.scale/3, height * r_.scale/3);
+    var plane = new THREE.Mesh( geoPlane, matPlane );
+    plane.position.set( x, 0, y );
+    
+    r_.objects.push(plane);
+    r_.sprites.push(plane);
+    if (blocking) r_.walls.push(plane);
+    
+    r_.scene.add(plane);
 };
 
 core.loadNext();

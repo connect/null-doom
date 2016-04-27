@@ -108,8 +108,9 @@ o_.map = new function(){
         var vertexes = {};
         var floorheight = 0;
         
-        var drawWalls = 0;
-        var drawNums  = 1;
+        var drawWalls = 1;
+        var drawNums  = 0;
+        var drawOnlySector = false;
         
         var matLine = new THREE.LineBasicMaterial({ color: 0xff0000 });
         var matLineB = new THREE.LineDashedMaterial({ color: 0x0000ff, dashSize: 4, gapSize: 2  });
@@ -122,7 +123,7 @@ o_.map = new function(){
 
         for (var s in t.sector) {
             
-            if (s != 1) continue;           
+            if (drawOnlySector != false && s != drawOnlySector) continue;           
             
             var tsector  = t.sector[s];
             lines        = { count: 0 };
@@ -163,28 +164,28 @@ o_.map = new function(){
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
                             var line = new THREE.Line( geoLine, matLine );                            
                             r_.objects.push(line);
-                            r_.scene.add(line);*/
+                            r_.scene.add(line);
                                                       
                             // add vertex1
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y);
                             r_.objects.push(vert);
                             r_.scene.add(vert);
-                            /*
+                            
                             //add vline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );        
                             var line = new THREE.Line( geoLine, matLine );    
                             r_.objects.push(line);
-                            r_.scene.add(line);*/
+                            r_.scene.add(line);
                             
                             // add vertex2
                             var vert = new THREE.Mesh( geoVert, matVert );
                             vert.position.set(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y);
                             r_.objects.push(vert);
                             r_.scene.add(vert);       
-                            /*
+                            
                             //add vline
                             var geoLine = new THREE.Geometry();
                             geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );
@@ -199,7 +200,7 @@ o_.map = new function(){
                             if ( sides[i].texturetop != '-' ) {                                                                      
                                 
                                 var wallWidth = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ) *-1;                                 
-                                var wallHeight = tsector.heightceiling - t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightceiling +2;
+                                var wallHeight = tsector.heightceiling - t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightceiling;
                                 var geoWall = new THREE.PlaneGeometry( wallWidth, wallHeight );
                                 var matWall = new THREE.MeshBasicMaterial({ map: r_.pic( sides[i].texturetop ), side: THREE.DoubleSide });
                                 var wallAngle = Math.atan2(v2.y - v1.y, v2.x - v1.x);
@@ -211,6 +212,7 @@ o_.map = new function(){
                                     (v1.y + v2.y)/2
                                 );
                                 r_.objects.push(wall);
+                                r_.walls.push(wall);
                                 if (drawWalls) r_.scene.add(wall);
                             }
                             
@@ -229,6 +231,7 @@ o_.map = new function(){
                                     (v1.y + v2.y)/2
                                 );
                                 r_.objects.push(wall);
+                                r_.walls.push(wall);
                                 if (drawWalls) r_.scene.add(wall);
                             } else {
                                 //var matWall = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.1 });
@@ -245,10 +248,11 @@ o_.map = new function(){
                                 wall.rotateY( wallAngle );
                                 wall.position.set( 
                                     (-v1.x -v2.x)/2, 
-                                    t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightfloor - (wallHeight/2) + 1, 
+                                    t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightfloor - (wallHeight/2), 
                                     (v1.y + v2.y)/2
                                 );
                                 r_.objects.push(wall);
+                                r_.walls.push(wall);
                                 if (drawWalls) r_.scene.add(wall);
                             }
                             
@@ -379,21 +383,25 @@ o_.map = new function(){
             }
             
             //
-            // draw floor polygon
+            // Build floor & ceiling polygon
             //
             
-            console.log('....build floor particles');
+            //console.log('....build floor & ceiling polygon');
             
             var linesKnown  = [];
-            var shapes      = [];
+            var shapes      = []; // <array>
             var tshape      = [];
+            var jshapes     = []; // list of shapes to be joined
+            var holes       = {};
+            var cycle       = 0; // cycle count control
             
-            while (lines.count > linesKnown.length){
+            while (lines.count > linesKnown.length){ // +1 for lines.count itself  ?              
                 
                 //for every line
                 for (var l in lines){
                     
-                    if ( linesKnown.indexOf(l) != -1 ) continue; // skip known lines
+                    // skip known lines and counter
+                    if ( linesKnown.indexOf(l) != -1 || l == 'count') continue; 
                     
                     // get line vertexes
                     var v1 = t.vertex[ lines[l].v1 ];
@@ -401,6 +409,9 @@ o_.map = new function(){
                     
                     // are there any shape yet?
                     if (shapes.length == 0){
+                        
+                        //console.log('......first shape');
+                        //console.log('......line',l,'belongs to shape 0')
                         
                         // create first one
                         shapes.push([
@@ -410,27 +421,29 @@ o_.map = new function(){
                         
                         // remember the line
                         linesKnown.push(l);
+                        //break;
                         
                     } else {
                         
                         // there are some shapes already
-                        // find one is not finished yet
+                        // find one is not complete
                         for (var s in shapes){
                             
-                            tshape = shapes[s];
+                            tshape      = shapes[s];
                             
-                            // if shape not completed
-                            if ( tshape[0] != tshape[ tshape.length -1 ] ){
-                                
-                                var last = tshape[ tshape.length-1 ];
+                            var firstv  = tshape[0]; // first shape vertes
+                            var lastv   = tshape[ tshape.length-1 ]; // last shape vertex
+                            
+                            // if shape not complete
+                            if ( firstv.x != lastv.x || firstv.y != lastv.y ){
                                 
                                 // compare this line vertexes to last shape vertex
-                                var fv1 = ( last.x == v1.x && last.y == v1.y ) ? true : false;
-                                var fv2 = ( last.x == v2.x && last.y == v2.y ) ? true : false;
+                                var fv1 = ( lastv.x == v1.x && lastv.y == v1.y ) ? true : false;
+                                var fv2 = ( lastv.x == v2.x && lastv.y == v2.y ) ? true : false;
                                 
                                 if ( fv1 || fv2 ){
                                     
-                                    var first = tshape[0];
+                                    //console.log('......line',l,'belongs to shape',s)
                                     
                                     if ( fv1 ){
                                         
@@ -441,6 +454,14 @@ o_.map = new function(){
                                         tshape.push( new THREE.Vector2( v1.x, v1.y ) );
                                     }
                                     
+                                    // last vertex could be changed at this point 
+                                    lastv   = tshape[ tshape.length-1 ];
+                                                                      
+                                    if ( firstv.x == lastv.x && firstv.y == lastv.y ) {
+                                        
+                                        //console.log('......shape '+ s +' is complete');
+                                    } 
+                                    
                                     // remember the line
                                     linesKnown.push(l);
                                 }
@@ -448,50 +469,118 @@ o_.map = new function(){
                                 break; // don't proceed to next shape until this one is finished
                             }
                         }
+                        
+                        // if all known shapes are complete, but line still
+                        // not recognized, add new shape
+                        if ( firstv.x == lastv.x && firstv.y == lastv.y && linesKnown.indexOf(l) == -1) {
+                            
+                            //console.log('......new shape', shapes.length);
+                            
+                            shapes.push([
+                                new THREE.Vector2( v1.x, v1.y ),
+                                new THREE.Vector2( v2.x, v2.y )
+                            ]);    
+
+                            // remember the line
+                            linesKnown.push(l);
+                            
+                        }
                     }
                 }
-                console.log('....linesKnown:',linesKnown.length);
+                //console.log('......linesKnown:',linesKnown.length,'/',lines.count);
+                cycle++;
+                if (cycle > 50) break; // infinite loop protection
             }
             
-            console.log('----shapes:', shapes);
+            //console.log('....shapes found:',shapes);
             
-            // join shapes
-            var jshape = [];
-            for (s in shapes){
+            // Detect holes
+            //
+            //console.log('....detect holes in polygons');
+            
+            for (var s in shapes){
                 
-                var ashape = [];
-                var tshape = shapes[s];
-                
-                for(var v in tshape){
+                var inside = false;
+
+                // compare every shape pair
+                for (var j in shapes){
                     
-                    ashape.push( new THREE.Vector2( tshape[v].x, tshape[v].y )  );
+                    // don't compare to itself
+                    if (s == j) continue;
+                    
+                    // pick vertex from shapes[s] and compare it to shapes[j] 
+                    v1 = shapes[s][0];
+                    
+                    // compare vertex to shape
+                    inside = r_.inPoly( v1, shapes[j]);
+                    
+                    //console.log('inPoly():',inside)
+                    if ( inside ) {
+                        
+                        //console.log('......hole found')
+                        
+                        // shapes[s] is a hole for shapes[j]
+                        // populate holes[j] array with it
+                        if ( holes[j] == undefined ) {
+                            
+                            holes[j] = [ shapes[s] ];
+                            
+                        } else {
+                            
+                            holes[j].push( shapes[s] );
+                        }
+                    }
                 }
                 
-                jshape.push(tshape);
+                // if shape is not a hole add it to join list
+                if (!inside) {
+                    
+                    jshapes.push( shapes[s] );
+                }
             }
             
+            //console.log('....holes found:',holes);
             
+            // build final shape
+            //
+            var jshape = [];
+            
+            for (var s in jshapes){
+                
+                tshape = new THREE.Shape( shapes[s] );
+                
+                for (var h in holes[s]) {
+                    
+                    //console.log('......pushing hole',holes[s][h],'to','shape',s)
+                    tshape.holes.push( new THREE.Shape( holes[s][h].reverse() ) );
+                }
+                
+                jshape.push( tshape ); 
+            }
+            
+            // draw floor polygon
+            //
             var geoPoly = new THREE.ShapeGeometry( jshape );                                    
-            var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.pic( tsector.texturefloor, 0.015, 0.015 ), transparent: true, opacity: 1 }) );            
+            var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: r_.pic( tsector.texturefloor, 0.015, 0.015 ) }) );                        
+
+            floor.rotation.set( Math.PI/2, Math.PI, 0  );
             floor.position.y = tsector.heightfloor;
-            floor.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
             r_.objects.push(floor);
             r_.floors.push(floor);
             r_.scene.add(floor);
-            
+           
             
             // draw ceiling polygon
             //
             if (tsector.textureceiling.indexOf('SKY') == -1) {
 
-                var ceiling = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.BackSide, map: r_.pic( tsector.textureceiling, 0.015, 0.015 ), transparent: true, opacity: 1  }) );
+                var ceiling = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.BackSide, map: r_.pic( tsector.textureceiling, 0.015, 0.015 )  }) );               
+                ceiling.rotation.set(Math.PI/2, Math.PI, 0);
                 ceiling.position.y = tsector.heightceiling;
-                ceiling.rotation.set(-Math.PI/2, Math.PI/2000, Math.PI);
                 r_.objects.push(ceiling);
                 r_.scene.add(ceiling);
             }
             
-            //break; // process only first sector
         }
         
 
@@ -499,51 +588,103 @@ o_.map = new function(){
         //
         // Spawn Things
         //
+        console.log('....spawning things');
         for (i in t.thing) {
             
             var o = t.thing[i];
             
-            floorheight = r_.findFloor( -o.x, o.y );
+            if (!o.single) continue; // skip multiplayer things
+            
+            //floorheight = r_.findFloor( -o.x, o.y );
             //floorheight = (floorheight != false) ? floorheight.object.position.y : 0;
             floorheight = 0;
             
             switch (o.type) {
-            
-                // setup start spot
-                case 1: 
+                            
+                case 1: // setup start spot
                         i_.controls.getObject().position.set( -o.x, floorheight + cfg.playerHeight, o.y );
                         //i_.controls.getObject().rotateY( o.angle * Math.PI / -90 );
                     break;
-
-                // spawn tech column
-                case 48:
-                        var matSprite = new THREE.SpriteMaterial({ map: r_.pic('ELECA0') });
-                        var sprite = new THREE.Sprite( matSprite );
-                        sprite.scale.set(38 * r_.scale/3, 128 * r_.scale/3, 1);
-                        sprite.position.set(-o.x, floorheight + (128 * r_.scale/6)+ 30, o.y);
-                        r_.objects.push(sprite);
-                        r_.scene.add(sprite);
+                                    
+                case 10: // guts and bones
+                        r_.spawnThing('PLAYW0', 57, 22, -o.x, o.y);
+                    break;   
+                                
+                case 15: // dead player
+                        r_.spawnThing('PLAYN0', 51, 14, -o.x, o.y);
+                    break; 
+                                    
+                case 24: // pool of blood
+                        r_.spawnThing('POL5A0', 55, 10, -o.x, o.y);
+                    break; 
+                
+                case 35: // candelabra                       
+                        r_.spawnThing('CBRAA0', 29, 61, -o.x, o.y, true);
+                    break;
+                
+                case 48: // tech column                       
+                        r_.spawnThing('ELECA0', 38, 128, -o.x, o.y, true);
+                    break;
+                                
+                case 2001: // shotgun
+                        r_.spawnThing('SHOTA0', 63, 12, -o.x, o.y);
+                    break;
+                                
+                case 2003: // rocket launcher
+                        r_.spawnThing('LAUNA0', 62, 16, -o.x, o.y);
+                    break;
+                
+                case 2008: // shotgun shells
+                        r_.spawnThing('SHELA0', 15, 7, -o.x, o.y);
+                    break;
+                                    
+                case 2007: // ammo clip
+                        r_.spawnThing('CLIPA0', 9, 11, -o.x, o.y);
+                    break;    
+                                
+                case 2011: // stimpack
+                        r_.spawnThing('STIMA0', 14, 15, -o.x, o.y);
+                    break;
+                                
+                case 2012: // medkit
+                        r_.spawnThing('MEDIA0', 28, 19, -o.x, o.y);
+                    break;
+                                
+                case 2014: // health potion
+                        r_.spawnThing('BON1A0', 14, 18, -o.x, o.y);
+                    break;
+                
+                case 2015: // armor helmet
+                        r_.spawnThing('BON2A0', 16, 15, -o.x, o.y);
+                    break;  
+                                    
+                case 2018: // green armor
+                        r_.spawnThing('ARM1A0', 31, 17, -o.x, o.y);
+                    break;     
+                
+                case 2019: // blue armor
+                        r_.spawnThing('ARM2A0', 31, 17, -o.x, o.y);
                     break;
 
-                // spawn health potion
-                case 2014:
-                        var matSprite = new THREE.SpriteMaterial({ map: r_.imgs.BON1A0 });
-                        var sprite = new THREE.Sprite( matSprite );
-                        sprite.scale.set(14 * r_.scale/4, 18 * r_.scale/4, 1);
-                        sprite.position.set( -o.x, floorheight + (18 * r_.scale/8) , o.y );
-                        r_.objects.push(sprite);
-                        r_.scene.add(sprite);
+                case 2028: // yellow lamp
+                        r_.spawnThing('COLUA0', 23, 48, -o.x, o.y, true);
                     break;
-
-                // spawn barrel 
-                case 2035:
-                        var matSprite = new THREE.SpriteMaterial({ map: r_.imgs.BAR1A0 });
-                        var sprite = new THREE.Sprite( matSprite );
-                        sprite.scale.set( 23 * r_.scale/2, 32 * r_.scale/2, 1);
-                        sprite.position.set( -o.x, floorheight + (32 * r_.scale/8), o.y );
-                        r_.objects.push(sprite);
-                        r_.scene.add(sprite);
+                
+                case 2035: // barrel 
+                        r_.spawnThing('BAR1A0', 23, 32, -o.x, o.y, true);
                     break;
+                                
+                case 2046: // box of rockets
+                        r_.spawnThing('BROKA0', 54, 21, -o.x, o.y);
+                    break;
+                                
+                case 2048: // box of ammo
+                        r_.spawnThing('AMMOA0', 28, 16, -o.x, o.y);
+                    break;
+                                
+                case 2049: // box of shells
+                        r_.spawnThing('SBOXA0', 32, 12, -o.x, o.y);
+                    break;     
 
 
                 // add thing placeholder for rest

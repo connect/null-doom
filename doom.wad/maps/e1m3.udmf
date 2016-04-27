@@ -1,7 +1,4 @@
 namespace = "ZDoomTranslated";
-
-//Converted to UDMF with wad2udmf by Christopher M Freund
-
 thing //thing 0 
 {
 x = -1472.0;
