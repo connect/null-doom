@@ -17,25 +17,12 @@ r_.modInit = function(){
     r_.img.load({
         type: 'png',
         files: [     
-
-            // Barrel
-            'BAR1A0',
-
-            // Health potion
-            'BON1A0',
-
-            //
-            'COMP03_1',
-            'COMP03_2',
-
+          
             'CREDIT',
-
-            'FLAT14',
-            'FLOOR4_8',
-            'FLOOR5_1',
-            'FLOOR5_2',
-            'FLOOR5_3',
-
+            
+            // Pistol
+            'PISGA0',
+            
             // Shotgun
             'SHTGA0',
             'SHTGB0',
@@ -101,12 +88,7 @@ r_.modInit = function(){
             'AMMNUM8',
             'AMMNUM9',        
 
-            'TITLEPIC',        
-
-            'W28_5',
-            'W94_1',
-            'WALL03_7',  
-            'WALL05_2'
+            'TITLEPIC'
         ]
     }); 
 

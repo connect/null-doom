@@ -71,20 +71,71 @@ r_.animate = function () {
         if ( i_.act.attack) {
             //console.log(delta);
             //r_.wpn.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
-            s_.play('DSPISTOL.ogg');
-            i_.act.attack = false;
+            //s_.play('DSPISTOL.ogg');
+            //i_.act.attack = false;
             
         }
     
     }
 
-        
-
     if ( i_.controls.enabled ) {
         
+        // test against walls
+        //
+        /*
+        r_.raycaster.ray.origin.copy( i_.controls.getObject().position - (cfg.playerHeight/2) + 2 ); // cast from foot level
+
+        var rays = [
+            new THREE.Vector3(0, 0, 1),
+            new THREE.Vector3(1, 0, 1),
+            new THREE.Vector3(1, 0, 0),
+            new THREE.Vector3(1, 0, -1),
+            new THREE.Vector3(0, 0, -1),
+            new THREE.Vector3(-1, 0, -1),
+            new THREE.Vector3(-1, 0, 0),
+            new THREE.Vector3(-1, 0, 1)
+        ];
+        
+        // cast rays
+        for (var i = 0; i < this.rays.length; i += 1) {
+            
+            // We reset the raycaster to this direction
+            this.caster.set(this.mesh.position, this.rays[i]);
+            
+            // Test if we intersect with any obstacle mesh
+            var hits = this.caster.intersectObjects( r_.walls );
+            
+            // And disable that direction if we do
+            if (hits.length > 0 && hits[0].distance <= 32) { // distance = 32
+                
+                // Yep, this.rays[i] gives us : 0 => up, 1 => up-left, 2 => left, ...
+                if ((i === 0 || i === 1 || i === 7) && this.direction.z === 1) {
+                    
+                    this.direction.setZ(0);
+                    
+                } else if ((i === 3 || i === 4 || i === 5) && this.direction.z === -1) {
+                    
+                    this.direction.setZ(0);
+                }
+                
+                if ((i === 1 || i === 2 || i === 3) && this.direction.x === 1) {
+                    
+                    this.direction.setX(0);
+                    
+                } else if ((i === 5 || i === 6 || i === 7) && this.direction.x === -1) {
+                    
+                    this.direction.setX(0);
+                }
+            }
+        }
+        */
+       
+        // test against floor
+        //        
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
         r_.raycaster.ray.origin.y += 200;//cfg.playerHeight;
-
+        r_.raycaster.ray.direction.set( 0, -1, 0 );
+        
         var hits = r_.raycaster.intersectObjects( r_.floors );
         
         if (hits[0] != undefined) {
@@ -131,14 +182,15 @@ r_.animate = function () {
          
        
         // update things
+        //
         for (var i in r_.sprites){
             
             var o = r_.sprites[i];
                         
-            r_.raycaster2.ray.origin.copy( o.position );
-            r_.raycaster2.ray.origin.y += 200;
+            r_.raycaster.ray.origin.copy( o.position );
+            r_.raycaster.ray.origin.y += 200;
 
-            var hits = r_.raycaster2.intersectObjects( r_.floors );
+            var hits = r_.raycaster.intersectObjects( r_.floors );
 
             if (hits[0] != undefined) {
                 // update things position
@@ -164,7 +216,7 @@ r_.drawHud = function(){
     // WEAPON
     //       
     r_.mats.wpn = [        
-        new THREE.SpriteMaterial({map: r_.pic('PISGA0') }), 
+        new THREE.SpriteMaterial({map: r_.imgs.PISGA0 }), 
     ];
     r_.wpn.obj = new THREE.Sprite( r_.mats.wpn[0] );                
     
@@ -334,29 +386,38 @@ r_.findFloor = function(x,z){
 r_.img = new function(){
     var t = this;
     
-    t.load = function(o, success){
+    t.cached = 0;
+    
+    t.load = function(o){
         var f;
         //console.log('r_.img.load()');
         
         o.type = (o.type != undefined) ? o.type : 'png';
         
+        t.cached = 0;
+        
         for (var i in o.files) {
+            
             f = o.files[i];
             //console.log('load image:',f);
             
             r_.imgs[ f ] = new THREE.TextureLoader().load( cfg.mod+ "/gra/"+ f +"."+ o.type , function(texture){
-                // complete
+                
+                // complete                
                 texture.magFilter = THREE.NearestFilter;
                 texture.minFilter = THREE.LinearMipMapLinearFilter;                     
                 
-                if (typeof success == 'function'){
-                    
-                    success(texture);
-                }
+                t.cached++;
                 
+                if (typeof o.success == 'function'){
+                    
+                    o.success(texture);
+                }
             },function(e){
+                
                 // progress
             },function(e){
+                
                 // error
                 console.log('Texture loading error:',e)
             });            
@@ -370,18 +431,39 @@ r_.img = new function(){
 };
 
 // return picture from cache, or cache it
-r_.pic = function(f, repeatX, repeatY){
+r_.pic = function(f, repeatX, repeatY, callback){    
+    
+    if (typeof repeatX == 'function') {
+        
+        callback = repeatX;
+        repeatX  = 1;
+        repeatY  = 1;
+    }
     
     if ( r_.imgs[ f ] == undefined ) {
-        r_.img.load({ files: [ f ] });                
-    }
+        
+        r_.img.load({ 
+            files: [ f ], 
+            success: function(image){
+                
+                image.wrapS = image.wrapT = THREE.RepeatWrapping; 
+                image.repeat.set( repeatX, repeatY );
+                
+                if (typeof callback == 'function'){
+
+                    callback(image);
+                } 
+            } 
+        });   
+        
+    } else {
     
-    if (repeatX != undefined && repeatY != undefined) {
-        r_.imgs[ f ].wrapS = r_.imgs[ f ].wrapT = THREE.RepeatWrapping; 
-        r_.imgs[ f ].repeat.set( repeatX, repeatY );
-    }
-    
-    return r_.imgs[ f ];
+        // already cached
+        if (typeof callback == 'function'){
+
+            callback(r_.imgs[ f ]);
+        }            
+    }        
 };
 
 r_.postInit = function() {
@@ -424,10 +506,7 @@ r_.postInit = function() {
     window.addEventListener( 'resize', r_.onWindowResize, false );
     
     r_.raycaster = new THREE.Raycaster();
-    r_.raycaster.ray.direction.set( 0, -1, 0 );
-    
-    r_.raycaster2 = new THREE.Raycaster();
-    r_.raycaster2.ray.direction.set( 0, -1, 0 );
+    r_.raycaster.ray.direction.set( 0, -1, 0 );    
     
     i_.init();    
     r_.modInit();
@@ -580,16 +659,42 @@ r_.spawnNumber = function (n,x,y,z){
     }
 };
 
-r_.spawnThing = function( map, width, height, x, y, blocking ){                       
-    var matPlane = new THREE.MeshBasicMaterial({ map: r_.pic(map), transparent: true, alphaTest: 0.5 });
-    var geoPlane = new THREE.PlaneGeometry(width * r_.scale/3, height * r_.scale/3);
-    var plane = new THREE.Mesh( geoPlane, matPlane );
+r_.spawnThing = function( type, x, y, width, height ){  
+        
+    var thing = o_.things[ type ];
+    var texture;
+            
+    if (thing == undefined) return; // skip if not found in db
+
+    // define default frame    
+    //
+    if (thing.sequence[0] == '-') return; // skip special flag
+
+    if (thing.class.indexOf('M') != -1) {
+
+        texture = r_.imgs[ thing.sprite + 'A1' ];
+
+    } else {
+
+        texture = r_.imgs[ thing.sprite + thing.sequence[0] + '0' ];
+    }    
+    
+    if (texture == undefined) {
+        console.log('......texture not found', type);
+        return;
+    }
+    
+    var matPlane    = new THREE.MeshBasicMaterial({ map: texture, transparent: true, alphaTest: 0.5 });
+    var width       = (width == 0)  ? width  : texture.image.width;
+    var height      = (height == 0) ? height : texture.image.height;
+    var geoPlane    = new THREE.PlaneGeometry(width * r_.scale/3, height * r_.scale/3);
+    var plane       = new THREE.Mesh( geoPlane, matPlane );
     plane.position.set( x, 0, y );
-    
+
+    if ( thing.class.indexOf('O') != -1 ) r_.walls.push(plane);
+
     r_.objects.push(plane);
-    r_.sprites.push(plane);
-    if (blocking) r_.walls.push(plane);
-    
+    r_.sprites.push(plane);    
     r_.scene.add(plane);
 };
 
