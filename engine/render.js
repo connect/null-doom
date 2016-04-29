@@ -21,6 +21,7 @@ r_.sprites = [];
 r_.mats = {}; // material cachce
 r_.imgs = {}; // texture cache
 r_.hud = {};
+r_.globaltimer = 0;
 
 r_.animate = function () {
     
@@ -31,7 +32,10 @@ r_.animate = function () {
     var scrHeight   = scrMode[1];        
     
     var time = performance.now();
-    var delta = ( time - r_.prevTime ) / 1000;
+    var delta = ( time - r_.prevTime ) / 1000;      
+    
+    // camera bob
+    var bobfactor = 0;
     
     if (r_.wpn.obj != null) {
     
@@ -79,6 +83,12 @@ r_.animate = function () {
     }
 
     if ( i_.controls.enabled ) {
+        
+        // change bobfactor while moving
+        if ( i_.act.forward || i_.act.back || i_.act.left || i_.act.right) {
+            
+            bobfactor = Math.sin( time / 100 ) * 5;  
+        }
         
         // test against walls
         //
@@ -141,9 +151,9 @@ r_.animate = function () {
         if (hits[0] != undefined) {
             if (hits[0].distance < cfg.playerHeight) {
                 //console.log( hits[0].object)
-                i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight;
+                i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + bobfactor;
             } else if (hits[0].distance > cfg.playerHeight) {
-                i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight;
+                i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + bobfactor;
             }
         } else {
              //i_.controls.getObject().position.y = cfg.playerHeight;
@@ -153,7 +163,7 @@ r_.animate = function () {
 
         r_.velocity.x -= r_.velocity.x * 5.0 * delta; // 5.0 = speed
         r_.velocity.z -= r_.velocity.z * 5.0 * delta;
-        r_.velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass
+        r_.velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass       
 
         if ( i_.act.forward ) r_.velocity.z -= 1600.0 * delta; // @FIXME: 400 * delta
         if ( i_.act.back )    r_.velocity.z += 1600.0 * delta;
@@ -177,10 +187,29 @@ r_.animate = function () {
             i_.controls.getObject().position.y = cfg.playerHeight;
             i_.act.jump = true;
         } 
-        */
+        */                             
        
-         
-       
+        r_.globaltimer = (r_.globaltimer > 10) ? 0 : parseInt(r_.globaltimer)+1; 
+        
+        // update animated floors
+        //
+        if (r_.globaltimer == 0) {
+            for (var i in r_.floors){
+
+                var o = r_.floors[i];
+
+                if ( o.frame != undefined && o.sprite != undefined) {
+                                        
+                    var animated  = r_.img.animated[ o.sprite ];
+                    var nextFrame = ( animated[ o.frame + 1 ] != undefined ) ? o.frame + 1 : 0;
+                    
+                    o.frame = nextFrame;
+                    o.material.map = r_.imgs[ o.sprite + animated[ nextFrame ] ];
+                    o.material.needsUpdate = true;
+                }
+            };
+        }
+               
         // update things
         //
         for (var i in r_.sprites){
@@ -193,12 +222,40 @@ r_.animate = function () {
             var hits = r_.raycaster.intersectObjects( r_.floors );
 
             if (hits[0] != undefined) {
-                // update things position
-                o.position.y = hits[0].object.position.y + (o.geometry.parameters.height /2 );                
-            } 
+                // update things position          
+                var tsector = o_.map.sector[ hits[0].object.sector ];
+                o.position.y = hits[0].object.position.y + (o.geometry.parameters.height /2 ); 
+                
+                // update light source position
+                if (o.light != undefined) {                    
+                    o.light.position.y = o.position + 10;
+                }
+                
+            } else {
+                
+                tsector = o_.map.sector[0];
+            }
             
             // rotate things to allways face the player
             o.rotation.y = i_.controls.getObject().rotation._y;
+            
+            // update animation
+            if (r_.globaltimer == 0) {
+                
+                var thing       = o_.things[ o.type ];                                                                             
+                var sequence    = (thing.class.indexOf('M') != -1) ? 'ABCD' : thing.sequence;
+                var nextFrame   = ( sequence[ o.frame + 1] != undefined) ? o.frame + 1 : 0;                  
+                var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];                                
+                var color       = (o.light != undefined) ? new THREE.Color(0xffffff) : new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+                //if (thing.sprite == 'BON2') console.log(nextFrame);
+                
+                if (texture == undefined) console.log('no texture', thing.sprite, nextFrame, o.angle);
+                
+                o.frame = nextFrame;
+                o.material.map = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
+                o.material.color = color;
+                o.material.needsUpdate = true;                
+            }                        
         }
     }
 
@@ -401,11 +458,32 @@ r_.img = new function(){
             f = o.files[i];
             //console.log('load image:',f);
             
+            // if animated texture loaded, cache other frames
+            //
+            var animated = t.animated[ f.match(/\D+/) ];
+            
+            if ( animated != undefined ) {                
+                
+                for (var j in animated) {
+                    
+                    console.log('......more cache', f.match(/\D+/)+ animated[j]);
+                    var more = f.match(/\D+/)+ animated[j];
+                    
+                    r_.imgs[ more ] = new THREE.TextureLoader().load( cfg.mod+ "/gra/"+ more +"."+ o.type, function(texture){
+                        
+                        texture.magFilter = THREE.NearestFilter;
+                        texture.minFilter = THREE.NearestFilter;
+                    });
+                }
+            }
+            
             r_.imgs[ f ] = new THREE.TextureLoader().load( cfg.mod+ "/gra/"+ f +"."+ o.type , function(texture){
                 
                 // complete                
                 texture.magFilter = THREE.NearestFilter;
-                texture.minFilter = THREE.LinearMipMapLinearFilter;                     
+                //texture.minFilter = THREE.LinearMipMapLinearFilter;   
+                texture.minFilter = THREE.NearestFilter;
+                //texture.minFilter = THREE.NearestMipMapNearestFilter, 
                 
                 t.cached++;
                 
@@ -420,9 +498,13 @@ r_.img = new function(){
                 
                 // error
                 console.log('Texture loading error:',e)
-            });            
+            });                  
         }
         
+    };
+    
+    t.animated = {        
+        NUKAGE : [1,2,3]
     };
     
     t.ignored = [
@@ -492,8 +574,10 @@ r_.postInit = function() {
     r_.scene = new THREE.Scene();
     //scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
 
-    r_.light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
-    r_.light.position.set( 0.5, 1, 0.75 );
+    //r_.light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 2 );
+    r_.light = new THREE.HemisphereLight( 0xffffff, 0x000000, 1.5 );
+    r_.light.position.set( 0, 0, 0 );
+    r_.light.visible = true;
     r_.scene.add( r_.light );
      
     r_.renderer = new THREE.WebGLRenderer({ antialias:false });
@@ -501,6 +585,8 @@ r_.postInit = function() {
     r_.renderer.setPixelRatio( window.devicePixelRatio );
     r_.renderer.setSize( scrWidth, scrHeight );
     r_.renderer.autoClear = false;
+    //r_.renderer.gammaInput = true;
+    //r_.renderer.gammaOutput = true;
     document.body.appendChild( r_.renderer.domElement );
 
     window.addEventListener( 'resize', r_.onWindowResize, false );
@@ -663,6 +749,9 @@ r_.spawnThing = function( type, x, y, width, height ){
         
     var thing = o_.things[ type ];
     var texture;
+    var mobseq = 'ABCD';
+    var angle = 0;
+    var frame;
             
     if (thing == undefined) return; // skip if not found in db
 
@@ -671,30 +760,49 @@ r_.spawnThing = function( type, x, y, width, height ){
     if (thing.sequence[0] == '-') return; // skip special flag
 
     if (thing.class.indexOf('M') != -1) {
-
-        texture = r_.imgs[ thing.sprite + 'A1' ];
+        
+        // put random starting frame
+        frame   = c_.random(0,3);
+        texture = r_.imgs[ thing.sprite + mobseq[frame] + '1' ];
+        angle   = 1;
 
     } else {
-
-        texture = r_.imgs[ thing.sprite + thing.sequence[0] + '0' ];
+        
+        frame   = c_.random(0, thing.sequence.length-1); 
+        texture = r_.imgs[ thing.sprite + thing.sequence[frame] + '0' ];
+        angle = 0;
     }    
     
     if (texture == undefined) {
         console.log('......texture not found', type);
         return;
+    }                
+    
+    var matPlane    = new THREE.MeshPhongMaterial({ map: texture, transparent: true, alphaTest: 0.5 });
+    width           = (width == 0)  ? width  : texture.image.width;
+    height          = (height == 0) ? height : texture.image.height;
+    var geoPlane    = new THREE.PlaneGeometry(width * r_.scale/3, height * r_.scale/3);
+    var plane       = new THREE.Mesh( geoPlane, matPlane );    
+    
+    // spawn light sources
+    if ( thing.label.indexOf('lamp') != -1 || thing.label == 'Candelabra' || thing.label.indexOf('arrel') != -1){
+        
+        console.log('..spawning light source', thing.label)
+        plane.light = new THREE.PointLight( 0xff0000, 2, 200 ); 
+        plane.light = new THREE.Mesh( new THREE.SphereGeometry( 0.5, 16, 8 ), new THREE.MeshBasicMaterial({ color: 0xff0040 }) );
+        plane.light.position.set(x, 10, y);
+        r_.scene.add( plane.light );
     }
     
-    var matPlane    = new THREE.MeshBasicMaterial({ map: texture, transparent: true, alphaTest: 0.5 });
-    var width       = (width == 0)  ? width  : texture.image.width;
-    var height      = (height == 0) ? height : texture.image.height;
-    var geoPlane    = new THREE.PlaneGeometry(width * r_.scale/3, height * r_.scale/3);
-    var plane       = new THREE.Mesh( geoPlane, matPlane );
     plane.position.set( x, 0, y );
+    plane.type  = type;
+    plane.frame = frame;
+    plane.angle = angle;
 
     if ( thing.class.indexOf('O') != -1 ) r_.walls.push(plane);
 
     r_.objects.push(plane);
-    r_.sprites.push(plane);    
+    r_.sprites.push(plane);        
     r_.scene.add(plane);
 };
 

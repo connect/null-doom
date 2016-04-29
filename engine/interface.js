@@ -130,7 +130,7 @@ u_.openmenu = function( menuID ){
                 s_.play( s_.menuopen );
                 
                 if (typeof o.animate == 'function') {
-                    u_.menu.timer = window.setInterval(o.animate,500);
+                    u_.menu.timer = window.setInterval(o.animate,300);
                 }                                    
             },200);
         }

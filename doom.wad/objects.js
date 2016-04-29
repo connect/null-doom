@@ -8,13 +8,13 @@
 
 o_.map.loaded = function(){
     
-    // correct some textures
-    
+    // correct some textures    
     var textures = [
         'CEIL',
         'FLAT',
         'FLOOR',
-        'NUKAGE'
+        'NUKAGE',
+        'TLITE'
     ];
     
     for (var i in textures) {

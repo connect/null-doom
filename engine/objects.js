@@ -84,14 +84,18 @@ o_.map = new function(){
                 thing.sequence = thing.sequence.replace('+','');
             }
             
+            thing.sequence = (thing.class.indexOf('M') != -1) ? 'ABCD' : thing.sequence;
+            
             // collect all frames
             for (var j in thing.sequence) {                                                                                
             
-                if (thing.class.indexOf('M') != -1 || thing.sequence == '+' ) {
+                if (thing.class.indexOf('M') != -1  ) {
                                         
-                    //img = thing.sprite + thing.sequence[j] + '1';
-                    img = thing.sprite + 'A1';
+                    img = thing.sprite + thing.sequence[j] + '1';
                     
+                } else if (thing.sequence == '+') {
+                    
+                    img = thing.sprite + 'A' + '1';
                 } else {
                     
                     img = thing.sprite + thing.sequence[j] + '0';
@@ -268,14 +272,16 @@ o_.map = new function(){
                             
                             // upper texture
                             if ( sides[i].texturetop != '-' ) {                                                                      
-                                
-                                if ( t.sidedef[ t.linedef[j].sideback ] != undefined) {  
+                                console.log('front', tsector.textureceiling, 'back',t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].textureceiling)
+                                if ( t.sidedef[ t.linedef[j].sideback ] != undefined) {
+                                //if ( tsector.textureceiling.indexOf('SKY') != -1 || t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].textureceiling.indexOf('SKY') != -1){  
                                     
                                     var texture     = r_.imgs[ sides[i].texturetop ];
+                                    var color       = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
                                     var wallWidth   = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ) *-1;                                 
                                     var wallHeight  = tsector.heightceiling - t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightceiling;
                                     var geoWall     = new THREE.PlaneGeometry( wallWidth, wallHeight );
-                                    var matWall     = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
+                                    var matWall     = new THREE.MeshPhongMaterial({ map: texture, side: THREE.DoubleSide, color: color });
                                     var wallAngle   = Math.atan2(v2.y - v1.y, v2.x - v1.x);
                                     var wall        = new THREE.Mesh( geoWall, matWall );                            
 
@@ -295,11 +301,12 @@ o_.map = new function(){
                             // Middle texture                                                        
                             if ( sides[i].texturemiddle != '-' ) {                                                    
                                     
-                                    var texture     = r_.imgs[ sides[i].texturemiddle ];                                    
+                                    var texture     = r_.imgs[ sides[i].texturemiddle ]; 
+                                    var color       = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
                                     var wallWidth   = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ); 
                                     var wallHeight  = tsector.heightceiling - tsector.heightfloor+2;
                                     var geoWall     = new THREE.PlaneGeometry( wallWidth, wallHeight );                            
-                                    var matWall     = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide, alphaTest: 0.5 });
+                                    var matWall     = new THREE.MeshPhongMaterial({ map: texture, color: color, transparent: true, side: THREE.DoubleSide, alphaTest: 0.5 });
                                     var wallAngle   = Math.atan2(v2.y - v1.y, v2.x - v1.x);
                                     var wall        = new THREE.Mesh( geoWall, matWall );                            
                                     
@@ -322,11 +329,12 @@ o_.map = new function(){
                                 
                                 if ( t.sidedef[ t.linedef[j].sideback ] != undefined ) {
                                     
-                                    var texture     = r_.imgs[ sides[i].texturebottom ];                                    
+                                    var texture     = r_.imgs[ sides[i].texturebottom ];   
+                                    var color       = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
                                     var wallWidth   = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ); 
                                     var wallHeight  = t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightfloor - tsector.heightfloor +1;
                                     var geoWall     = new THREE.PlaneGeometry( wallWidth, wallHeight );                                                        
-                                    var matWall     = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.BackSide });
+                                    var matWall     = new THREE.MeshPhongMaterial({ map: texture, color: color, transparent: true, side: THREE.BackSide });
                                     var wallAngle   = Math.atan2(v2.y - v1.y, v2.x - v1.x);
                                     var wall        = new THREE.Mesh( geoWall, matWall );                            
                                     
@@ -515,9 +523,9 @@ o_.map = new function(){
 
                             // there are some shapes already
                             // find one is not complete
-                            for (var s in shapes){
+                            for (var sh in shapes){
 
-                                tshape      = shapes[s];
+                                tshape      = shapes[sh];
 
                                 var firstv  = tshape[0]; // first shape vertes
                                 var lastv   = tshape[ tshape.length-1 ]; // last shape vertex
@@ -586,10 +594,10 @@ o_.map = new function(){
                 //
                 //console.log('....detect holes in polygons');
 
-                for (var s in shapes){
+                for (var sh in shapes){
 
                     // ignore broken shapes
-                    if (shapes[s].length < 3) continue;
+                    if (shapes[sh].length < 3) continue;
                     
                     var inside = false;                                        
 
@@ -597,10 +605,10 @@ o_.map = new function(){
                     for (var j in shapes){
 
                         // don't compare to itself
-                        if (s == j) continue;
+                        if (sh == j) continue;
 
                         // pick vertex from shapes[s] and compare it to shapes[j] 
-                        v1 = shapes[s][0];
+                        v1 = shapes[sh][0];
 
                         // compare vertex to shape
                         inside = r_.inPoly( v1, shapes[j]);
@@ -614,11 +622,11 @@ o_.map = new function(){
                             // populate holes[j] array with it
                             if ( holes[j] == undefined ) {
 
-                                holes[j] = [ shapes[s] ];
+                                holes[j] = [ shapes[sh] ];
 
                             } else {
 
-                                holes[j].push( shapes[s] );
+                                holes[j].push( shapes[sh] );
                             }
                         }
                     }
@@ -626,24 +634,24 @@ o_.map = new function(){
                     // if shape is not a hole add it to join list
                     if (!inside) {
 
-                        jshapes.push( shapes[s] );
+                        jshapes.push( shapes[sh] );
                     }
                 }
 
-               // console.log('....holes found:',holes);
+                // console.log('....holes found:',holes);
 
                 // build final shape
                 //
                 var jshape = [];
 
-                for (var s in jshapes){
+                for (var sh in jshapes){
 
-                    tshape = new THREE.Shape( shapes[s] );
+                    tshape = new THREE.Shape( shapes[sh] );
 
-                    for (var h in holes[s]) {
+                    for (var h in holes[sh]) {
 
                         //console.log('......pushing hole',holes[s][h],'to','shape',s)
-                        tshape.holes.push( new THREE.Shape( holes[s][h].reverse() ) );
+                        tshape.holes.push( new THREE.Shape( holes[sh][h].reverse() ) );
                     }
 
                     jshape.push( tshape ); 
@@ -653,30 +661,43 @@ o_.map = new function(){
                 //
                 var geoPoly = new THREE.ShapeGeometry( jshape );    
                 
-                r_.pic( tsector.texturefloor, 0.015, 0.015, function(image){
-                
-                    var floor = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide, map: image }) );                        
+                var image = r_.imgs[ tsector.texturefloor ];                
+                var color = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+                var floor = new THREE.Mesh(  
+                    geoPoly, 
+                    new THREE.MeshPhongMaterial({ side: THREE.DoubleSide, map: image, color: color }) 
+                );                        
 
-                    floor.rotation.set( Math.PI/2, Math.PI, 0  );
-                    floor.position.y = tsector.heightfloor;
-                    r_.objects.push(floor);
-                    r_.floors.push(floor);
-                    r_.scene.add(floor);
-                });
+                floor.rotation.set( Math.PI/2, Math.PI, 0  );
+                floor.position.y = tsector.heightfloor;     
+                floor.sector     = s;
+                
+                if (r_.img.animated[ tsector.texturefloor.match(/\D+/)[0] ] != undefined) {                    
+                    floor.frame  = tsector.texturefloor.match(/\d+/)[0];
+                    floor.sprite = tsector.texturefloor.match(/\D+/)[0];
+                }
+                
+                r_.objects.push(floor);
+                r_.floors.push(floor);
+                r_.scene.add(floor);
 
 
                 // draw ceiling polygon
                 //
                 if (tsector.textureceiling.indexOf('SKY') == -1) {
                     
-                    r_.pic( tsector.textureceiling, 0.015, 0.015, function(image){
-
-                        var ceiling = new THREE.Mesh(  geoPoly, new THREE.MeshBasicMaterial({ side: THREE.BackSide, map: image  }) );               
-                        ceiling.rotation.set(Math.PI/2, Math.PI, 0);
-                        ceiling.position.y = tsector.heightceiling;
-                        r_.objects.push(ceiling);
-                        r_.scene.add(ceiling);
-                    });
+                    var image = r_.imgs[ tsector.textureceiling ];
+                    var color = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+                    var ceiling = new THREE.Mesh(  geoPoly, 
+                        new THREE.MeshPhongMaterial({ side: THREE.BackSide, map: image, color: color  }) 
+                    );               
+                    
+                    ceiling.rotation.set(Math.PI/2, Math.PI, 0);
+                    ceiling.position.y = tsector.heightceiling;
+                    ceiling.sector     = s;
+                    
+                    r_.objects.push(ceiling);
+                    r_.scene.add(ceiling);
                 }
 
             }
