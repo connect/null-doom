@@ -15,12 +15,13 @@
 r_.prevTime = performance.now();
 r_.velocity = new THREE.Vector3();   
 r_.objects  = [];
-r_.floors = [];
-r_.walls = [];
-r_.sprites = [];
-r_.mats = {}; // material cachce
-r_.imgs = {}; // texture cache
-r_.hud = {};
+r_.floors   = [];
+r_.ceilings = [];
+r_.walls    = [];
+r_.sprites  = [];
+r_.mats     = {}; // material cachce
+r_.imgs     = {}; // texture cache
+r_.hud      = {};
 r_.globaltimer = 0;
 
 r_.animate = function () {
@@ -32,7 +33,7 @@ r_.animate = function () {
     var scrHeight   = scrMode[1];        
     
     var time = performance.now();
-    var delta = ( time - r_.prevTime ) / 1000;      
+    var delta = ( time - r_.prevTime ) / 1000;              
     
     // camera bob
     var bobfactor = 0;
@@ -72,17 +73,136 @@ r_.animate = function () {
             }
         }
         
+        /*
         if ( i_.act.attack) {
             //console.log(delta);
             //r_.wpn.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
             //s_.play('DSPISTOL.ogg');
             //i_.act.attack = false;
             
+            // test hit or mis
+            r_.raycaster.ray.origin.copy( i_.controls.getObject().position );// - (cfg.playerHeight/2) + 2 ); // cast from foot level
+            r_.raycaster.ray.direction.copy( i_.controls.getDirection( new THREE.Vector3() ) );
+            var hits = r_.raycaster.intersectObjects( r_.walls );
+            
         }
+        */
+    }
     
+    if ( i_.act.use ){
+        
+        //console.log('..trying to use something')
+        r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+        r_.raycaster.ray.direction.copy( i_.controls.getDirection( new THREE.Vector3() ) );
+        var hits = r_.raycaster.intersectObjects( r_.walls );
+        
+        if (hits[0] != undefined)  {
+           
+            if (hits[0].object.linedef != undefined && hits[0].distance < 50) {
+            
+                var line = o_.map.linedef[ hits[0].object.linedef ];
+
+                //console.log('....we hit',line)
+
+                if (line.special == 1) {
+
+                    //console.log('......open the door!');
+                    c_.opendoor( o_.map.sidedef[ line.sideback ].sector );
+                }
+            }
+        }
+        
+        i_.act.use = false;
+    }
+    
+    // update specials
+    //
+    if ( o_.map.actions.length > 0){
+        
+        for (var a in o_.map.actions){
+            
+            var taction = o_.map.actions[a];
+            
+            // door opening
+            //
+            if (taction.special == 1) {              
+                
+                // raise walls
+                //
+                for (var i in taction.walls) {
+                    
+                    var twall = r_.walls[ taction.walls[i] ];
+                    twall.position.y += 100 * delta;
+
+                    if ( twall.position.y >= taction.height + (twall.geometry.parameters.height/2) -2 ) {
+                        console.log('......door opened')
+                        // stop the door, remove action
+                        o_.map.actions.splice( a, 1 );
+                    }
+                }
+                
+                // raise ceiling
+                //
+                r_.ceilings[ taction.ceiling ].position.y += 100 * delta;                
+            }
+        }
     }
 
-    if ( i_.controls.enabled ) {
+    if ( i_.controls.enabled ) {                
+                        
+        // test against walls
+        //
+        
+        var rotationMatrix = new THREE.Matrix4()
+        var direction = new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );
+        direction.y = 0;
+        
+        if ( i_.act.back ) {            
+            rotationMatrix.makeRotationY( Math.PI );
+        }
+        
+        if ( i_.act.left ) {            
+            rotationMatrix.makeRotationY( 0.5 * Math.PI );
+        }
+        
+        if ( i_.act.right ) {            
+            rotationMatrix.makeRotationY( 1.5 * Math.PI );
+        }
+        
+        direction.applyMatrix4(rotationMatrix);
+        
+        r_.raycaster.ray.origin.copy( i_.controls.getObject().position);
+        //r_.raycaster.ray.origin.y -= (cfg.playerHeight/2) +25;// +5 lets us step to ladder
+        r_.raycaster.ray.direction.copy( direction ); 
+        var hits = r_.raycaster.intersectObjects( r_.walls );
+        
+        if (hits[0] != undefined)
+        if (hits[0].distance < 20) {
+            
+            // pushback alittle                    
+            if (i_.act.forward) {
+                
+                i_.act.forward  = false;
+                r_.velocity.z   = 10;
+                
+            } else if (i_.act.back) {
+                
+                i_.act.back     = false;
+                r_.velocity.z   = -10;
+            }
+            
+            if (i_.act.left) {
+                
+                i_.act.left     = false;
+                r_.velocity.x   = 10;
+                
+            } else if (i_.act.right) {
+                
+                i_.act.right    = false;
+                r_.velocity.x   = -10;
+            }
+        }
+        
         
         // change bobfactor while moving
         if ( i_.act.forward || i_.act.back || i_.act.left || i_.act.right) {
@@ -90,11 +210,7 @@ r_.animate = function () {
             bobfactor = Math.sin( time / 100 ) * 5;  
         }
         
-        // test against walls
-        //
         /*
-        r_.raycaster.ray.origin.copy( i_.controls.getObject().position - (cfg.playerHeight/2) + 2 ); // cast from foot level
-
         var rays = [
             new THREE.Vector3(0, 0, 1),
             new THREE.Vector3(1, 0, 1),
@@ -148,14 +264,19 @@ r_.animate = function () {
         
         var hits = r_.raycaster.intersectObjects( r_.floors );
         
+        // @FIXME
         if (hits[0] != undefined) {
+            
             if (hits[0].distance < cfg.playerHeight) {
                 //console.log( hits[0].object)
                 i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + bobfactor;
+                
             } else if (hits[0].distance > cfg.playerHeight) {
+                
                 i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + bobfactor;
             }
         } else {
+            
              //i_.controls.getObject().position.y = cfg.playerHeight;
         }
         
@@ -165,7 +286,7 @@ r_.animate = function () {
         r_.velocity.z -= r_.velocity.z * 5.0 * delta;
         r_.velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass       
 
-        if ( i_.act.forward ) r_.velocity.z -= 1600.0 * delta; // @FIXME: 400 * delta
+        if ( i_.act.forward ) r_.velocity.z -= 1600.0 * delta;
         if ( i_.act.back )    r_.velocity.z += 1600.0 * delta;
 
         if ( i_.act.left )    r_.velocity.x -= 1600.0 * delta;
@@ -175,6 +296,8 @@ r_.animate = function () {
             r_.velocity.y = Math.max( 0, r_.velocity.y );
             i_.act.jump = true;
         }
+
+        //console.log( r_.velocity.x, r_.velocity.y, r_.velocity.z );
 
         i_.controls.getObject().translateX( r_.velocity.x * delta );
         i_.controls.getObject().translateY( r_.velocity.y * delta );

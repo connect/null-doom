@@ -11,6 +11,7 @@ o_.map = new function(){
     t.linedef   = [];
     t.sidedef   = [];
     t.sector    = [];    
+    t.actions   = []; 
     
     t.add = function(o){
         console.log('o_.map.add()')
@@ -272,7 +273,7 @@ o_.map = new function(){
                             
                             // upper texture
                             if ( sides[i].texturetop != '-' ) {                                                                      
-                                console.log('front', tsector.textureceiling, 'back',t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].textureceiling)
+                                //console.log('front', tsector.textureceiling, 'back',t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].textureceiling)
                                 if ( t.sidedef[ t.linedef[j].sideback ] != undefined) {
                                 //if ( tsector.textureceiling.indexOf('SKY') != -1 || t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].textureceiling.indexOf('SKY') != -1){  
                                     
@@ -285,6 +286,7 @@ o_.map = new function(){
                                     var wallAngle   = Math.atan2(v2.y - v1.y, v2.x - v1.x);
                                     var wall        = new THREE.Mesh( geoWall, matWall );                            
 
+                                    wall.linedef = j;
                                     wall.rotateY( wallAngle );                                
                                     wall.position.set( 
                                         (-v1.x -v2.x)/2, 
@@ -310,6 +312,7 @@ o_.map = new function(){
                                     var wallAngle   = Math.atan2(v2.y - v1.y, v2.x - v1.x);
                                     var wall        = new THREE.Mesh( geoWall, matWall );                            
                                     
+                                    wall.linedef = j;
                                     wall.rotateY( wallAngle );
                                     wall.position.set( 
                                         (-v1.x -v2.x)/2, 
@@ -320,8 +323,6 @@ o_.map = new function(){
                                     r_.objects.push(wall);
                                     r_.walls.push(wall);
                                     if (drawWalls) r_.scene.add(wall);
-                            } else {
-                                //var matWall = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.1 });
                             }
                             
                             // bottom texture
@@ -338,6 +339,7 @@ o_.map = new function(){
                                     var wallAngle   = Math.atan2(v2.y - v1.y, v2.x - v1.x);
                                     var wall        = new THREE.Mesh( geoWall, matWall );                            
                                     
+                                    wall.linedef = j;
                                     wall.rotateY( wallAngle );
                                     wall.position.set( 
                                         (-v1.x -v2.x)/2, 
@@ -351,68 +353,14 @@ o_.map = new function(){
                                 }
                             }
                             
-                        } else if (t.linedef[j].sideback == i ) { 
-                            
-                            //
-                            // ???
-                            //
+                        } else if (t.linedef[j].sideback == i ) {                             
                             
                             lines[j] = t.linedef[j];
                             lines.count++;
-                            /*
-                            // get vertexes
-                            //vertexes[ lines[j].v1 ] = t.vertex[ lines[j].v1 ];
-                            //vertexes[ lines[j].v2 ] = t.vertex[ lines[j].v2 ];
                             
-                            
-                            //add hline
-                            var geoLine = new THREE.Geometry();
-                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
-                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );        
-                            var line = new THREE.Line( geoLine, matLineB );
-                            r_.objects.push(line);
-                            r_.scene.add(line);
-                            
-                            //add hline2
-                            var geoLine = new THREE.Geometry();
-                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );
-                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
-                            var line = new THREE.Line( geoLine, matLineB );  
-                            r_.objects.push(line);
-                            r_.scene.add(line);
-                            
-                            
-                            // add vertex1
-                            var vert = new THREE.Mesh( geoVert, matVert );
-                            vert.position.set(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y);
-                            r_.objects.push(vert);
-                            r_.scene.add(vert);
-                            
-                            
-                            //add vline
-                            var geoLine = new THREE.Geometry();
-                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightfloor, t.vertex[ lines[j].v1 ].y) );
-                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v1 ].x, tsector.heightceiling, t.vertex[ lines[j].v1 ].y) );        
-                            var line = new THREE.Line( geoLine, matLineB );
-                            r_.objects.push(line);
-                            r_.scene.add(line);
-                            
-                            
-                            // add vertex2
-                            var vert = new THREE.Mesh( geoVert, matVert );
-                            vert.position.set(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y);
-                            r_.objects.push(vert);
-                            r_.scene.add(vert);
-                            
-                            
-                            //add vline
-                            var geoLine = new THREE.Geometry();
-                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightfloor, t.vertex[ lines[j].v2 ].y) );
-                            geoLine.vertices.push( new THREE.Vector3(-t.vertex[ lines[j].v2 ].x, tsector.heightceiling, t.vertex[ lines[j].v2 ].y) );        
-                            var line = new THREE.Line( geoLine, matLineB );          
-                            r_.objects.push(line);
-                            r_.scene.add(line);
-                            
+                            var v1 = t.vertex[ lines[j].v1 ];
+                            var v2 = t.vertex[ lines[j].v2 ];
+                            /*                            
                             // upper texture
                             if ( sides[i].texturetop != '-' ) {                            
                                 
@@ -430,14 +378,39 @@ o_.map = new function(){
                                 );
                                 r_.objects.push(wall);
                                 r_.scene.add(wall);
+                                
+                                
+                                if ( t.sidedef[ t.linedef[j].sideback ] != undefined) {                                
+                                    
+                                    var texture     = r_.imgs[ sides[i].texturetop ];
+                                    var color       = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+                                    var wallWidth   = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ) *-1;                                 
+                                    var wallHeight  = tsector.heightceiling - t.sector[ t.sidedef[ t.linedef[j].sidefront ].sector ].heightceiling;
+                                    var geoWall     = new THREE.PlaneGeometry( wallWidth, wallHeight );
+                                    var matWall     = new THREE.MeshPhongMaterial({ map: texture, side: THREE.DoubleSide, color: color });
+                                    var wallAngle   = Math.atan2(v2.y - v1.y, v2.x - v1.x);
+                                    var wall        = new THREE.Mesh( geoWall, matWall );                            
+
+                                    wall.linedef = j;
+                                    wall.rotateY( wallAngle );                                
+                                    wall.position.set( 
+                                        (-v1.x -v2.x)/2, 
+                                        t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightceiling + (wallHeight/2), 
+                                        (v1.y + v2.y)/2
+                                    );
+
+                                    r_.objects.push(wall);
+                                    r_.walls.push(wall);
+                                    if (drawWalls) r_.scene.add(wall);
+                                }
                             }
                             
-                            // texture middle
-                            var wallWidth = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ); 
-                            var wallHeight = tsector.heightceiling - tsector.heightfloor;
-                            var geoWall = new THREE.PlaneGeometry( wallWidth, wallHeight );
-                            
-                            if ( sides[i].texturemiddle != '-') {                            
+                            // texture middle                                                        
+                            if ( sides[i].texturemiddle != '-') {        
+                                
+                                var wallWidth = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ); 
+                                var wallHeight = tsector.heightceiling - tsector.heightfloor;
+                                var geoWall = new THREE.PlaneGeometry( wallWidth, wallHeight );
                                 var matWall = new THREE.MeshBasicMaterial({ map: r_.pic( sides[i].texturemiddle ), transparent: true });
                                 var wallAngle = Math.atan2(v2.y - v1.y, v2.x - v1.x);
                                 var wall = new THREE.Mesh( geoWall, matWall );                            
@@ -470,6 +443,33 @@ o_.map = new function(){
                                 );
                                 r_.objects.push(wall);
                                 r_.scene.add(wall);
+                            }
+                            
+                            if ( sides[i].texturebottom != '-' ) {                            
+                                
+                                if ( t.sidedef[ t.linedef[j].sidefront ] != undefined ) {
+                                    
+                                    var texture     = r_.imgs[ sides[i].texturebottom ];   
+                                    var color       = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+                                    var wallWidth   = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ); 
+                                    var wallHeight  = t.sector[ t.sidedef[ t.linedef[j].sidefront ].sector ].heightfloor - tsector.heightfloor +1;
+                                    var geoWall     = new THREE.PlaneGeometry( wallWidth, wallHeight );                                                        
+                                    var matWall     = new THREE.MeshPhongMaterial({ map: texture, color: color, transparent: true, side: THREE.BackSide });
+                                    var wallAngle   = Math.atan2(v2.y - v1.y, v2.x - v1.x);
+                                    var wall        = new THREE.Mesh( geoWall, matWall );                            
+                                    
+                                    wall.linedef = j;
+                                    wall.rotateY( wallAngle );
+                                    wall.position.set( 
+                                        (-v1.x -v2.x)/2, 
+                                        t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightfloor - (wallHeight/2), 
+                                        (v1.y + v2.y)/2
+                                    );
+                            
+                                    r_.objects.push(wall);
+                                    r_.walls.push(wall);
+                                    if (drawWalls) r_.scene.add(wall);                                    
+                                }
                             }
                             */
                         }
@@ -697,6 +697,7 @@ o_.map = new function(){
                     ceiling.sector     = s;
                     
                     r_.objects.push(ceiling);
+                    r_.ceilings.push(ceiling);
                     r_.scene.add(ceiling);
                 }
 

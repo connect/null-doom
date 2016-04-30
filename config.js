@@ -12,6 +12,7 @@ var cfg = {
     screenmode          : '1024x768',
     fullscreen          : 0,
     playerHeight        : 45,
+    musicvolume         : 0,
     
     bind: {
         38  : '+forward',   // uparrow
@@ -26,6 +27,8 @@ var cfg = {
         
         187 : 'zoomin',
         189 : 'zoomout',
+        
+        69  : '+use',        // e
         
         mouse1 : '+attack'
     }

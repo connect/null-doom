@@ -14,7 +14,7 @@ s_.init = function(){
 // init sound system
 s_.init();
 
-s_.items = [];
+s_.items = {};
 
 s_.load = function(o){
     
@@ -31,6 +31,9 @@ s_.load = function(o){
 };
 
 s_.play = function(o){
+    
+    o = ( s_.items[ o ] != undefined ) ? s_.items[ o ] : o;
+    
     $('<audio />')
         .attr('src', cfg.mod +'/snd/'+ o )
         .attr('preload', 'auto')
@@ -41,8 +44,12 @@ s_.play = function(o){
 };
 
 s_.playMusic = function(o){
+    
+    o = ( s_.items[ o ] != undefined ) ? s_.items[ o ] : o;
+    
     $('#music')
         .attr('src', cfg.mod +'/snd/'+ o )
+        .prop('volume', cfg.musicvolume )
         .trigger('play');    
 };
 
