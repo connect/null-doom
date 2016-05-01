@@ -61,7 +61,8 @@ o_.things = {
         sprite: 'SPOS',
         sequence: '+',
         class: 'MO',
-        label: 'Former Human Sergeant'
+        label: 'Former Human Sergeant',
+        death: s_.death
     },
     10: {
         radius: 16,

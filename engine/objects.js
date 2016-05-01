@@ -713,7 +713,7 @@ o_.map = new function(){
             
             var o = t.thing[i];
             
-            if (!o.single) continue; // skip multiplayer things
+            if (o.dm) continue; // skip multiplayer things
             
             //floorheight = r_.findFloor( -o.x, o.y );
             //floorheight = (floorheight != false) ? floorheight.object.position.y : 0;
@@ -722,7 +722,7 @@ o_.map = new function(){
             if (o.type == 1) { // setup start spot
                 
                 i_.controls.getObject().position.set( -o.x, floorheight + cfg.playerHeight, o.y );
-                //i_.controls.getObject().rotateY( o.angle * Math.PI / -90 );
+                i_.controls.getObject().rotation.set(0, (o.angle + 90) * Math.PI / 180 , 0 );
                 
             } else if ( o_.things[ o.type ] != undefined ) {
 
@@ -739,6 +739,53 @@ o_.map = new function(){
             }
         }
         
+        createSkyBox = function(){
+
+            function createMaterial( path, repeat, color ) {
+                
+                if (path != undefined) {
+                    var texture = THREE.ImageUtils.loadTexture(path);
+                    var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5 } );
+
+                    if (repeat != undefined){
+                        material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+                        material.map.repeat.set(repeat, repeat);
+                    }
+                } else if ( color != undefined){
+                    
+                    var material = new THREE.MeshBasicMaterial({ color: new THREE.Color(color) })
+                }
+                
+                
+                return material; 
+            }
+
+            // Load the skybox images and create list of materials
+            var materials = [
+                createMaterial( 'doom.wad/gra/SKY1.png' ), // right
+                createMaterial( 'doom.wad/gra/SKY1.png' ), // left
+                createMaterial( undefined, undefined, 'rgb(190,190,190)' ), // top
+                createMaterial( 'doom.wad/gra/F_SKY1.png' ), // bottom
+                createMaterial( 'doom.wad/gra/SKY1.png' ), // back
+                createMaterial( 'doom.wad/gra/SKY1.png' )  // front
+            ];
+
+            // Create a large cube
+            var mesh = new THREE.Mesh( 
+                new THREE.BoxGeometry( 10000, 8000, 10000, 1, 1, 1 ), 
+                new THREE.MeshFaceMaterial( materials ) 
+            );
+
+            mesh.position.copy( i_.controls.getObject().position );
+            mesh.position.y += 2000;
+
+            // Set the x scale to be -1, this will turn the cube inside out
+            mesh.scale.set(-1,1,1);
+            r_.scene.add( mesh );  
+            
+            //r_.scene.fog = new THREE.Fog( 0xcccccc, 5000, 7000 );
+        };
+        createSkyBox();
     };    
     
     t.loadWalls = function(){
@@ -939,12 +986,12 @@ o_.map = new function(){
 
             // Load the skybox images and create list of materials
             var materials = [
-                createMaterial( 'doom.wad/gra/SKY4.png' ), // right
-                createMaterial( 'doom.wad/gra/SKY4.png' ), // left
-                createMaterial( 'doom.wad/gra/SKY4.png' ), // top
+                createMaterial( 'doom.wad/gra/SKY1.png' ), // right
+                createMaterial( 'doom.wad/gra/SKY1.png' ), // left
+                createMaterial( 'doom.wad/gra/SKY1.png' ), // top
                 createMaterial( 'doom.wad/gra/F_SKY1.png' ), // bottom
-                createMaterial( 'doom.wad/gra/SKY4.png' ), // back
-                createMaterial( 'doom.wad/gra/SKY4.png' )  // front
+                createMaterial( 'doom.wad/gra/SKY1.png' ), // back
+                createMaterial( 'doom.wad/gra/SKY1.png' )  // front
             ];
 
             // Create a large cube
@@ -972,7 +1019,7 @@ o_.map = new function(){
             r_.scene.add(mesh);
         };
 
-        createSkySphere();
+        //createSkySphere();
 
 
         //scene.fog = new THREE.FogExp2( 0x9999ff, 0.00025 );

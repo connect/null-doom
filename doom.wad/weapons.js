@@ -29,6 +29,14 @@ o_.wpn.data = {
         cache       : 'ABCDE',
         fire        : 'BCDE',
         flash       : 'A',
+        hitwall     : {
+            sprite  : 'PUFF',
+            sequence: 'ABCD',
+        },        
+        hitflesh    : {
+            sprite  : 'BLUD',
+            sequence: 'ABC'
+        },
         onFire      : {
             
         }

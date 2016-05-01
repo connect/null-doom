@@ -23,6 +23,7 @@ r_.mats     = {}; // material cachce
 r_.imgs     = {}; // texture cache
 r_.hud      = {};
 r_.globaltimer = 0;
+r_.direction= false;
 
 r_.animate = function () {
     
@@ -73,22 +74,52 @@ r_.animate = function () {
             }
         }
         
-        /*
+        
         if ( i_.act.attack) {
             //console.log(delta);
             //r_.wpn.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
-            //s_.play('DSPISTOL.ogg');
-            //i_.act.attack = false;
+            s_.play('DSPISTOL.ogg');
+            i_.act.attack = false;
             
             // test hit or mis
-            r_.raycaster.ray.origin.copy( i_.controls.getObject().position );// - (cfg.playerHeight/2) + 2 ); // cast from foot level
+            r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
             r_.raycaster.ray.direction.copy( i_.controls.getDirection( new THREE.Vector3() ) );
-            var hits = r_.raycaster.intersectObjects( r_.walls );
+            var hits = r_.raycaster.intersectObjects( r_.sprites );
             
+            if (hits[0] != undefined) {
+                                
+                var thing = o_.things[ hits[0].object.type ];
+                
+                if (thing != undefined){
+                    
+                    console.log('hit ',thing.label)
+                    
+                    if (thing.class.indexOf('M') != -1){
+                                                
+                        
+                        // instagib
+                        if (thing.class.indexOf('O') != -1) {
+                            //r_.walls.splice();
+                        }
+                        for (var i in r_.sprites) {
+                            if (r_.sprites[i].id == hits[0].object.id) {
+                                r_.sprites.splice( i, 1);
+                                break;
+                            }
+                        }
+                        r_.scene.remove( hits[0].object );
+                    }
+                }
+            } else {
+                
+                console.log('mis!')
+            }
         }
-        */
+        
     }
     
+    // use/open action
+    //
     if ( i_.act.use ){
         
         //console.log('..trying to use something')
@@ -101,6 +132,7 @@ r_.animate = function () {
             if (hits[0].object.linedef != undefined && hits[0].distance < 50) {
             
                 var line = o_.map.linedef[ hits[0].object.linedef ];
+                //var texture = 
 
                 //console.log('....we hit',line)
 
@@ -108,6 +140,10 @@ r_.animate = function () {
 
                     //console.log('......open the door!');
                     c_.opendoor( o_.map.sidedef[ line.sideback ].sector );
+                    
+                } else {
+                    
+                    s_.play( s_.ugh );
                 }
             }
         }
@@ -150,12 +186,13 @@ r_.animate = function () {
 
     if ( i_.controls.enabled ) {                
                         
-        // test against walls
+        // test collisions against walls
         //
         
         var rotationMatrix = new THREE.Matrix4()
-        var direction = new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );
-        direction.y = 0;
+        //r_.direction = (r_.direction) ? r_.direction : new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );
+        r_.direction = new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );
+        r_.direction.y = 0;
         
         if ( i_.act.back ) {            
             rotationMatrix.makeRotationY( Math.PI );
@@ -169,94 +206,98 @@ r_.animate = function () {
             rotationMatrix.makeRotationY( 1.5 * Math.PI );
         }
         
-        direction.applyMatrix4(rotationMatrix);
+        r_.direction.applyMatrix4(rotationMatrix);
         
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position);
-        //r_.raycaster.ray.origin.y -= (cfg.playerHeight/2) +25;// +5 lets us step to ladder
-        r_.raycaster.ray.direction.copy( direction ); 
+        r_.raycaster.ray.origin.y -= (cfg.playerHeight/2);
+        r_.raycaster.ray.direction.copy( r_.direction ); 
         var hits = r_.raycaster.intersectObjects( r_.walls );
         
         if (hits[0] != undefined)
         if (hits[0].distance < 20) {
             
             // pushback alittle                    
-            if (i_.act.forward) {
-                
+            if (i_.act.forward)     {
                 i_.act.forward  = false;
-                r_.velocity.z   = 10;
+                r_.velocity.z   = 21;
                 
-            } else if (i_.act.back) {
+            } else if (i_.act.back ) {
+            //} else {
                 
                 i_.act.back     = false;
-                r_.velocity.z   = -10;
+                r_.velocity.z   = -21;
             }
             
-            if (i_.act.left) {
-                
+            if (i_.act.left ) {
+            //if ( r_.direction.x < 0) {
                 i_.act.left     = false;
-                r_.velocity.x   = 10;
+                r_.velocity.x   = 21;
                 
-            } else if (i_.act.right) {
-                
+            } else if (i_.act.right ) {
+            //} else {
                 i_.act.right    = false;
-                r_.velocity.x   = -10;
-            }
+                r_.velocity.x   = -21;
+                
+            }  
+            //r_.velocity = new THREE.Vector3(0,0,0);
+            //console.log( r_.direction.x, r_.direction.z );
+            r_.direction = false;
         }
         
+        // test collisions agains items
+        //
+        //r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+        //r_.raycaster.ray.origin.y -= (cfg.playerHeight/2)
+        r_.raycaster.ray.origin.y -= (cfg.playerHeight/2);
+        var hits  = r_.raycaster.intersectObjects( r_.sprites );
+        //var hits2 = r_.raycaster.intersectObjects( r_.sprites );
+        
+        if (hits[0] != undefined)
+        for (var h in hits){
+            if (hits[h].distance < 100) {
+
+                var thing = o_.things[ hits[h].object.type ];
+
+                //console.log('collision with',thing.label)
+
+                if ( thing.class.indexOf('P') != -1 ){
+
+                    var id = hits[h].object.id;
+
+                    // pick up item
+                    console.log("You've got "+thing.label+'!');
+
+                    if (thing.sound == undefined) {
+
+                        if (thing.class.indexOf('W') != -1) {
+                            // weapon
+                            s_.play( s_.getweapon );
+
+                        } else {
+                            s_.play( s_.getitem );
+                        }
+                    }
+
+                    // remove item from world
+                    r_.scene.remove( hits[h].object );
+
+                    for (var i in r_.sprites) {
+                        if (r_.sprites[i].id == id) {
+                            r_.sprites.splice( i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        };
         
         // change bobfactor while moving
         if ( i_.act.forward || i_.act.back || i_.act.left || i_.act.right) {
             
             bobfactor = Math.sin( time / 100 ) * 5;  
-        }
-        
-        /*
-        var rays = [
-            new THREE.Vector3(0, 0, 1),
-            new THREE.Vector3(1, 0, 1),
-            new THREE.Vector3(1, 0, 0),
-            new THREE.Vector3(1, 0, -1),
-            new THREE.Vector3(0, 0, -1),
-            new THREE.Vector3(-1, 0, -1),
-            new THREE.Vector3(-1, 0, 0),
-            new THREE.Vector3(-1, 0, 1)
-        ];
-        
-        // cast rays
-        for (var i = 0; i < this.rays.length; i += 1) {
-            
-            // We reset the raycaster to this direction
-            this.caster.set(this.mesh.position, this.rays[i]);
-            
-            // Test if we intersect with any obstacle mesh
-            var hits = this.caster.intersectObjects( r_.walls );
-            
-            // And disable that direction if we do
-            if (hits.length > 0 && hits[0].distance <= 32) { // distance = 32
-                
-                // Yep, this.rays[i] gives us : 0 => up, 1 => up-left, 2 => left, ...
-                if ((i === 0 || i === 1 || i === 7) && this.direction.z === 1) {
-                    
-                    this.direction.setZ(0);
-                    
-                } else if ((i === 3 || i === 4 || i === 5) && this.direction.z === -1) {
-                    
-                    this.direction.setZ(0);
-                }
-                
-                if ((i === 1 || i === 2 || i === 3) && this.direction.x === 1) {
-                    
-                    this.direction.setX(0);
-                    
-                } else if ((i === 5 || i === 6 || i === 7) && this.direction.x === -1) {
-                    
-                    this.direction.setX(0);
-                }
-            }
-        }
-        */
+        }                
        
-        // test against floor
+        // test collisions against floor
         //        
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
         r_.raycaster.ray.origin.y += 200;//cfg.playerHeight;
@@ -484,7 +525,7 @@ r_.drawHud = function(){
         z: (scrHeight/-2) + (scrHeight * 0.105)  
     });
     r_.drawText({
-        text: '3', prefix: 'STYS',
+        text: '3', prefix: 'STG',
         width: 4, height: 6, direction: 'ltr',
         x: (scrWidth/-2) + (scrWidth * 0.39)  ,
         z: (scrHeight/-2) + (scrHeight * 0.105)  
@@ -512,6 +553,57 @@ r_.drawHud = function(){
         width: 4, height: 6, direction: 'ltr',
         x: (scrWidth/-2) + (scrWidth * 0.425)  ,
         z: (scrHeight/-2) + (scrHeight * 0.065)  
+    });
+    
+    // Ammo Info
+    r_.drawText({
+        text: '50', prefix: 'STYS',
+        width: 4, height: 6, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.91)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.10)  
+    });
+    r_.drawText({
+        text: '0', prefix: 'STYS',
+        width: 4, height: 6, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.91)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.075)  
+    });
+    r_.drawText({
+        text: '0', prefix: 'STYS',
+        width: 4, height: 6, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.91)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.050)  
+    });
+    r_.drawText({
+        text: '0', prefix: 'STYS',
+        width: 4, height: 6, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.91)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.025)  
+    });
+    
+    r_.drawText({
+        text: '200', prefix: 'STYS',
+        width: 4, height: 6, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.99)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.10)  
+    });
+    r_.drawText({
+        text: '50', prefix: 'STYS',
+        width: 4, height: 6, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.99)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.075)  
+    });
+    r_.drawText({
+        text: '50', prefix: 'STYS',
+        width: 4, height: 6, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.99)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.050)  
+    });
+    r_.drawText({
+        text: '300', prefix: 'STYS',
+        width: 4, height: 6, direction: 'rtl',
+        x: (scrWidth/-2) + (scrWidth * 0.99)  ,
+        z: (scrHeight/-2) + (scrHeight * 0.025)  
     });
 };
 
@@ -924,7 +1016,6 @@ r_.spawnThing = function( type, x, y, width, height ){
 
     if ( thing.class.indexOf('O') != -1 ) r_.walls.push(plane);
 
-    r_.objects.push(plane);
     r_.sprites.push(plane);        
     r_.scene.add(plane);
 };

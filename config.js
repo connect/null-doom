@@ -23,12 +23,13 @@ var cfg = {
         83  : '+back',      // s
         39  : '+right',     // right
         68  : '+right',     // d
-        32  : '+jump',      // space
+        
         
         187 : 'zoomin',
         189 : 'zoomout',
         
         69  : '+use',        // e
+        32  : '+use',        // space
         
         mouse1 : '+attack'
     }
