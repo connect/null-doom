@@ -76,29 +76,38 @@ o_.map = new function(){
             var thing = o_.things[ t.thing[i].type ];
             var img;
             
-            if (thing == undefined) continue; // skip if not found in db   
-            
-            if (thing.sprite == 'none') continue; // skip if no sprite
+            if (thing == undefined || thing.sprite == 'none') continue; // skip if no sprite or if not found in db               
 
             // remove '+' from sequence if other available
             if (thing.sequence.indexOf('+') != -1 && thing.sequence.length > 1) {
                 thing.sequence = thing.sequence.replace('+','');
             }
             
-            if (thing.class.indexOf('M') != -1) {
+            if (thing.class.indexOf('M') != -1) { // monster
                 
                 var template = o_.things[ thing.template ];
+                
+                for (var j in template) {
+                    
+                    var angle = (j == 'death' || j == 'gibs') ? 0 : 1;
+                    
+                    for (var s in template[j]){
+                        
+                        var img = thing.sprite + template[j][s] + angle;
+                        
+                        if ( cachelist.indexOf(img) == -1) {
+
+                            cachelist.push(img);
+                        }
+                    }
+                }
                 
             } else {                            
 
                 // collect all frames
                 for (var j in thing.sequence) {                                                                                
 
-                    if (thing.class.indexOf('M') != -1  ) {
-
-                        img = thing.sprite + thing.sequence[j] + '1';
-
-                    } else if (thing.sequence == '+') {
+                    if (thing.sequence == '+') {
 
                         img = thing.sprite + 'A' + '1';
                     } else {
@@ -126,7 +135,7 @@ o_.map = new function(){
             }
         }
         
-        // Cache it
+        // Cache it all
         //
         for (var i in cachelist) {
             
@@ -1301,6 +1310,8 @@ o_.map = new function(){
             });
     };
 };
+
+o_.wpn = {};
 
 o_.postInit = function(o){
     

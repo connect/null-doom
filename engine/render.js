@@ -166,18 +166,16 @@ r_.animate = function () {
                     
                     console.log('hit',thing.label)
                     
-                    if (thing.class.indexOf('M') != -1){
-                        
-                        var template = o_.things[ thing.template ];
+                    if (thing.class.indexOf('M') != -1){                        
                         
                         // play death sound
-                        if (typeof thing.death == 'object' && thing.death.length > 1) {
+                        if (typeof thing.sfx_death == 'object' && thing.sfx_death.length > 1) {
                             
-                            s_.play( thing.death[ c_.random( 0, thing.death.length-1 ) ]);
+                            s_.play( thing.sfx_death[ c_.random( 0, thing.sfx_death.length-1 ) ]);
                             
-                        } else if (thing.death != undefined) {
+                        } else if (thing.sfx_death != undefined) {
                             
-                            s_.play( thing.death );
+                            s_.play( thing.sfx_death );
                         }                                                
                         
                         // remove obstacle
@@ -195,6 +193,7 @@ r_.animate = function () {
                         // put dying state
                         obj.state = 'death';
                         obj.frame = 0;
+                        obj.angle = 0;
                     }
                 }
             } else {
@@ -396,6 +395,7 @@ r_.animate = function () {
         for (var i in r_.sprites){
             
             var o = r_.sprites[i];
+            var tsector;
                         
             r_.raycaster.ray.origin.copy( o.position );
             r_.raycaster.ray.origin.y += 200;
@@ -403,14 +403,16 @@ r_.animate = function () {
             var hits = r_.raycaster.intersectObjects( r_.floors );
 
             if (hits[0] != undefined) {
+                
                 // update things position          
-                var tsector = o_.map.sector[ hits[0].object.sector ];
+                tsector = o_.map.sector[ hits[0].object.sector ];
                 o.position.y = hits[0].object.position.y + (o.geometry.parameters.height /2 ); 
                 
                 // update light source position
+                /*
                 if (o.light != undefined) {                    
                     o.light.position.y = o.position + 10;
-                }
+                }*/
                 
             } else {
                 
@@ -433,11 +435,10 @@ r_.animate = function () {
                     if (template == undefined) {
                         console.log('..template not found for',thing.label)
                     }
-                    var sequence    = template[ o.state ];
                     
-                    if ( sequence[ o.frame + 1] != undefined ) {
-                        
-                        // last frame in sequence
+                    var sequence = template[ o.state ];
+                    
+                    if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
                         
                         // let it finally die
                         if ( o.state == 'death') {
@@ -453,32 +454,51 @@ r_.animate = function () {
                             r_.scene.remove( o );
 
                             // spawn corpse
-                            r_.spawnThing( thing.corpse, o.position.x, o.position.z );
+                            r_.spawnThing( thing.corpse, o.position.x, o.position.z );      
                             
-                            continue;
-                        }
+                            break;
+                            
+                        } else {
+                            
+                            var nextFrame = 0;
+                        } 
+                        
                     } else {
                         
+                        // there are some frames to show
+                        
                         var nextFrame = o.frame + 1;
-                        var texture   = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
+                        
+                        //console.log( texture.image.width, texture.image.height);
+                        // frames might have different sizes                
+                        //o.position.y            = 
+                        //var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
+                        //o.scale.x               = texture.image.width; 
+                        //o.scale.y               = texture.image.height;
+                        //o.scale
                     }                                                                        
                 
                 } else {
                     
                     var sequence    = thing.sequence;
                     var nextFrame   = ( sequence[ o.frame + 1] != undefined) ? o.frame + 1 : 0;                  
-                    var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];                                
+
+                }  
                 
-                }                               
+                var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
                 
-                //if (thing.sprite == 'BON2') console.log(nextFrame);
-                
-                if (texture == undefined) console.log('no texture', thing.sprite, nextFrame, o.angle);
-                
-                o.frame = nextFrame;
-                o.material.map = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
-                o.material.color = color;
-                o.material.needsUpdate = true;                
+                if (texture == undefined) {
+                    
+                    console.log('no texture', thing.sprite, o.state, nextFrame, o.angle);
+                    
+                } else {
+                    
+                    o.frame                 = nextFrame;
+                    o.material.map          = texture;
+                    //o.scale.set(1,1,1);
+                    o.material.color        = color;
+                    o.material.needsUpdate  = true;
+                }                                                
             }                        
         }
     }
@@ -1028,13 +1048,14 @@ r_.spawnNumber = function (n,x,y,z){
     }
 };
 
-r_.spawnThing = function( type, x, y, width, height ){  
+r_.spawnThing = function( type, x, y ){  
         
     var thing = o_.things[ type ];
     var texture;
-    var mobseq = 'ABCD';
+    var sequence;
     var angle = 0;
     var frame;
+    var template;
             
     if (thing == undefined) return; // skip if not found in db
 
@@ -1042,32 +1063,36 @@ r_.spawnThing = function( type, x, y, width, height ){
     //
     if (thing.sequence[0] == '-') return; // skip special flag
 
-    if (thing.class.indexOf('M') != -1) {
+    if (thing.class.indexOf('M') != -1) { // monster
         
-        // put random starting frame
-        frame   = c_.random(0,3);
-        texture = r_.imgs[ thing.sprite + mobseq[frame] + '1' ];
-        angle   = 1;
-
+        template = o_.things[ thing.template ];
+        sequence = template.move;      
+        frame    = c_.random(0, sequence.length-1); // put random starting frame
+        angle    = 1;
+        
     } else {
         
-        frame   = c_.random(0, thing.sequence.length-1); 
-        texture = r_.imgs[ thing.sprite + thing.sequence[frame] + '0' ];
-        angle = 0;
+        sequence = thing.sequence;
+        frame    = c_.random(0, thing.sequence.length-1); 
+        angle    = 0;
+        
     }    
     
+    texture = r_.imgs[ thing.sprite + sequence[frame] + angle ];
+    
     if (texture == undefined) {
-        console.log('......texture not found', type);
+        console.log('......texture not found', type, o_.things[ type ].label);
         return;
     }                
     
     var matPlane    = new THREE.MeshPhongMaterial({ map: texture, transparent: true, alphaTest: 0.5 });
-    width           = (width == 0)  ? width  : texture.image.width;
-    height          = (height == 0) ? height : texture.image.height;
+    var width       = texture.image.width;
+    var height      = texture.image.height;
     var geoPlane    = new THREE.PlaneGeometry(width * r_.scale/3, height * r_.scale/3);
     var plane       = new THREE.Mesh( geoPlane, matPlane );    
     
     // spawn light sources
+    /* @FIXME
     if ( thing.label.indexOf('lamp') != -1 || thing.label == 'Candelabra' || thing.label.indexOf('arrel') != -1){
         
         console.log('..spawning light source', thing.label)
@@ -1076,6 +1101,7 @@ r_.spawnThing = function( type, x, y, width, height ){
         plane.light.position.set(x, 10, y);
         r_.scene.add( plane.light );
     }
+    */
     
     plane.position.set( x, 0, y );
     plane.type  = type;
@@ -1083,7 +1109,7 @@ r_.spawnThing = function( type, x, y, width, height ){
     plane.angle = angle;
     plane.state = 'move';
 
-    if ( thing.class.indexOf('O') != -1 ) r_.walls.push(plane);
+    if ( thing.class.indexOf('O') != -1 ) r_.walls.push(plane); // add obstacle
 
     r_.sprites.push(plane);        
     r_.scene.add(plane);

@@ -43,7 +43,7 @@ var core = new function() {
             }
         })
         .fail(function( jqxhr, settings, exception ) {
-            console.log( exception );
+            console.log(jqxhr, exception );
         });
             
     };

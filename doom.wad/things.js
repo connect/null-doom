@@ -6,7 +6,14 @@ o_.things = {
         gibs        : 'MNOPQRSTU',
         move        : 'ABCD',        
         pain        : 'G'
-    },    
+    }, 
+    template2: {
+        attack      : 'EF',
+        death       : 'IJKL',        
+        gibs        : 'MNOPQRSTU',
+        move        : 'ABCD',        
+        pain        : 'GH'
+    },
 
     1: {
         radius: 16,
@@ -837,7 +844,7 @@ o_.things = {
         sequence    : '+',
         class       : 'MO',
         label       : 'Imp',
-        template    : 'template1',
+        template    : 'template2',
         corpse      : 20,
         sfx_death   : [ s_.bgdeath1, s_.bgdeath2 ]
     },
