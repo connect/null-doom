@@ -25,10 +25,10 @@ var w_ = new function(){
         c_ : 'commands',
         g_ : 'gameplay',
         i_ : 'input',
+        s_ : 'sound',
         o_ : 'objects',
         u_ : 'interface',
-        r_ : 'render',
-        s_ : 'sound'
+        r_ : 'render'        
     };
     
     t.init = function(){

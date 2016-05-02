@@ -1,5 +1,13 @@
 o_.things = {
 
+    template1: {
+        attack      : 'EF',
+        death       : 'HIJKL',        
+        gibs        : 'MNOPQRSTU',
+        move        : 'ABCD',        
+        pain        : 'G'
+    },    
+
     1: {
         radius: 16,
         sprite: 'PLAY',
@@ -57,12 +65,15 @@ o_.things = {
         label: 'Backpack'
     },
     9: {
-        radius: 20,
-        sprite: 'SPOS',
-        sequence: '+',
-        class: 'MO',
-        label: 'Former Human Sergeant',
-        death: s_.death
+        radius      : 20,
+        sprite      : 'SPOS',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Former Human Sergeant',
+        template    : 'template1',
+        corpse      : 19,
+        sfx_pain    : s_.popain,
+        sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ]                
     },
     10: {
         radius: 16,
@@ -821,11 +832,14 @@ o_.things = {
         label: 'Box of shells'
     },
     3001: {
-        radius: 20,
-        sprite: 'TROO',
-        sequence: '+',
-        class: 'MO',
-        label: 'Imp'
+        radius      : 20,
+        sprite      : 'TROO',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Imp',
+        template    : 'template1',
+        corpse      : 20,
+        sfx_death   : [ s_.bgdeath1, s_.bgdeath2 ]
     },
     3002: {
         radius: 30,
@@ -842,11 +856,14 @@ o_.things = {
         label: 'Baron of Hell'
     },
     3004: {
-        radius: 20,
-        sprite: 'POSS',
-        sequence: '+',
-        class: 'MO',
-        label: 'Former Human Trooper'
+        radius      : 20,
+        sprite      : 'POSS',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Former Human Trooper',
+        template    : 'template1',
+        corpse      : 18,
+        sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ]        
     },
     3005: {
         radius: 31,

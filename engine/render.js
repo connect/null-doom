@@ -72,49 +72,7 @@ r_.animate = function () {
                 r_.wpn.obj.position.set(0, stopPos, 5);
                 r_.wpn.status = 1;
             }
-        }
-        
-        
-        if ( i_.act.attack) {
-            //console.log(delta);
-            //r_.wpn.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
-            s_.play('DSPISTOL.ogg');
-            i_.act.attack = false;
-            
-            // test hit or mis
-            r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-            r_.raycaster.ray.direction.copy( i_.controls.getDirection( new THREE.Vector3() ) );
-            var hits = r_.raycaster.intersectObjects( r_.sprites );
-            
-            if (hits[0] != undefined) {
-                                
-                var thing = o_.things[ hits[0].object.type ];
-                
-                if (thing != undefined){
-                    
-                    console.log('hit ',thing.label)
-                    
-                    if (thing.class.indexOf('M') != -1){
-                                                
-                        
-                        // instagib
-                        if (thing.class.indexOf('O') != -1) {
-                            //r_.walls.splice();
-                        }
-                        for (var i in r_.sprites) {
-                            if (r_.sprites[i].id == hits[0].object.id) {
-                                r_.sprites.splice( i, 1);
-                                break;
-                            }
-                        }
-                        r_.scene.remove( hits[0].object );
-                    }
-                }
-            } else {
-                
-                console.log('mis!')
-            }
-        }
+        } 
         
     }
     
@@ -184,7 +142,66 @@ r_.animate = function () {
         }
     }
 
-    if ( i_.controls.enabled ) {                
+    if ( i_.controls.enabled ) {             
+        
+        // Fire
+        //
+        if ( i_.act.attack && r_.wpn.obj != null) {
+            //console.log(delta);
+            //r_.wpn.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
+            s_.play('DSPISTOL.ogg');
+            i_.act.attack = false;
+            
+            // test hit or mis
+            r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+            r_.raycaster.ray.direction.copy( i_.controls.getDirection( new THREE.Vector3() ) );
+            var hits = r_.raycaster.intersectObjects( r_.sprites );
+            
+            if (hits[0] != undefined) {
+                                
+                var thing = o_.things[ hits[0].object.type ];
+                var obj   = hits[0].object;
+                
+                if (thing != undefined && obj.state != 'death' && obj.state != 'gibs'){
+                    
+                    console.log('hit',thing.label)
+                    
+                    if (thing.class.indexOf('M') != -1){
+                        
+                        var template = o_.things[ thing.template ];
+                        
+                        // play death sound
+                        if (typeof thing.death == 'object' && thing.death.length > 1) {
+                            
+                            s_.play( thing.death[ c_.random( 0, thing.death.length-1 ) ]);
+                            
+                        } else if (thing.death != undefined) {
+                            
+                            s_.play( thing.death );
+                        }                                                
+                        
+                        // remove obstacle
+                        if (thing.class.indexOf('O') != -1) {
+                            
+                            for (var i in r_.walls) {
+                                
+                                if (r_.walls[i].id == obj.id) {
+                                    r_.walls.splice( i, 1);
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // put dying state
+                        obj.state = 'death';
+                        obj.frame = 0;
+                    }
+                }
+            } else {
+                
+                console.log('mis!')
+            }
+        }
                         
         // test collisions against walls
         //
@@ -374,7 +391,7 @@ r_.animate = function () {
             };
         }
                
-        // update things
+        // Update things
         //
         for (var i in r_.sprites){
             
@@ -406,11 +423,54 @@ r_.animate = function () {
             // update animation
             if (r_.globaltimer == 0) {
                 
-                var thing       = o_.things[ o.type ];                                                                             
-                var sequence    = (thing.class.indexOf('M') != -1) ? 'ABCD' : thing.sequence;
-                var nextFrame   = ( sequence[ o.frame + 1] != undefined) ? o.frame + 1 : 0;                  
-                var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];                                
+                var thing       = o_.things[ o.type ];                                       
                 var color       = (o.light != undefined) ? new THREE.Color(0xffffff) : new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+                
+                if (thing.class.indexOf('M') != -1) { // monster
+                    
+                    var template    = o_.things[ thing.template ];
+                    
+                    if (template == undefined) {
+                        console.log('..template not found for',thing.label)
+                    }
+                    var sequence    = template[ o.state ];
+                    
+                    if ( sequence[ o.frame + 1] != undefined ) {
+                        
+                        // last frame in sequence
+                        
+                        // let it finally die
+                        if ( o.state == 'death') {
+                            
+                            // remove sprite
+                            for (var i in r_.sprites) {
+                                if (r_.sprites[i].id == o.id) {
+                                    r_.sprites.splice( i, 1 );
+                                    break;
+                                }
+                            }
+                            // remove from scene
+                            r_.scene.remove( o );
+
+                            // spawn corpse
+                            r_.spawnThing( thing.corpse, o.position.x, o.position.z );
+                            
+                            continue;
+                        }
+                    } else {
+                        
+                        var nextFrame = o.frame + 1;
+                        var texture   = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
+                    }                                                                        
+                
+                } else {
+                    
+                    var sequence    = thing.sequence;
+                    var nextFrame   = ( sequence[ o.frame + 1] != undefined) ? o.frame + 1 : 0;                  
+                    var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];                                
+                
+                }                               
+                
                 //if (thing.sprite == 'BON2') console.log(nextFrame);
                 
                 if (texture == undefined) console.log('no texture', thing.sprite, nextFrame, o.angle);
@@ -605,6 +665,14 @@ r_.drawHud = function(){
         x: (scrWidth/-2) + (scrWidth * 0.99)  ,
         z: (scrHeight/-2) + (scrHeight * 0.025)  
     });
+    
+    // Crosshair
+    var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.cross, transparent: true, opacity: 0.5});
+    var sprite = new THREE.Sprite(spriteMaterial);            
+    sprite.scale.set(2 * scale, 2 * scale ,1);
+    //sprite.position.set((scrWidth/-2) + (scrWidth * 0.385), (scrHeight/-2) + (32 * scale / 2) , 11);
+    r_.objects.push(sprite);
+    r_.hudScene.add(sprite);
 };
 
 r_.drawText = function(o){
@@ -1013,6 +1081,7 @@ r_.spawnThing = function( type, x, y, width, height ){
     plane.type  = type;
     plane.frame = frame;
     plane.angle = angle;
+    plane.state = 'move';
 
     if ( thing.class.indexOf('O') != -1 ) r_.walls.push(plane);
 

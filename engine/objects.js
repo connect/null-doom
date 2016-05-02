@@ -85,26 +85,43 @@ o_.map = new function(){
                 thing.sequence = thing.sequence.replace('+','');
             }
             
-            thing.sequence = (thing.class.indexOf('M') != -1) ? 'ABCD' : thing.sequence;
-            
-            // collect all frames
-            for (var j in thing.sequence) {                                                                                
-            
-                if (thing.class.indexOf('M') != -1  ) {
-                                        
-                    img = thing.sprite + thing.sequence[j] + '1';
-                    
-                } else if (thing.sequence == '+') {
-                    
-                    img = thing.sprite + 'A' + '1';
-                } else {
-                    
-                    img = thing.sprite + thing.sequence[j] + '0';
-                }
+            if (thing.class.indexOf('M') != -1) {
                 
-                if ( cachelist.indexOf(img) == -1) {
+                var template = o_.things[ thing.template ];
+                
+            } else {                            
+
+                // collect all frames
+                for (var j in thing.sequence) {                                                                                
+
+                    if (thing.class.indexOf('M') != -1  ) {
+
+                        img = thing.sprite + thing.sequence[j] + '1';
+
+                    } else if (thing.sequence == '+') {
+
+                        img = thing.sprite + 'A' + '1';
+                    } else {
+
+                        img = thing.sprite + thing.sequence[j] + '0';
+                    }
+
+                    if ( cachelist.indexOf(img) == -1) {
+
+                        cachelist.push(img);
+                    }
+                }
+            }
+            
+            // chache copse sprites if any
+            if (thing.corpse != undefined) {
+                
+                var corpse   = o_.things[ thing.corpse ];
+                var sequence = corpse.sequence;
+                
+                for (var j in sequence){
                     
-                    cachelist.push(img);
+                    cachelist.push( corpse.sprite + sequence[j] + '0');
                 }
             }
         }

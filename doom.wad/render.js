@@ -88,7 +88,9 @@ r_.modInit = function(){
             'AMMNUM8',
             'AMMNUM9',        
 
-            'TITLEPIC'
+            'TITLEPIC',
+            
+            'cross' // crosshair
         ]
     }); 
 
