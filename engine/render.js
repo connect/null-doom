@@ -324,6 +324,12 @@ r_.animate = function () {
         // @FIXME
         if (hits[0] != undefined) {
             
+            // player weapon shading
+            var tsector = o_.map.sector[ hits[0].object.sector ];
+            var color   = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
+            r_.wpn.obj.material.color = color;
+            r_.wpn.obj.material.needsUpdate  = true;  
+            
             if (hits[0].distance < cfg.playerHeight) {
                 //console.log( hits[0].object)
                 i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + bobfactor;
@@ -443,13 +449,9 @@ r_.animate = function () {
                         // let it finally die
                         if ( o.state == 'death') {
                             
-                            // remove sprite
-                            for (var i in r_.sprites) {
-                                if (r_.sprites[i].id == o.id) {
-                                    r_.sprites.splice( i, 1 );
-                                    break;
-                                }
-                            }
+                            // remove sprite                            
+                            r_.sprites.splice( i, 1 );
+                            
                             // remove from scene
                             r_.scene.remove( o );
 
@@ -470,7 +472,8 @@ r_.animate = function () {
                         var nextFrame = o.frame + 1;
                         
                         //console.log( texture.image.width, texture.image.height);
-                        // frames might have different sizes                
+                        // frames might have different sizes       
+                                                                        
                         //o.position.y            = 
                         //var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
                         //o.scale.x               = texture.image.width; 
@@ -497,8 +500,8 @@ r_.animate = function () {
                     o.material.map          = texture;
                     //o.scale.set(1,1,1);
                     o.material.color        = color;
-                    o.material.needsUpdate  = true;
-                }                                                
+                    o.material.needsUpdate  = true;                                       
+                }
             }                        
         }
     }
@@ -1048,13 +1051,13 @@ r_.spawnNumber = function (n,x,y,z){
     }
 };
 
-r_.spawnThing = function( type, x, y ){  
+r_.spawnThing = function( type, x, z, y, state, frame ){  
         
     var thing = o_.things[ type ];
     var texture;
     var sequence;
     var angle = 0;
-    var frame;
+    //var frame;
     var template;
             
     if (thing == undefined) return; // skip if not found in db
@@ -1067,13 +1070,13 @@ r_.spawnThing = function( type, x, y ){
         
         template = o_.things[ thing.template ];
         sequence = template.move;      
-        frame    = c_.random(0, sequence.length-1); // put random starting frame
+        frame    = (frame != undefined) ? frame : c_.random(0, sequence.length-1); // put random starting frame
         angle    = 1;
         
     } else {
         
         sequence = thing.sequence;
-        frame    = c_.random(0, thing.sequence.length-1); 
+        frame    = (frame != undefined) ? frame : c_.random(0, thing.sequence.length-1); 
         angle    = 0;
         
     }    
@@ -1103,11 +1106,11 @@ r_.spawnThing = function( type, x, y ){
     }
     */
     
-    plane.position.set( x, 0, y );
+    plane.position.set( x, y || 0, z );
     plane.type  = type;
     plane.frame = frame;
     plane.angle = angle;
-    plane.state = 'move';
+    plane.state = (state != undefined) ? state : 'move';
 
     if ( thing.class.indexOf('O') != -1 ) r_.walls.push(plane); // add obstacle
 
