@@ -16,60 +16,60 @@ o_.things = {
     },
 
     1: {
-        radius: 16,
-        sprite: 'PLAY',
-        sequence: '+',
-        class: '',
-        label: 'Player 1 start'
+        radius      : 16,
+        sprite      : 'PLAY',
+        sequence    : '+',
+        class       : '',
+        label       : 'Player 1 start'
     },
     2: {
-        radius: 16,
-        sprite: 'PLAY',
-        sequence: '+',
-        class: '',
-        label: 'Player 2 start'
+        radius      : 16,
+        sprite      : 'PLAY',
+        sequence    : '+',
+        class       : '',
+        label       : 'Player 2 start'
     },
     3: {
-        radius: 16,
-        sprite: 'PLAY',
-        sequence: '+',
-        class: '',
-        label: 'Player 3 start'
+        radius      : 16,
+        sprite      : 'PLAY',
+        sequence    : '+',
+        class       : '',
+        label       : 'Player 3 start'
     },
     4: {
-        radius: 16,
-        sprite: 'PLAY',
-        sequence: '+',
-        class: '',
-        label: 'Player 4 start'
+        radius      : 16,
+        sprite      : 'PLAY',
+        sequence    : '+',
+        class       : '',
+        label       : 'Player 4 start'
     },
     5: {
-        radius: 20,
-        sprite: 'BKEY',
-        sequence: 'AB',
-        class: 'P',
-        label: 'Blue keycard'
+        radius      : 20,
+        sprite      : 'BKEY',
+        sequence    : 'AB',
+        class       : 'P',
+        label       : 'Blue keycard'
     },
     6: {
-        radius: 20,
-        sprite: 'YKEY',
-        sequence: 'AB',
-        class: 'P',
-        label: 'Yellow keycard'
+        radius      : 20,
+        sprite      : 'YKEY',
+        sequence    : 'AB',
+        class       : 'P',
+        label       : 'Yellow keycard'
     },
     7: {
-        radius: 128,
-        sprite: 'SPID',
-        sequence: '+',
-        class: 'MO',
-        label: 'Spider Mastermind'
+        radius      : 128,
+        sprite      : 'SPID',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Spider Mastermind'
     },
     8: {
-        radius: 20,
-        sprite: 'BPAK',
-        sequence: 'A',
-        class: 'P',
-        label: 'Backpack'
+        radius      : 20,
+        sprite      : 'BPAK',
+        sequence    : 'A',
+        class       : 'P',
+        label       : 'Backpack'
     },
     9: {
         radius      : 20,
@@ -83,109 +83,109 @@ o_.things = {
         sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ]                
     },
     10: {
-        radius: 16,
-        sprite: 'PLAY',
-        sequence: 'W',
-        class: '',
-        label: 'Bloody mess'
+        radius      : 16,
+        sprite      : 'PLAY',
+        sequence    : 'W',
+        class       : '',
+        label       : 'Bloody mess'
     },
     11: {
-        radius: 20,
-        sprite: 'none',
-        sequence: '-',
-        class: '',
-        label: 'Deathmatch start'
+        radius      : 20,
+        sprite      : 'none',
+        sequence    : '-',
+        class       : '',
+        label       : 'Deathmatch start'
     },
     12: {
-        radius: 16,
-        sprite: 'PLAY',
-        sequence: 'W',
-        class: '',
-        label: 'Bloody mess'
+        radius      : 16,
+        sprite      : 'PLAY',
+        sequence    : 'W',
+        class       : '',
+        label       : 'Bloody mess'
     },
     13: {
-        radius: 20,
-        sprite: 'RKEY',
-        sequence: 'AB',
-        class: 'P',
-        label: 'Red keycard'
+        radius      : 20,
+        sprite      : 'RKEY',
+        sequence    : 'AB',
+        class       : 'P',
+        label       : 'Red keycard'
     },
     14: {
-        radius: 20,
-        sprite: 'none1',
-        sequence: '-',
-        class: '',
-        label: 'Teleport landing'
+        radius      : 20,
+        sprite      : 'none1',
+        sequence    : '-',
+        class       : '',
+        label       : 'Teleport landing'
     },
     15: {
-        radius: 16,
-        sprite: 'PLAY',
-        sequence: 'N',
-        class: '',
-        label: 'Dead player'
+        radius      : 16,
+        sprite      : 'PLAY',
+        sequence    : 'N',
+        class       : '',
+        label       : 'Dead player'
     },
     16: {
-        radius: 40,
-        sprite: 'CYBR',
-        sequence: '+',
-        class: 'MO',
-        label: 'Cyberdemon'
+        radius      : 40,
+        sprite      : 'CYBR',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Cyberdemon'
     },
     17: {
-        radius: 20,
-        sprite: 'CELP',
-        sequence: 'A',
-        class: 'P2',
-        label: 'Cell charge pack'
+        radius      : 20,
+        sprite      : 'CELP',
+        sequence    : 'A',
+        class       : 'P2',
+        label       : 'Cell charge pack'
     },
     18: {
-        radius: 20,
-        sprite: 'POSS',
-        sequence: 'L',
-        class: '',
-        label: 'Dead former human'
+        radius      : 20,
+        sprite      : 'POSS',
+        sequence    : 'L',
+        class       : '',
+        label       : 'Dead former human'
     },
     19: {
-        radius: 20,
-        sprite: 'SPOS',
-        sequence: 'L',
-        class: '',
-        label: 'Dead former sergeant'
+        radius      : 20,
+        sprite      : 'SPOS',
+        sequence    : 'L',
+        class       : '',
+        label       : 'Dead former sergeant'
     },
     20: {
-        radius: 20,
-        sprite: 'TROO',
-        sequence: 'M',
-        class: '',
-        label: 'Dead imp'
+        radius      : 20,
+        sprite      : 'TROO',
+        sequence    : 'M',
+        class       : '',
+        label       : 'Dead imp'
     },
     21: {
-        radius: 30,
-        sprite: 'SARG',
-        sequence: 'N',
-        class: '',
-        label: 'Dead demon'
+        radius      : 30,
+        sprite      : 'SARG',
+        sequence    : 'N',
+        class       : '',
+        label       : 'Dead demon'
     },
     22: {
-        radius: 31,
-        sprite: 'HEAD',
-        sequence: 'L',
-        class: '',
-        label: 'Dead cacodemon'
+        radius      : 31,
+        sprite      : 'HEAD',
+        sequence    : 'L',
+        class       : '',
+        label       : 'Dead cacodemon'
     },
     23: {
-        radius: 16,
-        sprite: 'SKUL',
-        sequence: 'K',
-        class: '',
-        label: 'Dead lost soul (invisible)'
+        radius      : 16,
+        sprite      : 'SKUL',
+        sequence    : 'K',
+        class       : '',
+        label       : 'Dead lost soul (invisible)'
     },
     24: {
-        radius: 16,
-        sprite: 'POL5',
-        sequence: 'A',
-        class: '',
-        label: 'Pool of blood and flesh'
+        radius      : 16,
+        sprite      : 'POL5',
+        sequence    : 'A',
+        class       : '',
+        label       : 'Pool of blood and flesh'
     },
     25: {
         radius: 16,
@@ -258,11 +258,12 @@ o_.things = {
         label: 'Candle'
     },
     35: {
-        radius: 16,
-        sprite: 'CBRA',
-        sequence: 'A',
-        class: 'O',
-        label: 'Candelabra'
+        radius      : 16,
+        sprite      : 'CBRA',
+        sequence    : 'A',
+        class       : 'O',
+        label       : 'Candelabra',
+        light       : 0xffff00
     },
     36: {
         radius: 16,
@@ -507,7 +508,8 @@ o_.things = {
         sprite: 'FCAN',
         sequence: 'ABC',
         class: 'O',
-        label: 'Burning barrel'
+        label: 'Burning barrel',
+        light   : 0xffff00
     },
     71: {
         radius: 31,
@@ -612,14 +614,16 @@ o_.things = {
         sprite: 'TLMP',
         sequence: 'ABCD',
         class: 'O',
-        label: 'Tall techno floor lamp'
+        label: 'Tall techno floor lamp',
+        light       : 0xffffff 
     },
     86: {
         radius: 16,
         sprite: 'TLP2',
         sequence: 'ABCD',
         class: 'O',
-        label: 'Short techno floor lamp'
+        label: 'Short techno floor lamp',
+        light       : 0xffffff
     },
     87: {
         radius: 0,
@@ -720,39 +724,44 @@ o_.things = {
         label: 'Medikit'
     },
     2013: {
-        radius: 20,
-        sprite: 'SOUL',
-        sequence: 'ABCDCB',
-        class: 'AP',
-        label: 'Soul sphere'
+        radius      : 20,
+        sprite      : 'SOUL',
+        sequence    : 'ABCDCB',
+        class       : 'AP',
+        label       : 'Soul sphere',
+        light       : 0x0000ff
     },
     2014: {
-        radius: 20,
-        sprite: 'BON1',
-        sequence: 'ABCDCB',
-        class: 'AP',
-        label: 'Health potion'
+        radius      : 20,
+        sprite      : 'BON1',
+        sequence    : 'ABCDCB',
+        class       : 'AP',
+        label       : 'Health potion',
+        light       : 0x0000ff
     },
     2015: {
-        radius: 20,
-        sprite: 'BON2',
-        sequence: 'ABCDCB',
-        class: 'AP',
-        label: 'Spiritual armor'
+        radius      : 20,
+        sprite      : 'BON2',
+        sequence    : 'ABCDCB',
+        class       : 'AP',
+        label       : 'Spiritual armor',
+        light       : 0x00ff00
     },
     2018: {
-        radius: 20,
-        sprite: 'ARM1',
-        sequence: 'AB',
-        class: 'P9',
-        label: 'Green armor'
+        radius      : 20,
+        sprite      : 'ARM1',
+        sequence    : 'AB',
+        class       : 'P9',
+        label       : 'Green armor',
+        light       : 0x00ff00
     },
     2019: {
-        radius: 20,
-        sprite: 'ARM2',
-        sequence: 'AB',
-        class: 'P10',
-        label: 'Blue armor'
+        radius      : 20,
+        sprite      : 'ARM2',
+        sequence    : 'AB',
+        class       : 'P10',
+        label       : 'Blue armor',
+        light       : 0x0000ff
     },
     2022: {
         radius: 20,
@@ -790,18 +799,20 @@ o_.things = {
         label: 'Computer map'
     },
     2028: {
-        radius: 16,
-        sprite: 'COLU',
-        sequence: 'A',
-        class: 'O',
-        label: 'Floor lamp'
+        radius      : 16,
+        sprite      : 'COLU',
+        sequence    : 'A',
+        class       : 'O',
+        label       : 'Floor lamp',
+        light       : 0xffff00
     },
     2035: {
-        radius: 10,
-        sprite: 'BAR1',
-        sequence: 'AB+',
-        class: 'O',
-        label: 'Barrel'
+        radius      : 10,
+        sprite      : 'BAR1',
+        sequence    : 'AB+',
+        class       : 'O',
+        label       : 'Barrel',
+        light       : 0x00ff00
     },
     2045: {
         radius: 20,

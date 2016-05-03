@@ -25,8 +25,11 @@ var cfg = {
         68  : '+right',     // d
         
         
-        187 : 'zoomin',
+        187 : 'zoomin',     // desktop 
         189 : 'zoomout',
+        
+        61  : 'zoomin',     // laptop
+        173 : 'zoomout',
         
         69  : '+use',        // e
         32  : '+use',        // space

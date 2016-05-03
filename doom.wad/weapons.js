@@ -5,7 +5,7 @@
  * @author kod.connect
  */
 
-o_.wpn.data = {
+o_.weapons = {
         
     default: {
         weapon      : 'G',      // gun suffix: sprite + weapon + state + 0

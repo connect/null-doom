@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+<head>
+    <title>TODO supply a title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body 
+        {
+                font-family: Monospace;
+                font-weight: bold;
+                background-color: #ffffff;
+                margin: 0px;
+                overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<div id="ThreeJS"></div>
+<script src="../engine/jquery/jquery-2.2.0.min.js"></script>
+<script src="../engine/three/three.min.js"></script>  
+
+<script>
+    var scene       = new THREE.Scene();
+    var width       = 800;
+    var height      = 600;
+    var loader      = new THREE.TextureLoader();
+    var frame       = 0;
+    var delay       = 0;
+    var textures    = [];
+
+    camera = new THREE.PerspectiveCamera( 45, width/height, 0.1, 1000);                
+    camera.position.set(0,0,150);
+    camera.lookAt( scene.position );
+
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(width, height);
+    renderer.setClearColor( 0xcccccc );
+    document.body.appendChild(renderer.domElement);
+
+    // cache textures
+    loader.load( '../doom.wad/gra/SHTGA0.png', function(texture){ textures.push(texture); });
+    loader.load( '../doom.wad/gra/SHTGB0.png', function(texture){ textures.push(texture); });
+
+    // wait for image cache
+    var delayed = window.setInterval(function(){
+
+        if (textures.length == 2) {
+
+            var matPlane    = new THREE.MeshBasicMaterial({ map: textures[frame], side: THREE.DoubleSide });
+            var geoPlane    = new THREE.PlaneGeometry( textures[frame].image.width, textures[frame].image.height );
+
+            objPlane        = new THREE.Mesh( geoPlane, matPlane ); 
+
+            scene.add(objPlane);
+            window.clearInterval(delayed);
+            render();
+        }
+
+    }, 100);
+    
+    function render() {
+
+        requestAnimationFrame(render);
+
+        delay = delay > 50 ? 0 : delay+1;
+
+        if (delay == 0) {
+
+            old   = frame;
+            frame = (textures[frame+1] != undefined) ? frame + 1 : 0;   
+            
+            objPlane.material.map         = textures[frame];
+            objPlane.scale.x              = textures[frame].image.width * objPlane.scale.x / textures[old].image.width;
+            objPlane.scale.y              = textures[frame].image.height * objPlane.scale.y / textures[old].image.height;
+            objPlane.material.needsUpdate = true;
+        }
+
+        renderer.render(scene, camera);
+    };
+
+</script>
+</body>
+</html>

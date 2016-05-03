@@ -142,7 +142,7 @@ r_.animate = function () {
         }
     }
 
-    if ( i_.controls.enabled ) {             
+    //if ( i_.controls.enabled ) {             
         
         // Fire
         //
@@ -205,7 +205,7 @@ r_.animate = function () {
         // test collisions against walls
         //
         
-        var rotationMatrix = new THREE.Matrix4()
+        var rotationMatrix = new THREE.Matrix4();
         //r_.direction = (r_.direction) ? r_.direction : new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );
         r_.direction = new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );
         r_.direction.y = 0;
@@ -223,7 +223,82 @@ r_.animate = function () {
         }
         
         r_.direction.applyMatrix4(rotationMatrix);
+/*        
+        // test collisions agains items
+        //
+        r_.raycaster.ray.origin.copy( i_.controls.getObject().position );        
+        r_.raycaster.ray.origin.y -= (cfg.playerHeight/2);
         
+        // direct ray
+        r_.raycaster.ray.direction.copy( r_.direction );
+        var hits  = r_.raycaster.intersectObjects( r_.sprites );
+        
+        // -30 ray
+        rotationMatrix.makeRotationY( -30 * Math.PI / 180 );
+        r_.direction.applyMatrix4(rotationMatrix);
+        r_.raycaster.ray.direction.copy( r_.direction );
+        var hits2 = r_.raycaster.intersectObjects( r_.sprites );
+        
+        // +30 ray
+        rotationMatrix.makeRotationY( +60 * Math.PI / 180 ); // +30 to direct
+        r_.direction.applyMatrix4(rotationMatrix);
+        r_.raycaster.ray.direction.copy( r_.direction );
+        var hits3 = r_.raycaster.intersectObjects( r_.sprites );
+        
+        // restore direction
+        rotationMatrix.makeRotationY( -30 * Math.PI / 180 );
+        r_.direction.applyMatrix4(rotationMatrix);
+        
+        if (hits.length > 0 || hits2.length > 0 || hits3.length > 0) {
+            //console.log('--->', hits.length, hits2.length, hits3.length)    
+        }   
+        
+        // merge raycasting results
+        var pickups = hits.concat( hits2, hits3 );//.filter( filterUnique );        
+        
+        if (pickups.length > 0) {
+              
+            for (var p in pickups) {
+                console.log('-->', o_.things[ pickups[p].object.type ].label, pickups[p].distance );
+
+                if (pickups[p].distance < 100) {
+
+                    var thing = o_.things[ pickups[p].object.type ];
+
+                    if ( thing.class.indexOf('P') != -1 ){
+
+                        var id = hits[h].object.id;
+
+                        // pick up item
+                        console.log("You've got "+thing.label+'!');
+
+                        if (thing.sound == undefined) {
+
+                            if (thing.class.indexOf('W') != -1) {
+                                // weapon
+                                s_.play( s_.getweapon );
+
+                            } else {
+                                s_.play( s_.getitem );
+                            }
+                        } 
+
+                        // remove item from world
+                        r_.scene.remove( hits[h].object );
+
+                        for (var i in r_.sprites) {
+                            if (r_.sprites[i].id == id) {
+                                r_.sprites.splice( i, 1);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+*/    
+        // collisions with walls 2
+        //
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position);
         r_.raycaster.ray.origin.y -= (cfg.playerHeight/2);
         r_.raycaster.ray.direction.copy( r_.direction ); 
@@ -260,52 +335,8 @@ r_.animate = function () {
             r_.direction = false;
         }
         
-        // test collisions agains items
-        //
-        //r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-        //r_.raycaster.ray.origin.y -= (cfg.playerHeight/2)
-        r_.raycaster.ray.origin.y -= (cfg.playerHeight/2);
-        var hits  = r_.raycaster.intersectObjects( r_.sprites );
-        //var hits2 = r_.raycaster.intersectObjects( r_.sprites );
-        
-        if (hits[0] != undefined)
-        for (var h in hits){
-            if (hits[h].distance < 100) {
-
-                var thing = o_.things[ hits[h].object.type ];
-
-                //console.log('collision with',thing.label)
-
-                if ( thing.class.indexOf('P') != -1 ){
-
-                    var id = hits[h].object.id;
-
-                    // pick up item
-                    console.log("You've got "+thing.label+'!');
-
-                    if (thing.sound == undefined) {
-
-                        if (thing.class.indexOf('W') != -1) {
-                            // weapon
-                            s_.play( s_.getweapon );
-
-                        } else {
-                            s_.play( s_.getitem );
-                        }
-                    }
-
-                    // remove item from world
-                    r_.scene.remove( hits[h].object );
-
-                    for (var i in r_.sprites) {
-                        if (r_.sprites[i].id == id) {
-                            r_.sprites.splice( i, 1);
-                            break;
-                        }
-                    }
-                }
-            }
-        };
+           
+    
         
         // change bobfactor while moving
         if ( i_.act.forward || i_.act.back || i_.act.left || i_.act.right) {
@@ -374,8 +405,8 @@ r_.animate = function () {
             i_.act.jump = true;
         } 
         */                             
-       
-        r_.globaltimer = (r_.globaltimer > 10) ? 0 : parseInt(r_.globaltimer)+1; 
+      
+        r_.globaltimer = (r_.globaltimer * 100 * delta > 10) ? 0 : parseInt(r_.globaltimer)+1; 
         
         // update animated floors
         //
@@ -415,10 +446,9 @@ r_.animate = function () {
                 o.position.y = hits[0].object.position.y + (o.geometry.parameters.height /2 ); 
                 
                 // update light source position
-                /*
                 if (o.light != undefined) {                    
-                    o.light.position.y = o.position + 10;
-                }*/
+                    o.light.position.y = o.position.y + (o.geometry.parameters.height /2 );
+                }
                 
             } else {
                 
@@ -470,15 +500,11 @@ r_.animate = function () {
                         // there are some frames to show
                         
                         var nextFrame = o.frame + 1;
-                        
-                        //console.log( texture.image.width, texture.image.height);
-                        // frames might have different sizes       
-                                                                        
-                        //o.position.y            = 
-                        //var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
-                        //o.scale.x               = texture.image.width; 
-                        //o.scale.y               = texture.image.height;
-                        //o.scale
+                        var oldtxtr   = r_.imgs[ thing.sprite + sequence[ o.frame   ] + o.angle ];
+                        var texture   = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
+       
+                        //o.scale.x     = texture.image.width / oldtxtr.image.width; 
+                        o.scale.y     = texture.image.height / oldtxtr.image.height;
                     }                                                                        
                 
                 } else {
@@ -498,13 +524,12 @@ r_.animate = function () {
                     
                     o.frame                 = nextFrame;
                     o.material.map          = texture;
-                    //o.scale.set(1,1,1);
                     o.material.color        = color;
                     o.material.needsUpdate  = true;                                       
                 }
             }                        
         }
-    }
+    //}
 
     r_.prevTime = time;
     r_.render();
@@ -1056,9 +1081,8 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     var thing = o_.things[ type ];
     var texture;
     var sequence;
-    var angle = 0;
-    //var frame;
     var template;
+    var angle = 0;    
             
     if (thing == undefined) return; // skip if not found in db
 
@@ -1091,20 +1115,17 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     var matPlane    = new THREE.MeshPhongMaterial({ map: texture, transparent: true, alphaTest: 0.5 });
     var width       = texture.image.width;
     var height      = texture.image.height;
-    var geoPlane    = new THREE.PlaneGeometry(width * r_.scale/3, height * r_.scale/3);
+    var geoPlane    = new THREE.PlaneGeometry(width, height);
     var plane       = new THREE.Mesh( geoPlane, matPlane );    
     
     // spawn light sources
-    /* @FIXME
-    if ( thing.label.indexOf('lamp') != -1 || thing.label == 'Candelabra' || thing.label.indexOf('arrel') != -1){
+    if (thing.light != undefined) {
         
-        console.log('..spawning light source', thing.label)
-        plane.light = new THREE.PointLight( 0xff0000, 2, 200 ); 
-        plane.light = new THREE.Mesh( new THREE.SphereGeometry( 0.5, 16, 8 ), new THREE.MeshBasicMaterial({ color: 0xff0040 }) );
-        plane.light.position.set(x, 10, y);
+        console.log('..spawning light source', thing.label);
+        plane.light = new THREE.PointLight( thing.light, 1, 50 );
+        plane.light.position.set(x, 0, z);
         r_.scene.add( plane.light );
-    }
-    */
+    }         
     
     plane.position.set( x, y || 0, z );
     plane.type  = type;

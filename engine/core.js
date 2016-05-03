@@ -23,6 +23,7 @@ var core = new function() {
     };
     
     t.modules = {
+        t_ : 'tools',
         c_ : 'commands',
         g_ : 'gameplay',
         i_ : 'input',
@@ -49,7 +50,7 @@ var core = new function() {
     };
     
     t.init = function(){
-        console.log('....core.init()');        
+        console.log('....core.init()');            
         
         t.loadNext();
     };
