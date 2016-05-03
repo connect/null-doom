@@ -504,12 +504,12 @@ o_.things = {
         label: 'Hell Knight'
     },
     70: {
-        radius: 10,
-        sprite: 'FCAN',
-        sequence: 'ABC',
-        class: 'O',
-        label: 'Burning barrel',
-        light   : 0xffff00
+        radius      : 10,
+        sprite      : 'FCAN',
+        sequence    : 'ABC',
+        class       : 'O',
+        label       : 'Burning barrel',
+        light       : 0xffff00
     },
     71: {
         radius: 31,
@@ -610,19 +610,19 @@ o_.things = {
         label: 'Wolfenstein SS'
     },
     85: {
-        radius: 16,
-        sprite: 'TLMP',
-        sequence: 'ABCD',
-        class: 'O',
-        label: 'Tall techno floor lamp',
+        radius      : 16,
+        sprite      : 'TLMP',
+        sequence    : 'ABCD',
+        class       : 'O',
+        label       : 'Tall techno floor lamp',
         light       : 0xffffff 
     },
     86: {
-        radius: 16,
-        sprite: 'TLP2',
-        sequence: 'ABCD',
-        class: 'O',
-        label: 'Short techno floor lamp',
+        radius      : 16,
+        sprite      : 'TLP2',
+        sequence    : 'ABCD',
+        class       : 'O',
+        label       : 'Short techno floor lamp',
         light       : 0xffffff
     },
     87: {
@@ -728,40 +728,35 @@ o_.things = {
         sprite      : 'SOUL',
         sequence    : 'ABCDCB',
         class       : 'AP',
-        label       : 'Soul sphere',
-        light       : 0x0000ff
+        label       : 'Soul sphere'
     },
     2014: {
         radius      : 20,
         sprite      : 'BON1',
         sequence    : 'ABCDCB',
         class       : 'AP',
-        label       : 'Health potion',
-        light       : 0x0000ff
+        label       : 'Health potion'
     },
     2015: {
         radius      : 20,
         sprite      : 'BON2',
         sequence    : 'ABCDCB',
         class       : 'AP',
-        label       : 'Spiritual armor',
-        light       : 0x00ff00
+        label       : 'Spiritual armor'
     },
     2018: {
         radius      : 20,
         sprite      : 'ARM1',
         sequence    : 'AB',
         class       : 'P9',
-        label       : 'Green armor',
-        light       : 0x00ff00
+        label       : 'Green armor'
     },
     2019: {
         radius      : 20,
         sprite      : 'ARM2',
         sequence    : 'AB',
         class       : 'P10',
-        label       : 'Blue armor',
-        light       : 0x0000ff
+        label       : 'Blue armor'
     },
     2022: {
         radius: 20,

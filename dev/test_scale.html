@@ -35,7 +35,7 @@ and open the template in the editor.
     var textures    = [];
 
     camera = new THREE.PerspectiveCamera( 45, width/height, 0.1, 1000);                
-    camera.position.set(0,0,150);
+    camera.position.set(0,0,300);
     camera.lookAt( scene.position );
 
     var renderer = new THREE.WebGLRenderer();
@@ -44,18 +44,22 @@ and open the template in the editor.
     document.body.appendChild(renderer.domElement);
 
     // cache textures
-    loader.load( '../doom.wad/gra/SHTGA0.png', function(texture){ textures.push(texture); });
-    loader.load( '../doom.wad/gra/SHTGB0.png', function(texture){ textures.push(texture); });
+    loader.load( '../doom.wad/gra/SPOSH0.png', function(texture){ textures.push(texture); });
+    loader.load( '../doom.wad/gra/SPOSI0.png', function(texture){ textures.push(texture); });
+    loader.load( '../doom.wad/gra/SPOSJ0.png', function(texture){ textures.push(texture); });
+    loader.load( '../doom.wad/gra/SPOSK0.png', function(texture){ textures.push(texture); });
+    loader.load( '../doom.wad/gra/SPOSL0.png', function(texture){ textures.push(texture); });
 
     // wait for image cache
     var delayed = window.setInterval(function(){
 
-        if (textures.length == 2) {
+        if (textures.length == 5) {
 
-            var matPlane    = new THREE.MeshBasicMaterial({ map: textures[frame], side: THREE.DoubleSide });
+            var matPlane    = new THREE.MeshBasicMaterial({ map: textures[frame], transparent: true });
             var geoPlane    = new THREE.PlaneGeometry( textures[frame].image.width, textures[frame].image.height );
 
-            objPlane        = new THREE.Mesh( geoPlane, matPlane ); 
+            objPlane        = new THREE.Mesh( geoPlane, matPlane );
+            objPlane.position.y = (textures[frame].image.height/2)
 
             scene.add(objPlane);
             window.clearInterval(delayed);
@@ -78,6 +82,7 @@ and open the template in the editor.
             objPlane.material.map         = textures[frame];
             objPlane.scale.x              = textures[frame].image.width * objPlane.scale.x / textures[old].image.width;
             objPlane.scale.y              = textures[frame].image.height * objPlane.scale.y / textures[old].image.height;
+            objPlane.position.y           = objPlane.position.y - (textures[old].image.height/2) + (textures[frame].image.height/2)
             objPlane.material.needsUpdate = true;
         }
 

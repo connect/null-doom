@@ -443,11 +443,11 @@ r_.animate = function () {
                 
                 // update things position          
                 tsector = o_.map.sector[ hits[0].object.sector ];
-                o.position.y = hits[0].object.position.y + (o.geometry.parameters.height /2 ); 
+                o.position.y = hits[0].object.position.y + (o.material.map.image.height /2);//(o.geometry.parameters.height /2 ); 
                 
                 // update light source position
                 if (o.light != undefined) {                    
-                    o.light.position.y = o.position.y + (o.geometry.parameters.height /2 );
+                    o.light.position.y = o.position.y + (o.material.map.image.height /2);
                 }
                 
             } else {
@@ -499,12 +499,7 @@ r_.animate = function () {
                         
                         // there are some frames to show
                         
-                        var nextFrame = o.frame + 1;
-                        var oldtxtr   = r_.imgs[ thing.sprite + sequence[ o.frame   ] + o.angle ];
-                        var texture   = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
-       
-                        //o.scale.x     = texture.image.width / oldtxtr.image.width; 
-                        o.scale.y     = texture.image.height / oldtxtr.image.height;
+                        var nextFrame = o.frame + 1;                        
                     }                                                                        
                 
                 } else {
@@ -522,6 +517,11 @@ r_.animate = function () {
                     
                 } else {
                     
+                    var oldtxtr   = r_.imgs[ thing.sprite + sequence[ o.frame ] + o.angle ];                    
+
+                    o.scale.x               = texture.image.width / oldtxtr.image.width; 
+                    o.scale.y               = texture.image.height / oldtxtr.image.height;
+                    o.position.y            = o.position.y - (oldtxtr.image.height/2) + (texture.image.height/2);
                     o.frame                 = nextFrame;
                     o.material.map          = texture;
                     o.material.color        = color;
@@ -1122,7 +1122,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     if (thing.light != undefined) {
         
         console.log('..spawning light source', thing.label);
-        plane.light = new THREE.PointLight( thing.light, 1, 50 );
+        plane.light = new THREE.PointLight( thing.light, 2, 50 );
         plane.light.position.set(x, 0, z);
         r_.scene.add( plane.light );
     }         

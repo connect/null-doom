@@ -1096,7 +1096,7 @@ o_.map = new function(){
         r_.hudScene.remove( r_.back );      
         
         // music
-        s_.playMusic('D_E1M1.mp3');
+        s_.playMusic('DM_E1M1.mp3');
 
     };
     
@@ -1150,7 +1150,7 @@ o_.map = new function(){
         r_.drawHud();
         
         // music
-        s_.playMusic('D_E1M1.mp3');
+        s_.playMusic('DM_E1M1.mp3');
         
         o_.map.loaded();
     };
