@@ -152,7 +152,8 @@ r_.animate = function () {
         if ( i_.act.attack && r_.weapon != null) {
             //console.log(delta);
             //r_.weapon.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
-            s_.play('DSPISTOL.ogg');
+            //s_.play( o_.weapons[ p_.weapon ]. );
+            
             i_.act.attack = false;
             
             // test hit or mis
@@ -919,7 +920,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
 
     if (thing.class.indexOf('M') != -1) { // monster
         
-        template = o_.things[ thing.template ];
+        template = (thing.template != undefined) ? o_.things[ thing.template ] : o_.things.template1;
         sequence = template.move;      
         frame    = (frame != undefined) ? frame : c_.random(0, sequence.length-1); // put random starting frame
         angle    = 1;

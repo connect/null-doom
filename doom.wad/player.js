@@ -10,11 +10,10 @@ $.extend(p_, {
     name        : 'Doomguy',
     health      : 100,
     armor       : 0,
-    weapon      : 'rocketlauncher',
+    weapon      : 'shotgun',
     weapons     : { 
         fist    : true,
-        pistol  : true,
-        rocketlauncher: true
+        pistol  : true
     },
     ammo        : {
         pistol  : 50

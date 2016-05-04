@@ -76,7 +76,7 @@ o_.map = new function(){
             var thing = o_.things[ t.thing[i].type ];
             var img;
             
-            if (thing == undefined || thing.sprite == 'none') continue; // skip if no sprite or if not found in db               
+            if (thing == undefined || thing.sprite.indexOf('none') != -1 ) continue; // skip if no sprite or if not found in db               
 
             // remove '+' from sequence if other available
             if (thing.sequence.indexOf('+') != -1 && thing.sequence.length > 1) {
@@ -85,7 +85,7 @@ o_.map = new function(){
             
             if (thing.class.indexOf('M') != -1) { // monster
                 
-                var template = o_.things[ thing.template ];
+                var template = (thing.template != undefined) ? o_.things[ thing.template ] : o_.things.template1;
                 
                 for (var j in template) {
                     

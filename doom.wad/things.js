@@ -14,6 +14,11 @@ o_.things = {
         move        : 'ABCD',        
         pain        : 'GH'
     },
+    template3:{
+        attack      : 'EFGH',
+        death       : 'IJKLMN',
+        move        : 'ABCD',
+    },
 
     1: {
         radius      : 16,
@@ -424,7 +429,8 @@ o_.things = {
         sprite: 'SARG',
         sequence: '+',
         class: 'MO',
-        label: 'Spectre'
+        label: 'Spectre',
+        template: 'template3'
     },
     59: {
         radius: 16,
@@ -864,11 +870,13 @@ o_.things = {
         sfx_death   : [ s_.bgdeath1, s_.bgdeath2 ]
     },
     3002: {
-        radius: 30,
-        sprite: 'SARG',
-        sequence: '+',
-        class: 'MO',
-        label: 'Demon'
+        radius      : 30,
+        sprite      : 'SARG',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Demon',
+        template    : 'template3',
+        corpse      : 21
     },
     3003: {
         radius: 24,
