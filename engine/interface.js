@@ -9,13 +9,13 @@ u_.menu = new function(){
     t.current = null;
     
     t.init = function( o ){        
-        console.log('u_.menu.init()')
+        console.log('....u_.menu.init()')
         t.screens = o;        
         //u_.openmenu('root');                                               
     };
     
     t.back = function(){
-        console.log('u_.menu.back()')        
+        console.log('....u_.menu.back()')        
         
         var o = t.screens[ t.current ];
         

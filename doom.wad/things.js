@@ -626,102 +626,111 @@ o_.things = {
         light       : 0xffffff
     },
     87: {
-        radius: 0,
-        sprite: 'none4',
-        sequence: '-',
-        class: '',
-        label: 'Spawn spot'
+        radius      : 0,
+        sprite      : 'none4',
+        sequence    : '-',
+        class       : '',
+        label       : 'Spawn spot'
     },
     88: {
-        radius: 16,
-        sprite: 'BBRN',
-        sequence: '+',
-        class: 'O5',
-        label: 'Boss Brain'
+        radius      : 16,
+        sprite      : 'BBRN',
+        sequence    : '+',
+        class       : 'O5',
+        label       : 'Boss Brain'
     },
     89: {
-        radius: 20,
-        sprite: 'none6',
-        sequence: '-',
-        class: '',
-        label: 'Spawn shooter'
+        radius      : 20,
+        sprite      : 'none6',
+        sequence    : '-',
+        class       : '',
+        label       : 'Spawn shooter'
     },
     2001: {
-        radius: 20,
-        sprite: 'SHOT',
-        sequence: 'A',
-        class: 'WP3',
-        label: 'Shotgun'
+        radius      : 20,
+        sprite      : 'SHOT',
+        sequence    : 'A',
+        class       : 'WP3',
+        label       : 'Shotgun',
+        weapon      : 'shotgun'
     },
     2002: {
-        radius: 20,
-        sprite: 'MGUN',
-        sequence: 'A',
-        class: 'WP3',
-        label: 'Chaingun'
+        radius      : 20,
+        sprite      : 'MGUN',
+        sequence    : 'A',
+        class       : 'WP3',
+        label       : 'Chaingun',
+        weapon      : 'chaingun'
     },
     2003: {
-        radius: 20,
-        sprite: 'LAUN',
-        sequence: 'A',
-        class: 'WP3',
-        label: 'Rocket launcher'
+        radius      : 20,
+        sprite      : 'LAUN',
+        sequence    : 'A',
+        class       : 'WP3',
+        label       : 'Rocket launcher',
+        weapon      : 'rocketlauncher'
     },
     2004: {
-        radius: 20,
-        sprite: 'PLAS',
-        sequence: 'A',
-        class: 'WP3',
-        label: 'Plasma rifle'
+        radius      : 20,
+        sprite      : 'PLAS',
+        sequence    : 'A',
+        class       : 'WP3',
+        label       : 'Plasma rifle',
+        weapon      : 'plasmagun'
     },
     2005: {
-        radius: 20,
-        sprite: 'CSAW',
-        sequence: 'A',
-        class: 'WP7',
-        label: 'Chainsaw'
+        radius      : 20,
+        sprite      : 'CSAW',
+        sequence    : 'A',
+        class       : 'WP7',
+        label       : 'Chainsaw',
+        weapon      : 'chainsaw'
     },
     2006: {
-        radius: 20,
-        sprite: 'BFUG',
-        sequence: 'A',
-        class: 'WP3',
-        label: 'BFG 9000'
+        radius      : 20,
+        sprite      : 'BFUG',
+        sequence    : 'A',
+        class       : 'WP3',
+        label       : 'BFG 9000',
+        weapon      : 'bfg'
     },
     2007: {
-        radius: 20,
-        sprite: 'CLIP',
-        sequence: 'A',
-        class: 'P2',
-        label: 'Ammo clip'
+        radius      : 20,
+        sprite      : 'CLIP',
+        sequence    : 'A',
+        class       : 'P2',
+        label       : 'Ammo clip',
+        ammo        : 'clip'
     },
     2008: {
-        radius: 20,
-        sprite: 'SHEL',
-        sequence: 'A',
-        class: 'P2',
-        label: 'Shotgun shells'
+        radius      : 20,
+        sprite      : 'SHEL',
+        sequence    : 'A',
+        class       : 'P2',
+        label       : 'Shotgun shells',
+        ammo        : 'shotgunshells'
     },
     2010: {
-        radius: 20,
-        sprite: 'ROCK',
-        sequence: 'A',
-        class: 'P2',
-        label: 'Rocket'
+        radius      : 20,
+        sprite      : 'ROCK',
+        sequence    : 'A',
+        class       : 'P2',
+        label       : 'Rocket',
+        ammo        : 'rocket'
     },
     2011: {
-        radius: 20,
-        sprite: 'STIM',
-        sequence: 'A',
-        class: 'P8',
-        label: 'Stimpack'
+        radius      : 20,
+        sprite      : 'STIM',
+        sequence    : 'A',
+        class       : 'P8',
+        label       : 'Stimpack'
     },
     2012: {
-        radius: 20,
-        sprite: 'MEDI',
-        sequence: 'A',
-        class: 'P8',
-        label: 'Medikit'
+        radius      : 20,
+        sprite      : 'MEDI',
+        sequence    : 'A',
+        class       : 'P8',
+        label       : 'Medikit'
     },
     2013: {
         radius      : 20,

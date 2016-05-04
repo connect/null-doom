@@ -5,9 +5,37 @@
  * @author  kod.connect
  */
 
+c_.give = function(item){
+
+    if (item == 'all') {
+        
+        // give all weapons
+        for (var i in o_.weapons) {
+            
+            if (i != 'default') {
+
+                c_.give( i );
+            }
+        }
+        
+    } else {
+
+        if (o_.weapons[item] != undefined && item != 'default') {
+            console.log('Player received '+item);
+            p_.weapons[item] = true;
+        }
+    };
+};
+
 c_.nextmap = function(){
     console.log('c_.nextmap()');
     o_.map.next();
+};
+
+// disable wall collisions
+c_.noclip = function(){
+    
+    cfg.noclip = !cfg.noclip;
 };
 
 c_.opendoor = function(sector){
@@ -86,6 +114,57 @@ c_.opendoor = function(sector){
     });
     s_.play( s_.opendoor );
 };
+
+c_.slot1 = function(){
+    
+    p_.switchWeaponSlot(1);
+};
+
+c_.slot2 = function(){
+    
+    p_.switchWeaponSlot(2);
+};
+
+c_.slot3 = function(){
+    
+    p_.switchWeaponSlot(3);
+};
+
+c_.slot4 = function(){
+    
+    p_.switchWeaponSlot(4);
+};
+
+c_.slot5 = function(){
+    
+    p_.switchWeaponSlot(5);
+};
+
+c_.slot6 = function(){
+    
+    p_.switchWeaponSlot(6);
+};
+
+c_.slot7 = function(){
+    
+    p_.switchWeaponSlot(7);
+};
+
+c_.slot8 = function(){
+    
+    p_.switchWeaponSlot(8);
+};
+
+c_.slot9 = function(){
+    
+    p_.switchWeaponSlot(9);
+};
+
+c_.slot0 = function(){
+    
+    p_.switchWeaponSlot(0);
+};
+
 
 // Random generator: from, to
 c_.random = function(min, max) {

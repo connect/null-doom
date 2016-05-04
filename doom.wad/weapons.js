@@ -24,7 +24,20 @@ o_.weapons = {
         }
     },
     
+    chainsaw: {
+        sprite      : 'SAW',
+        cache       : 'ABCD',
+        ready       : 'CD',
+        fire        : 'AB',        
+        fireDelay   : 0,
+        cooldown    : 0,
+        onFire      : function(){
+            
+        }
+    },
+    
     pistol: {
+        ammo        : 'bullets',
         sprite      : 'PIS',
         cache       : 'ABCDE',
         fire        : 'BCDE',
@@ -43,6 +56,7 @@ o_.weapons = {
     },
     
     shotgun: {
+        ammo        : 'shells',
         sprite      : 'SHT',
         cache       : 'ABCD',
         fire        : 'BCD',
@@ -50,6 +64,7 @@ o_.weapons = {
     },
     
     chaingun: {
+        ammo        : 'bullets',
         sprite      : 'CHG',
         cache       : 'AB',
         fire        : 'B',
@@ -57,6 +72,7 @@ o_.weapons = {
     },
     
     rocketlauncher: {
+        ammo        : 'rockets',
         sprite      : 'MIS',
         cache       : 'AB',
         fire        : 'B',
@@ -64,13 +80,15 @@ o_.weapons = {
     },
     
     plasmagun: {
+        ammo        : 'cells',
         sprite      : 'PLS',
         cache       : 'AB',
         fire        : 'B',
         flash       : 'AB'
     },
     
-    bfg9000: {
+    bfg: {
+        ammo        : 'cells',
         sprite      : 'BFG',
         cache       : 'ABC',
         fire        : 'BC',

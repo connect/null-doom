@@ -30,6 +30,9 @@ o_.map.loaded = function(){
             }
         }
     }
+    
+    
+    c_.give('all') // cheat
 };
 
 
@@ -41,8 +44,17 @@ o_.map.add([
     //'e1m5'
 ]);
 
-// load things database
-core.include( cfg.mod +'/things.js' );
+o_.modules = [
+    'ammo',
+    'things', 
+    'weapons'
+];
+
+for (var m in o_.modules) {
+
+    console.log('....loading',cfg.mod +'/'+ o_.modules[m] +'.js')
+    core.include( cfg.mod +'/'+ o_.modules[m] +'.js' );
+}
 
 o_.postInit();
 w_.loadNext();

@@ -22,12 +22,21 @@ var core = new function() {
         return -1;
     };
     
+    t.constants = function(constants){
+        
+        for (var i in constants) { 
+            
+            window[constants[i]] = i;
+        };
+    };
+    
     t.modules = {
         t_ : 'tools',
         c_ : 'commands',
         g_ : 'gameplay',
         i_ : 'input',
         o_ : 'objects',
+        p_ : 'player',
         u_ : 'interface',
         r_ : 'render',
         s_ : 'sound',

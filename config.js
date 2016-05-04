@@ -12,7 +12,8 @@ var cfg = {
     screenmode          : '1024x768',
     fullscreen          : 0,
     playerHeight        : 45,
-    musicvolume         : 1,
+    musicvolume         : 0,
+    noclip              : 0,
     
     bind: {
         38  : '+forward',   // uparrow
@@ -31,8 +32,21 @@ var cfg = {
         61  : 'zoomin',     // laptop
         173 : 'zoomout',
         
-        69  : '+use',        // e
-        32  : '+use',        // space
+        69  : '+use',       // e
+        32  : '+use',       // space
+        
+        67  : 'noclip',     // c
+        
+        49  : 'slot1',      // 1
+        50  : 'slot2',      // 2
+        51  : 'slot3',      // 3
+        52  : 'slot4',      // 4
+        53  : 'slot5',      // 5
+        54  : 'slot6',      // 6
+        55  : 'slot7',      // 7
+        56  : 'slot8',      // 8
+        57  : 'slot9',      // 9
+        58  : 'slot0',      // 0
         
         mouse1 : '+attack'
     }

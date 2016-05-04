@@ -27,6 +27,7 @@ var w_ = new function(){
         i_ : 'input',
         s_ : 'sound',
         o_ : 'objects',
+        p_ : 'player',
         u_ : 'interface',
         r_ : 'render'        
     };

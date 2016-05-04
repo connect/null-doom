@@ -14,7 +14,7 @@ o_.map = new function(){
     t.actions   = []; 
     
     t.add = function(o){
-        console.log('o_.map.add()')
+        console.log('....o_.map.add()')
         if (typeof o == 'object' && o.length != undefined) {
             // array 
             for (var i in o){
@@ -135,6 +135,34 @@ o_.map = new function(){
             }
         }
         
+        // POV Weapon textures
+        //
+        for (var i in o_.weapons){
+            
+            if (i == 'default') continue;
+            
+            var weapon          = o_.weapons[i];
+            var gun_suffix      = (weapon.weapon  != undefined) ? weapon.weapon  : o_.weapons.default.weapon;
+            var flash_suffix    = (weapon.flasher != undefined) ? weapon.flasher : o_.weapons.default.flasher;
+            var flash           = weapon.flash;
+            var sprite          = weapon.sprite;
+            var cache           = o_.weapons[i].cache;
+            
+            // cache weapon textures
+            for (var j in cache){                
+                
+                var frame = cache[j];
+                cachelist.push( sprite + gun_suffix + frame + '0' );
+            }
+            
+            // cache flash textures
+            for (var j in flash){                
+                
+                var frame = flash[j];
+                cachelist.push( sprite + flash_suffix + frame + '0' );
+            }
+        }
+        
         // Cache it all
         //
         for (var i in cachelist) {
@@ -202,23 +230,23 @@ o_.map = new function(){
     };
     
     t.loadTest = function(){
-        var sides = {};
-        var lines = {};
-        var vertexes = {};
+        var sides       = {};
+        var lines       = {};
+        var vertexes    = {};
         var floorheight = 0;
         
-        var drawWalls = 1;
-        var drawNums  = 0;
-        var drawFlats = 1;
+        var drawWalls   = 1;
+        var drawNums    = 0;
+        var drawFlats   = 1;
         var drawOnlySector = false;
         
-        var matLine = new THREE.LineBasicMaterial({ color: 0xff0000 });
-        var matLineB = new THREE.LineDashedMaterial({ color: 0x0000ff, dashSize: 4, gapSize: 2  });
+        var matLine     = new THREE.LineBasicMaterial({ color: 0xff0000 });
+        var matLineB    = new THREE.LineDashedMaterial({ color: 0x0000ff, dashSize: 4, gapSize: 2  });
         
-        var matVert = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
-        var geoVert = new THREE.BoxGeometry( 3, 3, 3 );
+        var matVert     = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+        var geoVert     = new THREE.BoxGeometry( 3, 3, 3 );
         
-        var matThing = new THREE.MeshBasicMaterial({ color: 0x999900, wireframe: true });        
+        var matThing    = new THREE.MeshBasicMaterial({ color: 0x999900, wireframe: true });        
 
         for (var s in t.sector) {
             
@@ -865,20 +893,6 @@ o_.map = new function(){
         
         var mesh, geometry, material;
 
-        // WEAPON
-        //       
-        r_.mats.wpn = [ 
-            new THREE.SpriteMaterial({map: r_.imgs.SHTGA0}), 
-            new THREE.SpriteMaterial({map: r_.imgs.SHTGB0}),
-            new THREE.SpriteMaterial({map: r_.imgs.SHTGC0}),
-            new THREE.SpriteMaterial({map: r_.imgs.SHTGD0})
-        ];
-        r_.wpn.obj = new THREE.Sprite(r_.mats.wpn[0]);            
-        r_.wpn.obj.scale.set( 79 * scale , 60 * scale ,1);
-        r_.wpn.obj.position.set(0, (scrHeight/-2) + (60 * scale) * -1  , 5); // (scrHeight/-2) + (60 * scale)   
-        r_.wpn.reading = true;
-        r_.hudScene.add(r_.wpn.obj);
-
         // STATUS
         //   
 
@@ -1147,12 +1161,14 @@ o_.map = new function(){
         r_.hudScene.remove( r_.back );      
         
         // draw hud
-        r_.drawHud();
+        r_.hud.draw();
         
         // music
         s_.playMusic('DM_E1M1.mp3');
         
         o_.map.loaded();
+        
+        //p_.switchWeapon();
     };
     
     t.readUDMF = function(f){
@@ -1310,8 +1326,6 @@ o_.map = new function(){
             });
     };
 };
-
-o_.wpn = {};
 
 o_.postInit = function(o){
     
