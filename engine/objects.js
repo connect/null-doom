@@ -43,7 +43,7 @@ o_.map = new function(){
                         
             for (var j in textures) {
                 
-                var img = t.sidedef[i][ textures[j] ];
+                var img = t.sidedef[i][ textures[j] ].toUpperCase();
             
                 if ( img != '-' && img != undefined && cachelist.indexOf(img) == -1) {
 
@@ -84,16 +84,19 @@ o_.map = new function(){
             }
             
             if (thing.class.indexOf('M') != -1) { // monster
+                //console.log('......monster',thing.label)
+                var template    = o_.things[ thing.template ];
+                var actions     = [ 'attack', 'move', 'pain', 'death' ];
+                var angle, cache;
                 
-                var template = (thing.template != undefined) ? o_.things[ thing.template ] : o_.things.template1;
-                
-                for (var j in template) {
+                for (var j in actions) {
                     
-                    var angle = (j == 'death' || j == 'gibs') ? 0 : 1;
+                    angle = (actions[j] == 'death' || actions[j] == 'gibs') ? 0 : 1;                    
+                    cache = thing[ actions[j] ] || template[ actions[j] ] || '';
                     
-                    for (var s in template[j]){
+                    for (var c in cache){
                         
-                        var img = thing.sprite + template[j][s] + angle;
+                        var img = thing.sprite + cache[c] + angle;
                         
                         if ( cachelist.indexOf(img) == -1) {
 
@@ -166,7 +169,7 @@ o_.map = new function(){
         // Cache it all
         //
         for (var i in cachelist) {
-            
+            //console.log('....caching image',cachelist[i]);
             r_.img.load({
                 files: [ cachelist[i] ],
                 success: function(texture){

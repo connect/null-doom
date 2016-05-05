@@ -16,6 +16,8 @@ o_.weapons = {
     fist: {        
         sprite      : 'PUN',
         cache       : 'ABCD',
+        offset_x    : 0,
+        offset_y    : 0,
         fire        : 'BCD',
         fireDelay   : 0,
         cooldown    : 0,
@@ -27,6 +29,8 @@ o_.weapons = {
     chainsaw: {
         sprite      : 'SAW',
         cache       : 'ABCD',
+        offset_x    : 0,
+        offset_y    : 0,
         ready       : 'CD',
         fire        : 'AB',        
         fireDelay   : 0,
@@ -40,6 +44,8 @@ o_.weapons = {
         ammo        : 'bullets',
         sprite      : 'PIS',
         cache       : 'ABCDE',
+        offset_x    : 0,
+        offset_y    : 0,
         fire        : 'BCDE',
         flash       : 'A',
         hitwall     : {
@@ -59,6 +65,8 @@ o_.weapons = {
         ammo        : 'shells',
         sprite      : 'SHT',
         cache       : 'ABCD',
+        offset_x    : 0,
+        offset_y    : 0,
         fire        : 'BCD',
         flash       : 'AB'
     },
@@ -67,6 +75,8 @@ o_.weapons = {
         ammo        : 'bullets',
         sprite      : 'CHG',
         cache       : 'AB',
+        offset_x    : 0,
+        offset_y    : -100,
         fire        : 'B',
         flash       : 'AB'
     },
@@ -75,6 +85,8 @@ o_.weapons = {
         ammo        : 'rockets',
         sprite      : 'MIS',
         cache       : 'AB',
+        offset_x    : 0,
+        offset_y    : -100,
         fire        : 'B',
         flash       : 'ABCD'
     },
@@ -83,6 +95,8 @@ o_.weapons = {
         ammo        : 'cells',
         sprite      : 'PLS',
         cache       : 'AB',
+        offset_x    : 0,
+        offset_y    : 0,
         fire        : 'B',
         flash       : 'AB'
     },
@@ -91,6 +105,8 @@ o_.weapons = {
         ammo        : 'cells',
         sprite      : 'BFG',
         cache       : 'ABC',
+        offset_x    : 0,
+        offset_y    : -100,
         fire        : 'BC',
         flash       : 'AB'
     }

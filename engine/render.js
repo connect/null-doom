@@ -23,6 +23,7 @@ r_.mats         = {}; // material cachce
 r_.imgs         = {}; // texture cache
 r_.globaltimer  = 0;
 r_.direction    = false;
+r_.frustum      = new THREE.Frustum();
 
 r_.animate = function () {
     
@@ -33,16 +34,24 @@ r_.animate = function () {
     var scrHeight   = scrMode[1];            
     var time        = performance.now();
     var delta       = ( time - r_.prevTime ) / 1000;                  
-    var bobfactor   = 0; // camera bob
+    r_.bobfactor    = r_.bobfactor  || 0; // camera bob
+    r_.rollfactor   = r_.rollfactor || 0;
     var wpn         = r_.weapon.obj;
     
+    r_.frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( r_.camera.projectionMatrix, r_.camera.matrixWorldInverse ) );
+    
+    for (var i in r_.objects){
+        r_.objects[i].visible = r_.frustum.intersectsObject( r_.objects[i] );
+    }
+    
+    // Weapon switch 
+    //
     if (wpn != null) {
     
         if (r_.weapon.state == 'takeup') { // taking up
 
-            var thisPos = wpn.position.y += 700 * delta;
-            //var stopPos = (scrHeight/-2) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
-            var stopPos = r_.hud.statusbar.position.y + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
+            var thisPos = wpn.position.y += 700 * delta;            
+            var stopPos = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
 
             if (thisPos <= stopPos) {
 
@@ -57,7 +66,7 @@ r_.animate = function () {
         } else if ( r_.weapon.state == 'takedown') { // taking down
 
             var thisPos = wpn.position.y -= 700 * delta;
-            var stopPos = (scrHeight/-2) - (wpn.material.map.image.height * r_.scale / 2);
+            var stopPos = (scrHeight/-2) - (wpn.material.map.image.height * r_.scale / 2) + (o_.weapons[ p_.weapon ].offset_y );
 
             if (thisPos >= stopPos) {
 
@@ -75,7 +84,14 @@ r_.animate = function () {
                 
                 r_.weapon.state = 'takeup';
             }
-        } 
+            
+        } else {
+            
+            var stopPos = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
+            
+            wpn.position.x = r_.bobfactor;
+            wpn.position.y = ( r_.rollfactor * r_.bobfactor ) + stopPos;
+        }
         
     }
     
@@ -112,7 +128,14 @@ r_.animate = function () {
         }
     }
 
-    if ( i_.controls.enabled ) {     
+    if ( i_.controls.enabled ) { 
+        
+        // change bobfactor while moving
+        if ( i_.act.forward || i_.act.back || i_.act.left || i_.act.right) {
+
+            r_.bobfactor = Math.sin( time / 100 ) * 5;
+            r_.rollfactor = Math.cos(time / 1000 );
+        } 
         
         // use/open action
         //
@@ -341,12 +364,7 @@ r_.animate = function () {
                 r_.direction = false;
             }
         }
-    
-        // change bobfactor while moving
-        if ( i_.act.forward || i_.act.back || i_.act.left || i_.act.right) {
-
-            bobfactor = Math.sin( time / 100 ) * 5;  
-        }        
+                  
     }                  
 
     // test collisions against floor
@@ -368,11 +386,11 @@ r_.animate = function () {
 
         if (hits[0].distance < cfg.playerHeight) {
             //console.log( hits[0].object)
-            i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + bobfactor;
+            i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;
 
         } else if (hits[0].distance > cfg.playerHeight) {
 
-            i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + bobfactor;
+            i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;
         }
     } else {
 
@@ -411,11 +429,11 @@ r_.animate = function () {
     } 
     */                             
 
-    r_.globaltimer = (r_.globaltimer * 100 * delta > 10) ? 0 : parseInt(r_.globaltimer)+1; 
+    //r_.globaltimer = (r_.globaltimer * 100 * delta > 10) ? 0 : parseInt(r_.globaltimer)+1; 
 
     // update animated floors
     //
-    if (r_.globaltimer == 0) {
+    if (r_.globaltimer == 1) {
         for (var i in r_.floors){
 
             var o = r_.floors[i];
@@ -436,7 +454,9 @@ r_.animate = function () {
     //
     for (var i in r_.sprites){
 
-        var o = r_.sprites[i];
+        if (!r_.sprites[i].visible) continue;
+            
+        var o = r_.sprites[i];       
         var tsector;
 
         r_.raycaster.ray.origin.copy( o.position );
@@ -465,20 +485,15 @@ r_.animate = function () {
 
         // update animation
         //
-        if (r_.globaltimer == 0) {
+        if (r_.globaltimer == 1) {
 
             var thing       = o_.things[ o.type ];                                       
             var color       = (o.light != undefined) ? new THREE.Color(0xffffff) : new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
 
             if (thing.class.indexOf('M') != -1) { // monster
 
-                var template    = o_.things[ thing.template ];
-
-                if (template == undefined) {
-                    console.log('..template not found for',thing.label)
-                }
-
-                var sequence = template[ o.state ];
+                var template = o_.things[ thing.template ];
+                var sequence = thing[ o.state ] || template[ o.state ];
 
                 if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
 
@@ -920,8 +935,8 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
 
     if (thing.class.indexOf('M') != -1) { // monster
         
-        template = (thing.template != undefined) ? o_.things[ thing.template ] : o_.things.template1;
-        sequence = template.move;      
+        template = o_.things[ thing.template ];
+        sequence = thing.move || template.move;      
         frame    = (frame != undefined) ? frame : c_.random(0, sequence.length-1); // put random starting frame
         angle    = 1;
         
@@ -947,6 +962,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     var plane       = new THREE.Mesh( geoPlane, matPlane );    
     
     // spawn light sources
+    /*
     if (thing.light != undefined) {
         
         console.log('..spawning light source', thing.label);
@@ -954,7 +970,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
         plane.light.position.set(x, 0, z);
         r_.scene.add( plane.light );
     }         
-    
+    */
     plane.position.set( x, y || 0, z );
     plane.type  = type;
     plane.frame = frame;

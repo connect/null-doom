@@ -7,18 +7,6 @@ o_.things = {
         move        : 'ABCD',        
         pain        : 'G'
     }, 
-    template2: {
-        attack      : 'EF',
-        death       : 'IJKL',        
-        gibs        : 'MNOPQRSTU',
-        move        : 'ABCD',        
-        pain        : 'GH'
-    },
-    template3:{
-        attack      : 'EFGH',
-        death       : 'IJKLMN',
-        move        : 'ABCD',
-    },
 
     1: {
         radius      : 16,
@@ -117,7 +105,7 @@ o_.things = {
     },
     14: {
         radius      : 20,
-        sprite      : 'none1',
+        sprite      : 'none',
         sequence    : '-',
         class       : '',
         label       : 'Teleport landing'
@@ -134,7 +122,11 @@ o_.things = {
         sprite      : 'CYBR',
         sequence    : '+',
         class       : 'MO',
-        label       : 'Cyberdemon'
+        label       : 'Cyberdemon',
+        attack      : 'EF',
+        death       : 'HIJKLMNOP',
+        move        : 'ABCD',
+        pain        : 'G'
     },
     17: {
         radius      : 20,
@@ -425,12 +417,15 @@ o_.things = {
         label: 'Short red firestick'
     },
     58: {
-        radius: 30,
-        sprite: 'SARG',
-        sequence: '+',
-        class: 'MO',
-        label: 'Spectre',
-        template: 'template3'
+        radius      : 30,
+        sprite      : 'SARG',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Spectre',
+        attack      : 'EFG',
+        death       : 'IJKLMN',
+        move        : 'ABCD',
+        pain        : 'H'
     },
     59: {
         radius: 16,
@@ -468,11 +463,11 @@ o_.things = {
         label: 'Hanging victim, twitching'
     },
     64: {
-        radius: 20,
-        sprite: 'VILE',
-        sequence: '+',
-        class: 'MO',
-        label: 'Arch-Vile'
+        radius      : 20,
+        sprite      : 'VILE',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Arch-Vile'
     },
     65: {
         radius: 20,
@@ -633,7 +628,7 @@ o_.things = {
     },
     87: {
         radius      : 0,
-        sprite      : 'none4',
+        sprite      : 'none',
         sequence    : '-',
         class       : '',
         label       : 'Spawn spot'
@@ -647,7 +642,7 @@ o_.things = {
     },
     89: {
         radius      : 20,
-        sprite      : 'none6',
+        sprite      : 'none',
         sequence    : '-',
         class       : '',
         label       : 'Spawn shooter'
@@ -823,6 +818,7 @@ o_.things = {
         class       : 'O',
         label       : 'Barrel',
         light       : 0x00ff00
+        //explode     : BEXP(A-E)0
     },
     2045: {
         radius: 20,
@@ -865,7 +861,11 @@ o_.things = {
         sequence    : '+',
         class       : 'MO',
         label       : 'Imp',
-        template    : 'template2',
+        attack      : 'EF',
+        death       : 'IJKL',        
+        gibs        : 'MNOPQRSTU',
+        move        : 'ABCD',        
+        pain        : 'GH',
         corpse      : 20,
         sfx_death   : [ s_.bgdeath1, s_.bgdeath2 ]
     },
@@ -875,15 +875,22 @@ o_.things = {
         sequence    : '+',
         class       : 'MO',
         label       : 'Demon',
-        template    : 'template3',
+        attack      : 'EFG',
+        death       : 'IJKLMN',
+        move        : 'ABCD',
+        pain        : 'H',
         corpse      : 21
     },
     3003: {
-        radius: 24,
-        sprite: 'BOSS',
-        sequence: '+',
-        class: 'MO',
-        label: 'Baron of Hell'
+        radius      : 24,
+        sprite      : 'BOSS',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Baron of Hell',
+        attack      : 'EFG',
+        death       : 'IJKLMNO',
+        move        : 'ABCD',      
+        pain        : 'H'
     },
     3004: {
         radius      : 20,
@@ -896,17 +903,26 @@ o_.things = {
         sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ]        
     },
     3005: {
-        radius: 31,
-        sprite: 'HEAD',
-        sequence: '+',
-        class: 'MO^',
-        label: 'Cacodemon'
+        radius      : 31,
+        sprite      : 'HEAD',
+        sequence    : '+',
+        class       : 'MO^',
+        label       : 'Cacodemon',
+        attack      : 'BCD',
+        death       : 'GHJKL',
+        move        : 'A',
+        pain        : 'EF',
+        corpse      : 22
     },
     3006: {
-        radius: 16,
-        sprite: 'SKUL',
-        sequence: '+',
-        class: 'M12O^',
-        label: 'Lost Soul'
+        radius      : 16,
+        sprite      : 'SKUL',
+        sequence    : '+',
+        class       : 'MO^',
+        label       : 'Lost Soul',
+        attack      : 'CD',
+        death       : 'FGHJK',
+        move        : 'AB',
+        pain        : 'E'
     }
 };
