@@ -17,10 +17,11 @@ o_.weapons = {
         sprite      : 'PUN',
         cache       : 'ABCD',
         offset_x    : 0,
-        offset_y    : 0,
+        offset_y    : -50,
         fire        : 'BCD',
-        fireDelay   : 0,
-        cooldown    : 0,
+        sfx_fire    : s_.fist,
+        delay       : 0,
+        cooldown    : 40,        
         onFire      : function(){
             
         }
@@ -30,11 +31,12 @@ o_.weapons = {
         sprite      : 'SAW',
         cache       : 'ABCD',
         offset_x    : 0,
-        offset_y    : 0,
+        offset_y    : -50,
         ready       : 'CD',
         fire        : 'AB',        
-        fireDelay   : 0,
-        cooldown    : 0,
+        sfx_fire    : s_.chainsaw,
+        delay       : 0,
+        cooldown    : 60,
         onFire      : function(){
             
         }
@@ -45,9 +47,12 @@ o_.weapons = {
         sprite      : 'PIS',
         cache       : 'ABCDE',
         offset_x    : 0,
-        offset_y    : 0,
+        offset_y    : -50,
         fire        : 'BCDE',
         flash       : 'A',
+        sfx_fire    : s_.bullet,
+        delay       : 0,
+        cooldown    : 30,
         hitwall     : {
             sprite  : 'PUFF',
             sequence: 'ABCD',
@@ -66,9 +71,12 @@ o_.weapons = {
         sprite      : 'SHT',
         cache       : 'ABCD',
         offset_x    : 0,
-        offset_y    : 0,
+        offset_y    : -50,
         fire        : 'BCD',
-        flash       : 'AB'
+        flash       : 'AB',
+        sfx_fire    : s_.shotgun,
+        delay       : 0,
+        cooldown    : 90,
     },
     
     chaingun: {
@@ -76,9 +84,12 @@ o_.weapons = {
         sprite      : 'CHG',
         cache       : 'AB',
         offset_x    : 0,
-        offset_y    : -100,
+        offset_y    : -150,
         fire        : 'B',
-        flash       : 'AB'
+        flash       : 'AB',
+        sfx_fire    : s_.bullet,
+        delay       : 0,
+        cooldown    : 7
     },
     
     rocketlauncher: {
@@ -86,9 +97,12 @@ o_.weapons = {
         sprite      : 'MIS',
         cache       : 'AB',
         offset_x    : 0,
-        offset_y    : -100,
+        offset_y    : -150,
         fire        : 'B',
-        flash       : 'ABCD'
+        flash       : 'ABCD',               
+        sfx_fire    : s_.rlauncher,
+        delay       : 0,
+        cooldown    : 50
     },
     
     plasmagun: {
@@ -96,9 +110,12 @@ o_.weapons = {
         sprite      : 'PLS',
         cache       : 'AB',
         offset_x    : 0,
-        offset_y    : 0,
+        offset_y    : -50,
         fire        : 'B',
-        flash       : 'AB'
+        flash       : 'AB',
+        sfx_fire    : s_.plasma,
+        delay       : 0,
+        cooldown    : 7
     },
     
     bfg: {
@@ -108,6 +125,9 @@ o_.weapons = {
         offset_x    : 0,
         offset_y    : -100,
         fire        : 'BC',
-        flash       : 'AB'
+        flash       : 'AB',
+        sfx_fire    : s_.bfg,
+        delay       : 0,
+        cooldown    : 85
     }
 };

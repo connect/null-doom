@@ -9,8 +9,12 @@ r_.hud      = {};
 
 r_.weapon   = {
     
-    obj     : null,
-    state   : 'ready',
+    obj         : null,
+    state       : 'ready',
+    sin         : 0,
+    cos         : 0,
+    cooldown    : 0,
+    delay       : 0,
     
     getTexture: function(){
         var wpn             = o_.weapons[ p_.weapon ];        
@@ -115,27 +119,27 @@ r_.hud.draw = function(){
         x: '34.8%', z: '10.5%'  
     });
     r_.drawText({
-        text: '3',  prefix: 'STG',
+        text: '3',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '39%',   z: '10.5%'  
     });
     r_.drawText({
-        text: '4',  prefix: 'STG',
+        text: '4',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '42.5%', z: '10.5%'  
     });
     r_.drawText({
-        text: '5',  prefix: 'STG',
+        text: '5',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '34.8%', z: '6.5%'  
     });
     r_.drawText({
-        text: '6',  prefix: 'STG',
+        text: '6',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '39%',   z: '6.5%'
     });
     r_.drawText({
-        text: '7',  prefix: 'STG',
+        text: '7',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '42.5%', z: '6.5%'
     });

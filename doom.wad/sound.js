@@ -15,6 +15,14 @@ s_.getweapon    = 'DSSGCOCK.ogg';
 s_.getitem      = 'DSITEMUP.ogg';
 s_.ugh          = 'DSNOWAY.ogg';
 
+s_.chainsaw     = 'DSSAWFUL.ogg';
+s_.fist         = 'DSPUNCH.ogg';
+s_.bullet       = 'DSPISTOL.ogg';
+s_.shotgun      = 'DSSHOTGN.ogg';
+s_.rlauncher    = 'DSRLAUNC.ogg';
+s_.plasma       = 'DSPLASMA.ogg';
+s_.bfg          = 'DSBFG.ogg';
+
 s_.bgdeath1     = 'DSBGDTH1.ogg';
 s_.bgdeath2     = 'DSBGDTH2.ogg';
 s_.podeath1     = 'DSPODTH1.ogg';

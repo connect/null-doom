@@ -16,8 +16,12 @@ p_.switchWeapon = function(wpn){
     
     if (p_.hasWeapon(wpn)) {
         
-        p_.weapon       = wpn;
-        r_.weapon.state = 'takedown';
+        p_.weapon           = wpn;
+        r_.weapon.state     = 'takedown';
+        r_.weapon.sin       = 0;
+        r_.weapon.cos       = 0;
+        r_.weapon.cooldown  = 0;
+        r_.weapon.delay     = 0;
     }
 };
 

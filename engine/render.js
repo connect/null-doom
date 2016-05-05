@@ -35,7 +35,8 @@ r_.animate = function () {
     var time        = performance.now();
     var delta       = ( time - r_.prevTime ) / 1000;                  
     r_.bobfactor    = r_.bobfactor  || 0; // camera bob
-    r_.rollfactor   = r_.rollfactor || 0;
+    r_.weapon.sin   = r_.weapon.sin || 0; // weapon bob
+    r_.weapon.cos   = r_.weapon.cos || 0;
     var wpn         = r_.weapon.obj;
     
     r_.frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( r_.camera.projectionMatrix, r_.camera.matrixWorldInverse ) );
@@ -61,6 +62,7 @@ r_.animate = function () {
 
                 wpn.position.set(0, stopPos, 5);
                 r_.weapon.state = 'ready';
+                console.log('FIRE: ready');
             }
 
         } else if ( r_.weapon.state == 'takedown') { // taking down
@@ -83,14 +85,22 @@ r_.animate = function () {
                 wpn.material.map = texture;                
                 
                 r_.weapon.state = 'takeup';
+                console.log('FIRE: takeup');
             }
             
-        } else {
+        } else if ( r_.weapon.state == 'ready') {
             
-            var stopPos = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
+            var yPos = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2) + ( r_.weapon.sin * r_.weapon.cos );
+            var xPos = r_.weapon.sin
+            var dist = Math.sqrt( Math.pow(wpn.position.x - xPos ,2) + Math.pow(wpn.position.y - yPos ,2) );
             
-            wpn.position.x = r_.bobfactor;
-            wpn.position.y = ( r_.rollfactor * r_.bobfactor ) + stopPos;
+            if (dist > 10) {  
+                xPos = (wpn.position.x + xPos ) / 2;
+                yPos = (wpn.position.y + yPos ) / 2;
+            }
+            
+            wpn.position.x = xPos;
+            wpn.position.y = yPos;
         }
         
     }
@@ -133,8 +143,9 @@ r_.animate = function () {
         // change bobfactor while moving
         if ( i_.act.forward || i_.act.back || i_.act.left || i_.act.right) {
 
-            r_.bobfactor = Math.sin( time / 100 ) * 5;
-            r_.rollfactor = Math.cos(time / 1000 );
+            r_.bobfactor  = Math.sin( time / 100 ) * 5;
+            r_.weapon.sin = Math.sin( time / 300 ) * 50;
+            r_.weapon.cos = Math.cos( time / 300 ) ;
         } 
         
         // use/open action
@@ -172,12 +183,52 @@ r_.animate = function () {
         
         // Fire
         //
-        if ( i_.act.attack && r_.weapon != null) {
-            //console.log(delta);
-            //r_.weapon.obj.material = r_.mats.wpn[ Math.round(delta) % 4 ];
-            //s_.play( o_.weapons[ p_.weapon ]. );
+        
+        if ( i_.act.attack && r_.weapon.state == 'ready') {
             
-            i_.act.attack = false;
+            r_.weapon.state = 'delay';
+            //console.log('->FIRE: delay');
+        }
+        
+        if ( !i_.act.attack && r_.weapon.state == 'delay') {
+            
+            // cancel delay
+            r_.weapon.state = 'ready';
+            //console.log('FIRE: ready');
+        }        
+        
+        if ( i_.act.attack && r_.weapon.state == 'delay') {
+            
+            if (r_.weapon.delay > o_.weapons[ p_.weapon ].delay ){
+                
+                r_.weapon.state = 'fire';
+                r_.weapon.delay = 0;
+                //console.log('FIRE: fire');
+                
+            } else {
+                
+                r_.weapon.delay += 100 * delta;
+                //console.log('weapon.delay:',r_.weapon.delay )
+            }
+        };
+        
+        if ( r_.weapon.state == 'cooldown'){
+            
+            if (r_.weapon.cooldown > o_.weapons[ p_.weapon ].cooldown ){
+                
+                r_.weapon.state = 'ready';
+                r_.weapon.cooldown = 0;
+                //console.log('FIRE: ready');
+            } else {
+                r_.weapon.cooldown += 100 * delta;
+            }
+        }
+        
+        if ( i_.act.attack && r_.weapon.state == 'fire') {
+
+            s_.play( o_.weapons[ p_.weapon ].sfx_fire );
+            
+            //i_.act.attack = false;
             
             // test hit or mis
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
@@ -227,6 +278,9 @@ r_.animate = function () {
                 
                 console.log('mis!')
             }
+            
+            r_.weapon.state = 'cooldown';
+            //console.log('FIRE: cooldown');
         }
                         
         // test collisions against walls
@@ -365,60 +419,62 @@ r_.animate = function () {
             }
         }
                   
-    }                  
+                      
 
-    // test collisions against floor
-    //        
-    r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-    r_.raycaster.ray.origin.y += 200;//cfg.playerHeight;
-    r_.raycaster.ray.direction.set( 0, -1, 0 );
+        // test collisions against floor
+        //        
+        r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+        r_.raycaster.ray.origin.y += 200;//cfg.playerHeight;
+        r_.raycaster.ray.direction.set( 0, -1, 0 );
 
-    var hits = r_.raycaster.intersectObjects( r_.floors );
+        var hits = r_.raycaster.intersectObjects( r_.floors );
 
-    // @FIXME
-    if (hits[0] != undefined) {
+        // @FIXME
+        if (hits[0] != undefined) {
 
-        // player weapon shading
-        var tsector = o_.map.sector[ hits[0].object.sector ];
-        var color   = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
-        r_.weapon.obj.material.color = color;
-        r_.weapon.obj.material.needsUpdate  = true;  
+            // player weapon shading
+            var tsector = o_.map.sector[ hits[0].object.sector ];
+            var color   = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
+            r_.weapon.obj.material.color = color;
+            r_.weapon.obj.material.needsUpdate  = true;  
 
-        if (hits[0].distance < cfg.playerHeight) {
-            //console.log( hits[0].object)
-            i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;
+            if (hits[0].distance < cfg.playerHeight) {
+                //console.log( hits[0].object)
+                i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;
 
-        } else if (hits[0].distance > cfg.playerHeight) {
+            } else if (hits[0].distance > cfg.playerHeight) {
 
-            i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;
+                i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;
+            }
+        } else {
+
+             //i_.controls.getObject().position.y = cfg.playerHeight;
         }
-    } else {
 
-         //i_.controls.getObject().position.y = cfg.playerHeight;
+        var isOnObject = true; 
+
+        r_.velocity.x -= r_.velocity.x * 5.0 * delta; // 5.0 = speed
+        r_.velocity.z -= r_.velocity.z * 5.0 * delta;
+        r_.velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass       
+
+        if ( i_.act.forward ) r_.velocity.z -= 1600.0 * delta;
+        if ( i_.act.back )    r_.velocity.z += 1600.0 * delta;
+
+        if ( i_.act.left )    r_.velocity.x -= 1600.0 * delta;
+        if ( i_.act.right )   r_.velocity.x += 1600.0 * delta;
+
+        if ( isOnObject === true ) {
+            r_.velocity.y = Math.max( 0, r_.velocity.y );
+            i_.act.jump = true;
+        }
+
+        //console.log( r_.velocity.x, r_.velocity.y, r_.velocity.z );
+
+        i_.controls.getObject().translateX( r_.velocity.x * delta );
+        i_.controls.getObject().translateY( r_.velocity.y * delta );
+        i_.controls.getObject().translateZ( r_.velocity.z * delta );
+
     }
-
-    var isOnObject = true; 
-
-    r_.velocity.x -= r_.velocity.x * 5.0 * delta; // 5.0 = speed
-    r_.velocity.z -= r_.velocity.z * 5.0 * delta;
-    r_.velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass       
-
-    if ( i_.act.forward ) r_.velocity.z -= 1600.0 * delta;
-    if ( i_.act.back )    r_.velocity.z += 1600.0 * delta;
-
-    if ( i_.act.left )    r_.velocity.x -= 1600.0 * delta;
-    if ( i_.act.right )   r_.velocity.x += 1600.0 * delta;
-
-    if ( isOnObject === true ) {
-        r_.velocity.y = Math.max( 0, r_.velocity.y );
-        i_.act.jump = true;
-    }
-
-    //console.log( r_.velocity.x, r_.velocity.y, r_.velocity.z );
-
-    i_.controls.getObject().translateX( r_.velocity.x * delta );
-    i_.controls.getObject().translateY( r_.velocity.y * delta );
-    i_.controls.getObject().translateZ( r_.velocity.z * delta );
 
     /*
     if ( i_.controls.getObject().position.y < cfg.playerHeight ) {
@@ -429,7 +485,7 @@ r_.animate = function () {
     } 
     */                             
 
-    //r_.globaltimer = (r_.globaltimer * 100 * delta > 10) ? 0 : parseInt(r_.globaltimer)+1; 
+    r_.globaltimer = (r_.globaltimer * 100 * delta > 10) ? 0 : parseInt(r_.globaltimer)+1; 
 
     // update animated floors
     //
@@ -962,7 +1018,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     var plane       = new THREE.Mesh( geoPlane, matPlane );    
     
     // spawn light sources
-    /*
+    
     if (thing.light != undefined) {
         
         console.log('..spawning light source', thing.label);
@@ -970,7 +1026,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
         plane.light.position.set(x, 0, z);
         r_.scene.add( plane.light );
     }         
-    */
+    
     plane.position.set( x, y || 0, z );
     plane.type  = type;
     plane.frame = frame;

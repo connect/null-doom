@@ -138,11 +138,10 @@ i_.onKeyUp = function(e){
     } else {
         
         // i.act[ action ] = false;
-
     }
 };
 
-i_.onClick = function(e){
+i_.onMouseDown = function(e){
     
     if (!u_.inmenu()) {
         var action = i_.bindlist[ 'mouse'+ e.which ];
@@ -162,7 +161,29 @@ i_.onClick = function(e){
     }
     e.preventDefault();
     return false;
-}
+};
+
+i_.onMouseUp = function(e){
+    
+    if (!u_.inmenu()) {
+        var action = i_.bindlist[ 'mouse'+ e.which ];
+        
+        if (action[0] == '+' || action[0] == '-') {
+        
+            var cmd = action.substring(1);
+        
+            if (action[0] == '+'){
+                i_.act[ cmd ] = false;
+            }
+       
+        } else {
+        
+           // i_.act[ action ] = true;
+        }        
+    }
+    e.preventDefault();
+    return false;
+};
 
 i_.pointerlockchange = function ( e ) {
     //console.log('pointerlock change',e);
@@ -206,10 +227,12 @@ i_.init = function(){
    
     r_.scene.add( i_.controls.getObject() );
     
-    document.addEventListener( 'keydown',     i_.onKeyDown, false );
-    document.addEventListener( 'keyup',       i_.onKeyUp,   false );
-    document.addEventListener( 'click',       i_.onClick,   false );
-    document.addEventListener( 'contextmenu', i_.onClick,   false );
+    document.addEventListener( 'keydown',     i_.onKeyDown,     false );
+    document.addEventListener( 'keyup',       i_.onKeyUp,       false );
+    //document.addEventListener( 'click',       i_.onClick,       false );
+    //document.addEventListener( 'contextmenu', i_.onClick,       false );
+    document.addEventListener( 'mousedown',   i_.onMouseDown,   false );
+    document.addEventListener( 'mouseup',     i_.onMouseUp,     false );
     
     // Hook pointer lock state change events
     //

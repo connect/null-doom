@@ -38,14 +38,14 @@ o_.map.loaded = function(){
 
 // load maps
 o_.map.add([
-    'e1m1',
+    //'e1m1',
     //'e1m2',
     //'e1m3',
     //'e1m4',
     //'e1m5',
     //'e1m6',
     //'e1m7',
-    //'e1m8',
+    'e1m8',
     //'e3m3'
 ]);
 
