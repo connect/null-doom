@@ -15,6 +15,9 @@ r_.weapon   = {
     cos         : 0,
     cooldown    : 0,
     delay       : 0,
+    frame       : -1,
+    flash       : null,
+    flashFrame  : -1,
     
     getTexture: function(){
         var wpn             = o_.weapons[ p_.weapon ];        

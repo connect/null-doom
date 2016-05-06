@@ -150,6 +150,7 @@ o_.map = new function(){
             var flash           = weapon.flash;
             var sprite          = weapon.sprite;
             var cache           = o_.weapons[i].cache;
+            var projectile      = o_.things[ o_.weapons[i].projectile ];
             
             // cache weapon textures
             for (var j in cache){                
@@ -163,6 +164,14 @@ o_.map = new function(){
                 
                 var frame = flash[j];
                 cachelist.push( sprite + flash_suffix + frame + '0' );
+            }
+            
+            // cache projectile textures
+            if (projectile != undefined)
+            for (var j in projectile.sequence){
+                
+                var frame = projectile.sequence[j];
+                cachelist.push( projectile.sprite + frame + '0' );
             }
         }
         

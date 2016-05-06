@@ -647,6 +647,15 @@ o_.things = {
         class       : '',
         label       : 'Spawn shooter'
     },
+    
+    1001: {
+        radius      : 0,
+        sprite      : 'PUFF',
+        sequence    : 'ABCD',
+        class       : '^',
+        label       : 'Sparkle'
+    },
+    
     2001: {
         radius      : 20,
         sprite      : 'SHOT',

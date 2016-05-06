@@ -62,7 +62,7 @@ r_.animate = function () {
 
                 wpn.position.set(0, stopPos, 5);
                 r_.weapon.state = 'ready';
-                console.log('FIRE: ready');
+                //console.log('FIRE: ready');
             }
 
         } else if ( r_.weapon.state == 'takedown') { // taking down
@@ -85,14 +85,17 @@ r_.animate = function () {
                 wpn.material.map = texture;                
                 
                 r_.weapon.state = 'takeup';
-                console.log('FIRE: takeup');
+                //console.log('FIRE: takeup');
             }
             
         } else if ( r_.weapon.state == 'ready') {
             
             var yPos = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2) + ( r_.weapon.sin * r_.weapon.cos );
-            var xPos = r_.weapon.sin
+            var xPos = r_.weapon.sin;
             var dist = Math.sqrt( Math.pow(wpn.position.x - xPos ,2) + Math.pow(wpn.position.y - yPos ,2) );
+            var sequence = o_.weapons[ p_.weapon ].ready || o_.weapons.default.ready;
+            var frame    = (sequence[ r_.weapon.frame + 1 ] != undefined ) ? r_.weapon.frame + 1 : 0;
+            var texture  = r_.imgs[ o_.weapons[ p_.weapon ].sprite + o_.weapons.default.weapon + sequence[ frame ] + '0' ];
             
             if (dist > 10) {  
                 xPos = (wpn.position.x + xPos ) / 2;
@@ -101,6 +104,76 @@ r_.animate = function () {
             
             wpn.position.x = xPos;
             wpn.position.y = yPos;
+            wpn.scale.x              = texture.image.width  * wpn.scale.x / wpn.material.map.image.width; 
+            wpn.scale.y              = texture.image.height * wpn.scale.y / wpn.material.map.image.height;
+            wpn.material.map         = texture;
+            wpn.material.needsUpdate = true;
+            r_.weapon.frame          = frame;
+            
+        } else if ( i_.controls.enabled && ( r_.weapon.state == 'fire' || r_.weapon.state == 'cooldown' ) ) {            
+            
+            if ( r_.globaltimer == 1 && r_.weapon.frame == 2) {
+                
+                // flash
+                //
+                var sequence    = o_.weapons[ p_.weapon ].flash; 
+                var wpn         = r_.weapon.obj;
+                
+                if ( sequence[  r_.weapon.flashFrame + 1 ] == undefined ) {
+                    
+                    // remove flash
+                    r_.hudScene.remove( r_.weapon.flash );
+                    r_.weapon.flashFrame = -1;
+                    r_.weapon.flash      = null;
+                    
+                } else {
+                
+                    // animate flash
+                    var frame          = r_.weapon.flashFrame + 1;
+                    var flash_suffix   = o_.weapons[ p_.weapon ].flasher || o_.weapons.default.flasher;
+                    var texture        = r_.imgs[ o_.weapons[ p_.weapon ].sprite + flash_suffix + sequence[frame] + '0'  ];
+
+
+                    if (r_.weapon.flash == null) {
+                        
+                        // create flash
+                        var spriteMaterial = new THREE.SpriteMaterial({map: texture, transparent: true });
+                        var sprite         = new THREE.Sprite(spriteMaterial);   
+                        var wpnPosY = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
+                        sprite.scale.set(texture.image.width * r_.scale, texture.image.height * r_.scale, 1);
+                        sprite.position.x =  wpn.position.x;
+                        sprite.position.y =  wpnPosY + (texture.image.height * r_.scale/2);
+                        sprite.position.z = 10;
+                        //r_.objects.push(sprite);
+                        r_.weapon.flash      = sprite;
+                        r_.weapon.flashFrame = -1;
+                        r_.hudScene.add(sprite);
+                        
+                    } else {
+                        
+                        r_.weapon.flashFrame = frame;
+                        r_.weapon.flash.material.map         = texture;
+                        r_.weapon.flash.material.needsUpdate = true;
+                    }
+                }
+                
+                var sequence = o_.weapons[ p_.weapon ].fire;
+                var frame    = r_.weapon.frame + 1;
+                
+                if (sequence[ frame ] != undefined) {
+                    
+                    var texture = r_.imgs[ o_.weapons[ p_.weapon ].sprite + o_.weapons.default.weapon + sequence[ frame ] + '0' ];
+                    
+                    wpn.scale.x              = texture.image.width  * wpn.scale.x / wpn.material.map.image.width; 
+                    wpn.scale.y              = texture.image.height * wpn.scale.y / wpn.material.map.image.height;
+                    wpn.material.map         = texture;
+                    wpn.material.needsUpdate = true;
+                    wpn.position.x           = 0;
+                    wpn.position.y           = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
+                    r_.weapon.frame          = frame;
+                }
+            }
+            
         }
         
     }
@@ -203,6 +276,7 @@ r_.animate = function () {
                 
                 r_.weapon.state = 'fire';
                 r_.weapon.delay = 0;
+                r_.weapon.frame = 0;
                 //console.log('FIRE: fire');
                 
             } else {
@@ -228,57 +302,8 @@ r_.animate = function () {
 
             s_.play( o_.weapons[ p_.weapon ].sfx_fire );
             
-            //i_.act.attack = false;
-            
-            // test hit or mis
-            r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-            r_.raycaster.ray.direction.copy( i_.controls.getDirection( new THREE.Vector3() ) );
-            var hits = r_.raycaster.intersectObjects( r_.sprites );
-            
-            if (hits[0] != undefined) {
-                                
-                var thing = o_.things[ hits[0].object.type ];
-                var obj   = hits[0].object;
-                
-                if (thing != undefined && obj.state != 'death' && obj.state != 'gibs'){
-                    
-                    console.log('hit',thing.label)
-                    
-                    if (thing.class.indexOf('M') != -1){                        
-                        
-                        // play death sound
-                        if (typeof thing.sfx_death == 'object' && thing.sfx_death.length > 1) {
-                            
-                            s_.play( thing.sfx_death[ c_.random( 0, thing.sfx_death.length-1 ) ]);
-                            
-                        } else if (thing.sfx_death != undefined) {
-                            
-                            s_.play( thing.sfx_death );
-                        }                                                
-                        
-                        // remove obstacle
-                        if (thing.class.indexOf('O') != -1) {
-                            
-                            for (var i in r_.walls) {
-                                
-                                if (r_.walls[i].id == obj.id) {
-                                    r_.walls.splice( i, 1);
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // put dying state
-                        obj.state = 'death';
-                        obj.frame = 0;
-                        obj.angle = 0;
-                    }
-                }
-            } else {
-                
-                console.log('mis!')
-            }
-            
+            o_.weapons[ p_.weapon ].onFire();
+                       
             r_.weapon.state = 'cooldown';
             //console.log('FIRE: cooldown');
         }
@@ -523,8 +548,11 @@ r_.animate = function () {
         if (hits[0] != undefined) {
 
             // update things position          
-            tsector = o_.map.sector[ hits[0].object.sector ];
-            o.position.y = hits[0].object.position.y + (o.material.map.image.height /2);//(o.geometry.parameters.height /2 ); 
+            if ( o_.things[ o.type].class.indexOf('^') == -1 ) {
+                
+                tsector = o_.map.sector[ hits[0].object.sector ];
+                o.position.y = hits[0].object.position.y + (o.material.map.image.height /2);//(o.geometry.parameters.height /2 ); 
+            }
 
             // update light source position
             if (o.light != undefined) {                    
@@ -582,8 +610,31 @@ r_.animate = function () {
             } else {
 
                 var sequence    = thing.sequence;
-                var nextFrame   = ( sequence[ o.frame + 1] != undefined) ? o.frame + 1 : 0;                  
+                
+                if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
 
+                    // remove sprite at the end of animation
+                    if ( o.state == 'death') {
+
+                        // remove sprite                            
+                        r_.sprites.splice( i, 1 );
+
+                        // remove from scene
+                        r_.scene.remove( o );
+
+                        break;
+
+                    } else {
+
+                        var nextFrame = 0;
+                    } 
+
+                } else {
+
+                    // there are some frames to show
+
+                    var nextFrame = o.frame + 1;                        
+                }
             }  
 
             var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
@@ -1019,7 +1070,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     
     // spawn light sources
     
-    if (thing.light != undefined) {
+    if (cfg.gl_lightning && thing.light != undefined) {
         
         console.log('..spawning light source', thing.label);
         plane.light = new THREE.PointLight( thing.light, 2, 50 );
@@ -1035,6 +1086,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
 
     if ( thing.class.indexOf('O') != -1 ) r_.walls.push(plane); // add obstacle
 
+    r_.objects.push(plane);
     r_.sprites.push(plane);        
     r_.scene.add(plane);
 };
