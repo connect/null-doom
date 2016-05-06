@@ -175,6 +175,14 @@ o_.map = new function(){
             }
         }
         
+        // Blood
+        //
+        for (var i in o_.weapons.default.bleed){
+            
+            console.log('......more cache', o_.weapons.default.blood + o_.weapons.default.bleed[i] + '0')
+            cachelist.push( o_.weapons.default.blood + o_.weapons.default.bleed[i] + '0' );            
+        }
+        
         // Cache it all
         //
         for (var i in cachelist) {

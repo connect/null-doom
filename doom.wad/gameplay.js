@@ -6,7 +6,7 @@
  */
 
 
-g_.title = 'null-doom';
+g_.title = 'NULL-DOOM';
 
 
 w_.loadNext();

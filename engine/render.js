@@ -102,8 +102,8 @@ r_.animate = function () {
                 yPos = (wpn.position.y + yPos ) / 2;
             }
             
-            wpn.position.x = xPos;
-            wpn.position.y = yPos;
+            wpn.position.x           = xPos;
+            wpn.position.y           = yPos;
             wpn.scale.x              = texture.image.width  * wpn.scale.x / wpn.material.map.image.width; 
             wpn.scale.y              = texture.image.height * wpn.scale.y / wpn.material.map.image.height;
             wpn.material.map         = texture;
@@ -112,10 +112,11 @@ r_.animate = function () {
             
         } else if ( i_.controls.enabled && ( r_.weapon.state == 'fire' || r_.weapon.state == 'cooldown' ) ) {            
             
-            if ( r_.globaltimer == 1 && r_.weapon.frame == 2) {
+            if ( r_.globaltimer == 1 ) {
                 
                 // flash
                 //
+                /*
                 var sequence    = o_.weapons[ p_.weapon ].flash; 
                 var wpn         = r_.weapon.obj;
                 
@@ -123,7 +124,7 @@ r_.animate = function () {
                     
                     // remove flash
                     r_.hudScene.remove( r_.weapon.flash );
-                    r_.weapon.flashFrame = -1;
+                    r_.weapon.flashFrame = 0;
                     r_.weapon.flash      = null;
                     
                 } else {
@@ -146,7 +147,7 @@ r_.animate = function () {
                         sprite.position.z = 10;
                         //r_.objects.push(sprite);
                         r_.weapon.flash      = sprite;
-                        r_.weapon.flashFrame = -1;
+                        r_.weapon.flashFrame = 0;
                         r_.hudScene.add(sprite);
                         
                     } else {
@@ -156,7 +157,7 @@ r_.animate = function () {
                         r_.weapon.flash.material.needsUpdate = true;
                     }
                 }
-                
+                */
                 var sequence = o_.weapons[ p_.weapon ].fire;
                 var frame    = r_.weapon.frame + 1;
                 
@@ -311,98 +312,98 @@ r_.animate = function () {
         // test collisions against walls
         //
         
-        var rotationMatrix = new THREE.Matrix4();
+        var matrix = new THREE.Matrix4();
+        var hits   = [];
         //r_.direction = (r_.direction) ? r_.direction : new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );
-        r_.direction = new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );
-        r_.direction.y = 0;
+        r_.direction = new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );        
         
         if ( i_.act.back ) {            
-            rotationMatrix.makeRotationY( Math.PI );
+            matrix.makeRotationY( Math.PI );
         }
         
         if ( i_.act.left ) {            
-            rotationMatrix.makeRotationY( 0.5 * Math.PI );
+            matrix.makeRotationY( 0.5 * Math.PI );
         }
         
         if ( i_.act.right ) {            
-            rotationMatrix.makeRotationY( 1.5 * Math.PI );
+            matrix.makeRotationY( 1.5 * Math.PI );
         }
         
-        r_.direction.applyMatrix4(rotationMatrix);
-/*        
+        r_.direction.applyMatrix4(matrix);
+        
         // test collisions agains items
         //
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position );        
-        r_.raycaster.ray.origin.y -= (cfg.playerHeight/2);
+        r_.raycaster.ray.origin.y -= (cfg.playerHeight/2) - 2;
         
         // direct ray
         r_.raycaster.ray.direction.copy( r_.direction );
-        var hits  = r_.raycaster.intersectObjects( r_.sprites );
+        hits.push( r_.raycaster.intersectObjects( r_.sprites )[0] );
         
-        // -30 ray
-        rotationMatrix.makeRotationY( -30 * Math.PI / 180 );
-        r_.direction.applyMatrix4(rotationMatrix);
+        // -5 ray
+        matrix.makeRotationY( -5 * Math.PI / 180 );
+        r_.direction.applyMatrix4(matrix);
         r_.raycaster.ray.direction.copy( r_.direction );
-        var hits2 = r_.raycaster.intersectObjects( r_.sprites );
+        hits.push( r_.raycaster.intersectObjects( r_.sprites )[0] );
         
-        // +30 ray
-        rotationMatrix.makeRotationY( +60 * Math.PI / 180 ); // +30 to direct
-        r_.direction.applyMatrix4(rotationMatrix);
+        // +5 ray
+        matrix.makeRotationY( 10 * Math.PI / 180 ); // +5 to direct
+        r_.direction.applyMatrix4(matrix);
         r_.raycaster.ray.direction.copy( r_.direction );
-        var hits3 = r_.raycaster.intersectObjects( r_.sprites );
+        hits.push( r_.raycaster.intersectObjects( r_.sprites )[0] );
         
         // restore direction
-        rotationMatrix.makeRotationY( -30 * Math.PI / 180 );
-        r_.direction.applyMatrix4(rotationMatrix);
-        
-        if (hits.length > 0 || hits2.length > 0 || hits3.length > 0) {
-            //console.log('--->', hits.length, hits2.length, hits3.length)    
-        }   
+        matrix.makeRotationY( -5 * Math.PI / 180 );
+        r_.direction.applyMatrix4(matrix);
         
         // merge raycasting results
-        var pickups = hits.concat( hits2, hits3 );//.filter( filterUnique );        
-        
-        if (pickups.length > 0) {
-              
-            for (var p in pickups) {
-                console.log('-->', o_.things[ pickups[p].object.type ].label, pickups[p].distance );
+        var pickups = [];
+        for (var p in hits) {
+            
+            if (pickups.indexOf(hits[p]) == -1 && hits[p] != undefined) {
+                
+                pickups.push(hits[p]);
+            }
+        }
+                
+        for (var p in pickups) {
 
-                if (pickups[p].distance < 100) {
+            if (pickups[p].distance < 100) {
 
-                    var thing = o_.things[ pickups[p].object.type ];
+                var thing = o_.things[ pickups[p].object.type ];
 
-                    if ( thing.class.indexOf('P') != -1 ){
+                if ( thing.class.indexOf('P') != -1 ){
 
-                        var id = hits[h].object.id;
+                    var id = pickups[p].object.id;
 
-                        // pick up item
-                        console.log("You've got "+thing.label+'!');
+                    // pick up item
+                    console.log("You've got "+thing.label+'!');
 
-                        if (thing.sound == undefined) {
+                    if (thing.sound == undefined) {
 
-                            if (thing.class.indexOf('W') != -1) {
-                                // weapon
-                                s_.play( s_.getweapon );
+                        if (thing.class.indexOf('W') != -1) {
+                            // weapon
+                            s_.play( s_.getweapon );
 
-                            } else {
-                                s_.play( s_.getitem );
-                            }
-                        } 
+                        } else {
+                            s_.play( s_.getitem );
+                        }
+                    } 
 
-                        // remove item from world
-                        r_.scene.remove( hits[h].object );
+                    // remove item from world
+                    r_.scene.remove( pickups[p].object );
 
-                        for (var i in r_.sprites) {
-                            if (r_.sprites[i].id == id) {
-                                r_.sprites.splice( i, 1);
-                                break;
-                            }
+                    for (var i in r_.sprites) {
+                        if (r_.sprites[i].id == id) {
+                            r_.sprites.splice( i, 1);
+                            break;
                         }
                     }
                 }
             }
         }
-*/    
+             
+   
         // collisions with walls 2
         //
         if (!cfg.noclip) {

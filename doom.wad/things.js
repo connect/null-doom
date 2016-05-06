@@ -655,6 +655,27 @@ o_.things = {
         class       : '^',
         label       : 'Sparkle'
     },
+    1002: {
+        radius      : 0,
+        sprite      : 'BLUD',
+        sequence    : 'A',
+        class       : '^',
+        label       : 'Bleed'
+    },
+    1003: {
+        radius      : 0,
+        sprite      : 'BLUD',
+        sequence    : 'B',
+        class       : '^',
+        label       : 'Bleed'
+    },
+    1004: {
+        radius      : 0,
+        sprite      : 'BLUD',
+        sequence    : 'C',
+        class       : '^',
+        label       : 'Bleed'
+    },
     
     2001: {
         radius      : 20,
