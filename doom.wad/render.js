@@ -203,7 +203,7 @@ r_.hud.update = function(){
 }; 
 
 r_.modInit = function(){
-    console.log('r_.modInit()');
+    console.log('..r_.modInit()');
     
     var scrMode     = r_.mode.current.split('x');
     var scrWidth    = scrMode[0];

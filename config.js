@@ -14,7 +14,7 @@ var cfg = {
     playerHeight        : 45,
     musicvolume         : 0,
     noclip              : 0,
-    gl_lightning        : 0,
+    gl_light            : 0,
     
     bind: {
         38  : '+forward',   // uparrow

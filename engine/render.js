@@ -462,7 +462,7 @@ r_.animate = function () {
             var tsector = o_.map.sector[ hits[0].object.sector ];
             var color   = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
             r_.weapon.obj.material.color = color;
-            r_.weapon.obj.material.needsUpdate  = true;  
+            r_.weapon.obj.material.needsUpdate  = true;             
 
             if (hits[0].distance < cfg.playerHeight) {
                 //console.log( hits[0].object)
@@ -542,7 +542,7 @@ r_.animate = function () {
         var tsector;
 
         r_.raycaster.ray.origin.copy( o.position );
-        r_.raycaster.ray.origin.y += 200;
+        r_.raycaster.ray.origin.y += 400;
 
         var hits = r_.raycaster.intersectObjects( r_.floors );
 
@@ -856,6 +856,7 @@ r_.postInit = function() {
     r_.camera = new THREE.PerspectiveCamera( 75, scrWidth /scrHeight, 1, 20000 );
 
     r_.scene = new THREE.Scene();
+    //r_.scene.fog = new THREE.FogExp2( 0x000000, 0.002 );
 
     r_.light = new THREE.HemisphereLight( 0xffffff, 0x000000, 1.5 );
     r_.light.position.set( 0, 0, 0 );
@@ -1071,7 +1072,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     
     // spawn light sources
     
-    if (cfg.gl_lightning && thing.light != undefined) {
+    if (cfg.gl_light && thing.light != undefined) {
         
         console.log('..spawning light source', thing.label);
         plane.light = new THREE.PointLight( thing.light, 2, 50 );

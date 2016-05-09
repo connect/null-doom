@@ -41,14 +41,16 @@ o_.things = {
         sprite      : 'BKEY',
         sequence    : 'AB',
         class       : 'P',
-        label       : 'Blue keycard'
+        label       : 'Blue keycard',
+        light       : 0x0000ff
     },
     6: {
         radius      : 20,
         sprite      : 'YKEY',
         sequence    : 'AB',
         class       : 'P',
-        label       : 'Yellow keycard'
+        label       : 'Yellow keycard',
+        light       : 0xffff00
     },
     7: {
         radius      : 128,
@@ -101,7 +103,8 @@ o_.things = {
         sprite      : 'RKEY',
         sequence    : 'AB',
         class       : 'P',
-        label       : 'Red keycard'
+        label       : 'Red keycard',
+        light       : 0xff0000
     },
     14: {
         radius      : 20,
@@ -248,11 +251,12 @@ o_.things = {
         label: 'Short red pillar'
     },
     34: {
-        radius: 16,
-        sprite: 'CAND',
-        sequence: 'A',
-        class: '',
-        label: 'Candle'
+        radius      : 16,
+        sprite      : 'CAND',
+        sequence    : 'A',
+        class       : '',
+        label       : 'Candle',
+        light       : 0xffff00
     },
     35: {
         radius      : 16,
@@ -277,25 +281,28 @@ o_.things = {
         label: 'Short red pillar with skull'
     },
     38: {
-        radius: 20,
-        sprite: 'RSKU',
-        sequence: 'AB',
-        class: 'P',
-        label: 'Red skull key'
+        radius      : 20,
+        sprite      : 'RSKU',
+        sequence    : 'AB',
+        class       : 'P',
+        label       : 'Red skull key',
+        light       : 0xff0000
     },
     39: {
-        radius: 20,
-        sprite: 'YSKU',
-        sequence: 'AB',
-        class: 'P',
-        label: 'Yellow skull key'
+        radius      : 20,
+        sprite      : 'YSKU',
+        sequence    : 'AB',
+        class       : 'P',
+        label       : 'Yellow skull key',
+        light       : 0xffff00
     },
     40: {
-        radius: 20,
-        sprite: 'BSKU',
-        sequence: 'AB',
-        class: 'P',
-        label: 'Blue skull key'
+        radius      : 20,
+        sprite      : 'BSKU',
+        sequence    : 'AB',
+        class       : 'P',
+        label       : 'Blue skull key',
+        light       : 0x0000ff
     },
     41: {
         radius: 16,
@@ -319,25 +326,28 @@ o_.things = {
         label: 'Burnt tree'
     },
     44: {
-        radius: 16,
-        sprite: 'TBLU',
-        sequence: 'ABCD',
-        class: 'O',
-        label: 'Tall blue firestick'
+        radius      : 16,
+        sprite      : 'TBLU',
+        sequence    : 'ABCD',
+        class       : 'O',
+        label       : 'Tall blue firestick',
+        light       : 0x0000ff
     },
     45: {
-        radius: 16,
-        sprite: 'TGRN',
-        sequence: 'ABCD',
-        class: 'O',
-        label: 'Tall green firestick'
+        radius      : 16,
+        sprite      : 'TGRN',
+        sequence    : 'ABCD',
+        class       : 'O',
+        label       : 'Tall green firestick',
+        light       : 0x00ff00
     },
     46: {
-        radius: 16,
-        sprite: 'TRED',
-        sequence: 'ABCD',
-        class: 'O',
-        label: 'Tall red firestick'
+        radius      : 16,
+        sprite      : 'TRED',
+        sequence    : 'ABCD',
+        class       : 'O',
+        label       : 'Tall red firestick',
+        light       : 0xff0000
     },
     47: {
         radius: 16,
@@ -396,25 +406,28 @@ o_.things = {
         label: 'Large brown tree'
     },
     55: {
-        radius: 16,
-        sprite: 'SMBT',
-        sequence: 'ABCD',
-        class: 'O',
-        label: 'Short blue firestick'
+        radius      : 16,
+        sprite      : 'SMBT',
+        sequence    : 'ABCD',
+        class       : 'O',
+        label       : 'Short blue firestick',
+        light       : 0x0000ff
     },
     56: {
-        radius: 16,
-        sprite: 'SMGT',
-        sequence: 'ABCD',
-        class: 'O',
-        label: 'Short green firestick'
+        radius      : 16,
+        sprite      : 'SMGT',
+        sequence    : 'ABCD',
+        class       : 'O',
+        label       : 'Short green firestick',
+        light       : 0x00ff00
     },
     57: {
-        radius: 16,
-        sprite: 'SMRT',
-        sequence: 'ABCD',
-        class: 'O',
-        label: 'Short red firestick'
+        radius      : 16,
+        sprite      : 'SMRT',
+        sequence    : 'ABCD',
+        class       : 'O',
+        label       : 'Short red firestick',
+        light       : 0xff0000
     },
     58: {
         radius      : 30,
@@ -597,18 +610,18 @@ o_.things = {
         label: 'Super shotgun'
     },
     83: {
-        radius: 20,
-        sprite: 'MEGA',
-        sequence: 'ABCD',
-        class: 'AP',
-        label: 'Megasphere'
+        radius      : 20,
+        sprite      : 'MEGA',
+        sequence    : 'ABCD',
+        class       : 'AP',
+        label       : 'Megasphere'
     },
     84: {
-        radius: 20,
-        sprite: 'SSWV',
-        sequence: '+',
-        class: 'MO',
-        label: 'Wolfenstein SS'
+        radius      : 20,
+        sprite      : 'SSWV',
+        sequence    : '+',
+        class       : 'MO',
+        label       : 'Wolfenstein SS'
     },
     85: {
         radius      : 16,
@@ -754,49 +767,56 @@ o_.things = {
         sprite      : 'STIM',
         sequence    : 'A',
         class       : 'P8',
-        label       : 'Stimpack'
+        label       : 'Stimpack',
+        light       : 0xff0000
     },
     2012: {
         radius      : 20,
         sprite      : 'MEDI',
         sequence    : 'A',
         class       : 'P8',
-        label       : 'Medikit'
+        label       : 'Medikit',
+        light       : 0xff0000
     },
     2013: {
         radius      : 20,
         sprite      : 'SOUL',
         sequence    : 'ABCDCB',
         class       : 'AP',
-        label       : 'Soul sphere'
+        label       : 'Soul sphere',
+        light       : 0x0000ff
     },
     2014: {
         radius      : 20,
         sprite      : 'BON1',
         sequence    : 'ABCDCB',
         class       : 'AP',
-        label       : 'Health potion'
+        label       : 'Health potion',
+        light       : 0x0000ff
     },
     2015: {
         radius      : 20,
         sprite      : 'BON2',
         sequence    : 'ABCDCB',
         class       : 'AP',
-        label       : 'Spiritual armor'
+        label       : 'Spiritual armor',
+        light       : 0x00ff00
     },
     2018: {
         radius      : 20,
         sprite      : 'ARM1',
         sequence    : 'AB',
         class       : 'P9',
-        label       : 'Green armor'
+        label       : 'Green armor',
+        light       : 0x00ff00
     },
     2019: {
         radius      : 20,
         sprite      : 'ARM2',
         sequence    : 'AB',
         class       : 'P10',
-        label       : 'Blue armor'
+        label       : 'Blue armor',
+        light       : 0x0000ff
     },
     2022: {
         radius: 20,
@@ -847,7 +867,7 @@ o_.things = {
         sequence    : 'AB+',
         class       : 'O',
         label       : 'Barrel',
-        light       : 0x00ff00
+        light       : 0x00ff00,
         //explode     : BEXP(A-E)0
     },
     2045: {
