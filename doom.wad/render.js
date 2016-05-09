@@ -31,20 +31,16 @@ r_.weapon   = {
 r_.hud.draw = function(){
     console.log('r_.hud.draw()');
     
-    var scrMode     = r_.mode.current.split('x');
-    var scrWidth    = scrMode[0];
-    var scrHeight   = scrMode[1];
-    
     // WEAPON    
     var spriteMaterial  = new THREE.SpriteMaterial({ map: r_.weapon.getTexture() });
     var sprite          = new THREE.Sprite(spriteMaterial);            
     
     sprite.scale.set( spriteMaterial.map.image.width * r_.scale, spriteMaterial.map.image.height * r_.scale ,1);    
-    sprite.position.set(0, (scrHeight/-2) - (spriteMaterial.map.image.height * r_.scale / 2) , 1);    
+    sprite.position.set(0, (r_.height/-2) - (spriteMaterial.map.image.height * r_.scale / 2) , 1);    
     
     r_.weapon.obj   = sprite;    
     r_.weapon.state = 'takeup';    
-    //r_.objects.push(sprite);
+    r_.hud.objects.push(sprite);
     r_.hudScene.add(sprite);
     
 
@@ -54,9 +50,9 @@ r_.hud.draw = function(){
     var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STBAR});
     var sprite = new THREE.Sprite(spriteMaterial);            
     sprite.scale.set(spriteMaterial.map.image.width * r_.scale, spriteMaterial.map.image.height * r_.scale ,1);
-    sprite.position.set(0, (scrHeight/-2) + (spriteMaterial.map.image.height * r_.scale / 2) , 10);
+    sprite.position.set(0, (r_.height/-2) + (spriteMaterial.map.image.height * r_.scale / 2) , 10);
     r_.hud.statusbar = sprite;
-    //r_.objects.push(sprite);
+    r_.hud.objects.push(sprite);
     r_.hudScene.add(sprite);
 
     // ARMS
@@ -65,8 +61,8 @@ r_.hud.draw = function(){
     var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STARMS});
     var sprite = new THREE.Sprite(spriteMaterial);            
     sprite.scale.set(40 * r_.scale, 32 * r_.scale ,1);
-    sprite.position.set((scrWidth/-2) + (scrWidth * 0.385), (scrHeight/-2) + (32 * r_.scale / 2) , 11);
-    //r_.objects.push(sprite);
+    sprite.position.set((r_.width/-2) + (r_.width * 0.385), (r_.height/-2) + (32 * r_.scale / 2) , 11);
+    r_.hud.objects.push(sprite);
     r_.hudScene.add(sprite);
 
     // FACE
@@ -79,8 +75,8 @@ r_.hud.draw = function(){
     ];
     r_.hud.face = new THREE.Sprite(r_.mats.face[0]);
     r_.hud.face.scale.set( 24 * r_.scale, 29 * r_.scale, 1);
-    r_.hud.face.position.set( 0, (scrHeight/-2) + (29 * r_.scale / 2), 11);
-    //r_.objects.push( r_.hud.face );
+    r_.hud.face.position.set( 0, (r_.height/-2) + (29 * r_.scale / 2), 11);
+    r_.hud.objects.push( r_.hud.face );
     r_.hudScene.add( r_.hud.face );
 
     // animate
@@ -194,7 +190,8 @@ r_.hud.draw = function(){
     var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.cross, transparent: true, opacity: 0.5});
     var sprite = new THREE.Sprite(spriteMaterial);            
     sprite.scale.set(2 * r_.scale, 2 * r_.scale, 1);
-    //r_.objects.push(sprite);
+    sprite.position.z = 2;
+    r_.hud.objects.push(sprite);
     r_.hudScene.add(sprite);
 };
 
@@ -291,8 +288,7 @@ r_.modInit = function(){
     }); 
 
 
-    // initial screen
-    
+    // initial screen   
     r_.mats.title = [
         new THREE.SpriteMaterial({ map: r_.imgs.TITLEPIC }),
         new THREE.SpriteMaterial({ map: r_.imgs.CREDIT })
@@ -304,13 +300,22 @@ r_.modInit = function(){
         
     },15000);
     
+    // setup title back
+    //
     r_.back = new THREE.Sprite( r_.mats.title[0] );
-    r_.back.scale.set( scrWidth, scrHeight, 1);
-    r_.hudScene.add(r_.back);
+    r_.back.scale.set( r_.width, r_.height, 1);
     
+    var pos = i_.controls.getObject().position;
+    
+    r_.back.position.set( pos.x, pos.y, pos.z - 390);
+    r_.scene.add( r_.back );
+    i_.controls.getObject().lookAt( r_.back );
+    
+    // @FIXME debug only, remove later
     setTimeout(function(){
         c_.nextmap();
     }, 2000);
+     
 };
 
 // start render

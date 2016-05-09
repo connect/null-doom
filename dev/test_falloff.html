@@ -35,7 +35,7 @@ var falloff = false;
 ///////////////////This is the basic scene setup
 var imgs = {};
 var mats = {}; // materials
-var scene = new THREE.Scene();
+var hudScene = new THREE.Scene();
 var width = 1024;
 var height = 768;
 var camera = new THREE.OrthographicCamera(
@@ -47,7 +47,7 @@ var camera = new THREE.OrthographicCamera(
 var scale = width / 320;
 camera.position.set(0,0,0);
 var light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
-scene.add(light);
+hudScene.add(light);
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(width, height);
@@ -55,7 +55,7 @@ document.body.appendChild(renderer.domElement);
 
 ///////////////////This is where we create our off-screen render target
 //Create a different scene to hold our buffer objects
-var bufferScene = new THREE.Scene();
+var scene = new THREE.Scene();
 //Create the texture that will store our result
 var bufferTexture = new THREE.WebGLRenderTarget(width, height, {
     minFilter: THREE.LinearFilter,
@@ -63,14 +63,14 @@ var bufferTexture = new THREE.WebGLRenderTarget(width, height, {
 });
 bufferTexture.needsUpdate = true;
 
-bufferScene.add(light);
+scene.add(light);
 
-imgs.TITLEPIC = new THREE.TextureLoader().load( 'doom.wad/gra/TITLEPIC.png' );
+imgs.TITLEPIC = new THREE.TextureLoader().load( '../doom.wad/gra/TITLEPIC.png' );
 mats.TITLEPIC = new THREE.SpriteMaterial({ map: imgs.TITLEPIC  });
 var back = new THREE.Sprite( mats.TITLEPIC );
 back.scale.set(width, height, 1);
 back.position.set(0,0,1);
-bufferScene.add(back);
+scene.add(back);
 
 //Let's create a blue box
 /*
@@ -80,7 +80,7 @@ var redMaterial = new THREE.MeshBasicMaterial({
 var boxGeometry = new THREE.BoxGeometry(100, 100, 10);
 var boxObject = new THREE.Mesh(boxGeometry, redMaterial);
 boxObject.position.set(0,0,0);
-bufferScene.add(boxObject); //We add it to the bufferScene instead of the normal scene!
+scene.add(boxObject); //We add it to the scene instead of the normal scene!
 
 ///And a blue plane behind it
 var blueMaterial = new THREE.MeshBasicMaterial({
@@ -89,7 +89,7 @@ var blueMaterial = new THREE.MeshBasicMaterial({
 var plane = new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight);
 var planeObject = new THREE.Mesh(plane, blueMaterial);
 planeObject.position.z = -15;
-bufferScene.add(planeObject); //We add it to the bufferScene instead of the normal scene!
+scene.add(planeObject); //We add it to the scene instead of the normal scene!
 */
 
 ////////////////////////////Now we use our bufferTexture as a material to render it onto our main scene
@@ -99,7 +99,7 @@ var boxMaterial = new THREE.MeshBasicMaterial({
 var boxGeometry2 = new THREE.BoxGeometry(width, height, 1);
 var mainBoxObject = new THREE.Mesh(boxGeometry2, boxMaterial);
 mainBoxObject.position.z = -10;
-scene.add(mainBoxObject);
+hudScene.add(mainBoxObject);
 
 random = function(min, max) {
     return Math.round(Math.random() * (max - min) + min);
@@ -125,10 +125,10 @@ function render() {
   
 
   //Render onto our off screen texture
-  renderer.render(bufferScene, camera, bufferTexture);
+  renderer.render(scene, camera, bufferTexture);
 
   //Finally, draw to the screen
-  renderer.render(scene, camera);
+  renderer.render(hudScene, camera);
 
 }
 render();
@@ -137,7 +137,7 @@ var chunks = []; //
 
 $('canvas').bind('click',function(e){
     
-    scene.remove( mainBoxObject );
+    hudScene.remove( mainBoxObject );
     
         var count  = 300;
         var q      = 1/count;
@@ -166,7 +166,7 @@ $('canvas').bind('click',function(e){
             var chunk = new THREE.Mesh(tgeo, mat);
             chunk.position.set( (width/-2)+(twidth/2)+(i*twidth)  , 0,1);                        
             chunks.push(chunk);            
-            scene.add( chunk );
+            hudScene.add( chunk );
         }
         
         setTimeout(function(){

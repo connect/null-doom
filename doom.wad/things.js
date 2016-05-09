@@ -74,6 +74,11 @@ o_.things = {
         label       : 'Former Human Sergeant',
         template    : 'template1',
         corpse      : 19,
+        hp          : 30,
+        speed       : 8,
+        reaction    : 8,
+        painchance  : 170,
+        paintime    : 6,
         sfx_pain    : s_.popain,
         sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ]                
     },
@@ -689,6 +694,13 @@ o_.things = {
         class       : '^',
         label       : 'Bleed'
     },
+    1005: {
+        radius      : 0,
+        sprite      : 'BLUD',
+        sequence    : 'ABC',
+        class       : '^',
+        label       : 'Bleed'
+    },
     
     2001: {
         radius      : 20,
@@ -917,6 +929,11 @@ o_.things = {
         move        : 'ABCD',        
         pain        : 'GH',
         corpse      : 20,
+        hp          : 60,
+        speed       : 8,
+        reaction    : 8,
+        painchance  : 200,
+        paintime    : 4,        
         sfx_death   : [ s_.bgdeath1, s_.bgdeath2 ]
     },
     3002: {
@@ -950,6 +967,10 @@ o_.things = {
         label       : 'Former Human Trooper',
         template    : 'template1',
         corpse      : 18,
+        hp          : 20,
+        speed       : 8,
+        painchance  : 200,
+        paintime    : 6,
         sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ]        
     },
     3005: {

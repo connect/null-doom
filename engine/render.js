@@ -24,6 +24,9 @@ r_.imgs         = {}; // texture cache
 r_.globaltimer  = 0;
 r_.direction    = false;
 r_.frustum      = new THREE.Frustum();
+r_.width        = -1;
+r_.height       = -1;
+r_.bufferTexture = null;
 
 r_.animate = function () {
     
@@ -181,36 +184,7 @@ r_.animate = function () {
     
     // update specials
     //
-    if ( o_.map.actions.length > 0){
-        
-        for (var a in o_.map.actions){
-            
-            var taction = o_.map.actions[a];
-            
-            // door opening
-            //
-            if (taction.special == 1) {              
-                
-                // raise walls
-                //
-                for (var i in taction.walls) {
-                    
-                    var twall = r_.walls[ taction.walls[i] ];
-                    twall.position.y += 100 * delta;
-
-                    if ( twall.position.y >= taction.height + (twall.geometry.parameters.height/2) -2 ) {
-                        console.log('......door opened')
-                        // stop the door, remove action
-                        o_.map.actions.splice( a, 1 );
-                    }
-                }
-                
-                // raise ceiling
-                //
-                r_.ceilings[ taction.ceiling ].position.y += 100 * delta;                
-            }
-        }
-    }
+    r_.updateSpecials(delta);
 
     if ( i_.controls.enabled ) { 
         
@@ -240,11 +214,16 @@ r_.animate = function () {
 
                     //console.log('....we hit',line)
 
-                    if (line.special == 1) {
+                    if (line.special == 1) { // door
 
                         //console.log('......open the door!');
                         c_.opendoor( o_.map.sidedef[ line.sideback ].sector );
 
+                    } else if (line.special == 11) { // end of level switch
+                        
+                        c_.nextmap();
+                        s_.play( s_.menuback );
+                        
                     } else {
 
                         s_.play( s_.ugh );
@@ -534,134 +513,241 @@ r_.animate = function () {
 
     // Update things
     //
-    for (var i in r_.sprites){
-
-        if (!r_.sprites[i].visible) continue;
-            
-        var o = r_.sprites[i];       
-        var tsector;
-
-        r_.raycaster.ray.origin.copy( o.position );
-        r_.raycaster.ray.origin.y += 400;
-
-        var hits = r_.raycaster.intersectObjects( r_.floors );
-
-        if (hits[0] != undefined) {
-
-            // update things position          
-            if ( o_.things[ o.type].class.indexOf('^') == -1 ) {
-                
-                tsector = o_.map.sector[ hits[0].object.sector ];
-                o.position.y = hits[0].object.position.y + (o.material.map.image.height /2);//(o.geometry.parameters.height /2 ); 
-            }
-
-            // update light source position
-            if (o.light != undefined) {                    
-                o.light.position.y = o.position.y + (o.material.map.image.height /2);
-            }
-
-        } else {
-
-            tsector = o_.map.sector[0];
-        }
-
-        // rotate things to allways face the player
-        o.rotation.y = i_.controls.getObject().rotation._y;
-
-        // update animation
-        //
-        if (r_.globaltimer == 1) {
-
-            var thing       = o_.things[ o.type ];                                       
-            var color       = (o.light != undefined) ? new THREE.Color(0xffffff) : new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
-
-            if (thing.class.indexOf('M') != -1) { // monster
-
-                var template = o_.things[ thing.template ];
-                var sequence = thing[ o.state ] || template[ o.state ];
-
-                if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
-
-                    // let it finally die
-                    if ( o.state == 'death') {
-
-                        // remove sprite                            
-                        r_.sprites.splice( i, 1 );
-
-                        // remove from scene
-                        r_.scene.remove( o );
-
-                        // spawn corpse
-                        r_.spawnThing( thing.corpse, o.position.x, o.position.z );      
-
-                        break;
-
-                    } else {
-
-                        var nextFrame = 0;
-                    } 
-
-                } else {
-
-                    // there are some frames to show
-
-                    var nextFrame = o.frame + 1;                        
-                }                                                                        
-
-            } else {
-
-                var sequence    = thing.sequence;
-                
-                if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
-
-                    // remove sprite at the end of animation
-                    if ( o.state == 'death') {
-
-                        // remove sprite                            
-                        r_.sprites.splice( i, 1 );
-
-                        // remove from scene
-                        r_.scene.remove( o );
-
-                        break;
-
-                    } else {
-
-                        var nextFrame = 0;
-                    } 
-
-                } else {
-
-                    // there are some frames to show
-
-                    var nextFrame = o.frame + 1;                        
-                }
-            }  
-
-            var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
-
-            if (texture == undefined) {
-
-                console.log('no texture', thing.sprite, o.state, nextFrame, o.angle);
-
-            } else {
-
-                var oldtxtr   = r_.imgs[ thing.sprite + sequence[ o.frame ] + o.angle ];                    
-
-                o.scale.x               = texture.image.width / oldtxtr.image.width; 
-                o.scale.y               = texture.image.height / oldtxtr.image.height;
-                o.position.y            = o.position.y - (oldtxtr.image.height/2) + (texture.image.height/2);
-                o.frame                 = nextFrame;
-                o.material.map          = texture;
-                o.material.color        = color;
-                o.material.needsUpdate  = true;                                       
-            }
-        }                        
+    r_.updateThings();
+    
+    // Falloff
+    //
+    if (r_.falloff) {
+        
+        r_.drawFalloff('update', delta);
     }
 
     r_.prevTime = time;
     r_.render();
 };
+
+r_.drawFlats = function(lines, tsector, sectorIndex){
+            
+    //console.log('....build floor & ceiling polygon');
+
+    var linesKnown  = [];
+    var shapes      = []; // <array>
+    var tshape      = [];
+    var jshapes     = []; // list of shapes to be joined
+    var holes       = {};
+    var cycle       = 0; // cycle count control
+
+    while (lines.count > linesKnown.length){ // +1 for lines.count itself  ?              
+
+        //for every line
+        for (var l in lines){
+
+            // skip known lines and counter
+            if ( linesKnown.indexOf(l) != -1 || l == 'count') continue; 
+
+            // get line vertexes
+            var v1 = o_.map.vertex[ lines[l].v1 ];
+            var v2 = o_.map.vertex[ lines[l].v2 ];                    
+
+            // are there any shape yet?
+            if (shapes.length == 0){
+
+                //console.log('......first shape');
+                //console.log('......line',l,'belongs to shape 0')
+
+                // create first one
+                shapes.push([
+                    new THREE.Vector2( v1.x, v1.y ),
+                    new THREE.Vector2( v2.x, v2.y )
+                ]);
+
+                // remember the line
+                linesKnown.push(l);
+                //break;
+
+            } else {
+
+                // there are some shapes already
+                // find one is not complete
+                for (var sh in shapes){
+
+                    tshape      = shapes[sh];
+
+                    var firstv  = tshape[0]; // first shape vertes
+                    var lastv   = tshape[ tshape.length-1 ]; // last shape vertex
+
+                    // if shape not complete
+                    if ( firstv.x != lastv.x || firstv.y != lastv.y ){
+
+                        // compare this line vertexes to last shape vertex
+                        var fv1 = ( lastv.x == v1.x && lastv.y == v1.y ) ? true : false;
+                        var fv2 = ( lastv.x == v2.x && lastv.y == v2.y ) ? true : false;
+
+                        if ( fv1 || fv2 ){
+
+                            //console.log('......line',l,'belongs to shape',s)
+
+                            if ( fv1 ){
+
+                                tshape.push( new THREE.Vector2( v2.x, v2.y ) );
+
+                            } else {
+
+                                tshape.push( new THREE.Vector2( v1.x, v1.y ) );
+                            }
+
+                            // last vertex could be changed at this point 
+                            lastv   = tshape[ tshape.length-1 ];
+
+                            if ( firstv.x == lastv.x && firstv.y == lastv.y ) {
+
+                                //console.log('......shape '+ sectorIndex +' is complete');
+                            } 
+
+                            // remember the line
+                            linesKnown.push(l);
+                        }
+
+                        break; // don't proceed to next shape until this one is finished
+                    }
+                }
+
+                // if all known shapes are complete, but line still
+                // not recognized, add new shape
+                if ( firstv.x == lastv.x && firstv.y == lastv.y && linesKnown.indexOf(l) == -1) {
+
+                    //console.log('......new shape', shapes.length);
+
+                    shapes.push([
+                        new THREE.Vector2( v1.x, v1.y ),
+                        new THREE.Vector2( v2.x, v2.y )
+                    ]);    
+
+                    // remember the line
+                    linesKnown.push(l);
+
+                }
+            }
+        }
+        //console.log('......linesKnown:',linesKnown.length,'/',lines.count);
+        cycle++;
+        if (cycle > 50) break; // infinite loop protection
+    }
+
+    //console.log('....shapes found:',shapes);
+
+    // Detect holes
+    //
+    //console.log('....detect holes in polygons');
+
+    for (var sh in shapes){
+
+        // ignore broken shapes
+        if (shapes[sh].length < 3) continue;
+
+        var inside = false;                                        
+
+        // compare every shape pair
+        for (var j in shapes){
+
+            // don't compare to itself
+            if (sh == j) continue;
+
+            // pick vertex from shapes[sh] and compare it to shapes[j] 
+            v1 = shapes[sh][0];
+
+            // compare vertex to shape
+            inside = r_.inPoly( v1, shapes[j]);
+
+            //console.log('inPoly():',inside)
+            if ( inside ) {
+
+                //console.log('......hole found')
+
+                // shapes[s] is a hole for shapes[j]
+                // populate holes[j] array with it
+                if ( holes[j] == undefined ) {
+
+                    holes[j] = [ shapes[sh] ];
+
+                } else {
+
+                    holes[j].push( shapes[sh] );
+                }
+            }
+        }
+
+        // if shape is not a hole add it to join list
+        if (!inside) {
+
+            jshapes.push( shapes[sh] );
+        }
+    }
+
+    // console.log('....holes found:',holes);
+
+    // build final shape
+    //
+    var jshape = [];
+
+    for (var sh in jshapes){
+
+        tshape = new THREE.Shape( shapes[sh] );
+
+        for (var h in holes[sh]) {
+
+            //console.log('......pushing hole',holes[s][h],'to','shape',s)
+            tshape.holes.push( new THREE.Shape( holes[sh][h].reverse() ) );
+        }
+
+        jshape.push( tshape ); 
+    }
+
+    // draw floor polygon
+    //
+    var geoPoly = new THREE.ShapeGeometry( jshape );    
+
+    var image = r_.imgs[ tsector.texturefloor ];                
+    var color = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+    var floor = new THREE.Mesh(  
+        geoPoly, 
+        new THREE.MeshPhongMaterial({ side: THREE.DoubleSide, map: image, color: color }) 
+    );                        
+
+    floor.rotation.set( Math.PI/2, Math.PI, 0  );
+    floor.position.y = tsector.heightfloor;     
+    floor.sector     = sectorIndex;
+
+    if (r_.img.animated[ tsector.texturefloor.match(/\D+/)[0] ] != undefined) {                    
+        floor.frame  = tsector.texturefloor.match(/\d+/)[0];
+        floor.sprite = tsector.texturefloor.match(/\D+/)[0];
+    }
+
+    r_.objects.push(floor);
+    r_.floors.push(floor);
+    r_.scene.add(floor);
+
+
+    // draw ceiling polygon
+    //
+    if (tsector.textureceiling.indexOf('SKY') == -1) {
+
+        var image = r_.imgs[ tsector.textureceiling ];
+        var color = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+        var ceiling = new THREE.Mesh(  geoPoly, 
+            new THREE.MeshPhongMaterial({ side: THREE.BackSide, map: image, color: color  }) 
+        );               
+
+        ceiling.rotation.set(Math.PI/2, Math.PI, 0);
+        ceiling.position.y = tsector.heightceiling;
+        ceiling.sector     = sectorIndex;
+
+        r_.objects.push(ceiling);
+        r_.ceilings.push(ceiling);
+        r_.scene.add(ceiling);
+    }
+
+}
 
 r_.drawText = function(o){
     
@@ -703,7 +789,138 @@ r_.drawText = function(o){
             sprite.position.set( x - ((o.text.length - i) * r_.scale * w), z, 12);
         }
         
+        r_.hud.objects.push(sprite);
         r_.hudScene.add(sprite);
+    }
+};
+
+r_.drawSkyBox = function(){
+
+    function createMaterial( path, repeat, color ) {
+
+        if (path != undefined) {
+            var texture = THREE.ImageUtils.loadTexture(path);
+            var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5 } );
+
+            if (repeat != undefined){
+                material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+                material.map.repeat.set(repeat, repeat);
+            }
+        } else if ( color != undefined){
+
+            var material = new THREE.MeshBasicMaterial({ color: new THREE.Color(color) })
+        }
+
+        return material; 
+    }
+
+    // Load the skybox images and create list of materials
+    var materials = [
+        createMaterial( 'doom.wad/gra/SKY1.png' ), // right
+        createMaterial( 'doom.wad/gra/SKY1.png' ), // left
+        createMaterial( undefined, undefined, 'rgb(190,190,190)' ), // top
+        createMaterial( 'doom.wad/gra/F_SKY1.png' ), // bottom
+        createMaterial( 'doom.wad/gra/SKY1.png' ), // back
+        createMaterial( 'doom.wad/gra/SKY1.png' )  // front
+    ];
+
+    // Create a large cube
+    var mesh = new THREE.Mesh( 
+        new THREE.BoxGeometry( 10000, 8000, 10000, 1, 1, 1 ), 
+        new THREE.MeshFaceMaterial( materials ) 
+    );
+
+    mesh.position.copy( p_.spawn.position );
+    mesh.position.y += 2000;
+
+    // Set the x scale to be -1, this will turn the cube inside out
+    mesh.scale.set(-1,1,1);
+    r_.skybox = mesh;
+    r_.scene.add( mesh );  
+
+    //r_.scene.fog = new THREE.Fog( 0xcccccc, 5000, 7000 );
+};
+
+r_.freezeScreen =function(callback){
+    
+    // render screen to image and load it as texture
+    var scrTexture = new THREE.TextureLoader().load(  r_.renderer.domElement.toDataURL( 'image/png' ) ,
+        
+        function(texture){
+            
+            texture.magFilter = THREE.NearestFilter;
+            texture.minFilter = THREE.NearestFilter;
+
+            var scrMaterial = new THREE.MeshBasicMaterial({ map: texture });                
+            var count  = 200;
+            var q      = 1/count;
+            var twidth = r_.width / count;        
+
+            r_.hud.chunks = [];
+
+            var map = [
+                [ new THREE.Vector2(0, 0), new THREE.Vector2(.5, 0), new THREE.Vector2(.5, 1), new THREE.Vector2(0, 1) ],
+                [ new THREE.Vector2(.5, 0), new THREE.Vector2(1, 0), new THREE.Vector2(1, 1), new THREE.Vector2(.5, 1) ]            
+            ];
+
+            for (var i = 0; i < count; i++) {
+                // left-bottom, right-bottom, right-upper, left-uppr                                            
+                var map = [ 
+                    new THREE.Vector2( q*i,   0 ), 
+                    new THREE.Vector2( q*i+q, 0 ), 
+                    new THREE.Vector2( q*i+q, 1 ), 
+                    new THREE.Vector2( q*i,   1 ) 
+                ];
+                var tgeo = new THREE.PlaneGeometry(twidth, r_.height);               
+                tgeo.faceVertexUvs[0][0] = [ map[3], map[0], map[2] ];
+                tgeo.faceVertexUvs[0][1] = [ map[0], map[1], map[2] ];
+
+                var chunk = new THREE.Mesh(tgeo, scrMaterial);
+                chunk.position.set( (r_.width/-2)+(twidth/2)+(i*twidth), 0, 100);    
+
+                r_.hud.chunks.push(chunk);   
+                r_.hudScene.add( chunk );
+                
+                if (i == count-1 ) { // last
+                    
+                    callback();
+                }
+            }
+            
+        }
+    );   
+};
+
+r_.drawFalloff = function(o,delta){
+    
+    if (o == 'update') {
+
+        for (var i in r_.hud.chunks) {
+
+            r_.hud.chunks[i].position.y -= c_.random(20, 40);          
+
+            if (r_.hud.chunks[i].position.y < r_.height*-1.5) { // effect finished
+                                
+                r_.falloff = false;  
+    
+                // clear chunks
+                for (var j in r_.hud.chunks){
+                    
+                    r_.hudScene.remove( r_.hud.chunks[j] );
+                }
+                
+                break;
+            }
+        }
+        
+    } else {
+
+        // update camera position to player start location
+        i_.controls.getObject().position.set( p_.spawn.position.x, p_.spawn.position.y, p_.spawn.position.z );
+        i_.controls.getObject().rotation.set( p_.spawn.rotation.x, p_.spawn.rotation.y, p_.spawn.rotation.z );       
+        
+        r_.falloff      = true; 
+        r_.back.visible = false;
     }
 };
 
@@ -834,17 +1051,13 @@ r_.pic = function(f, repeatX, repeatY, callback){
 
 r_.postInit = function() {
     console.log('r_.postInit()');
-       
-    var scrMode     = r_.mode.current.split('x');
-    var scrWidth    = scrMode[0];
-    var scrHeight   = scrMode[1];
     
     //
     // Hud
     //
     r_.hudCamera = new THREE.OrthographicCamera(
-        scrWidth  / -2, scrWidth  /  2,
-        scrHeight /  2, scrHeight / -2, 
+        r_.width  / -2, r_.width  /  2,
+        r_.height /  2, r_.height / -2, 
         -500, 1000 
     );
     r_.hudCamera.position.x = 0;
@@ -853,7 +1066,7 @@ r_.postInit = function() {
 
     r_.hudScene = new THREE.Scene();
 
-    r_.camera = new THREE.PerspectiveCamera( 75, scrWidth /scrHeight, 1, 20000 );
+    r_.camera = new THREE.PerspectiveCamera( 75, r_.width /r_.height, 1, 20000 );
 
     r_.scene = new THREE.Scene();
     //r_.scene.fog = new THREE.FogExp2( 0x000000, 0.002 );
@@ -862,11 +1075,26 @@ r_.postInit = function() {
     r_.light.position.set( 0, 0, 0 );
     r_.light.visible = true;
     r_.scene.add( r_.light );
+    
+    //Create the texture that will store our result
+    r_.bufferTexture = new THREE.WebGLRenderTarget(r_.width, r_.height, {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.NearestFilter
+    });
+    r_.bufferTexture.needsUpdate = true;
+    
+    // create main "monitor" where scene will be rendered to
+    r_.monitor = new THREE.Mesh(
+        new THREE.BoxGeometry(r_.width, r_.height, 1), 
+        new THREE.MeshBasicMaterial({ map: r_.bufferTexture })
+    );
+    r_.monitor.position.z = 1;
+    r_.hudScene.add( r_.monitor );
      
-    r_.renderer = new THREE.WebGLRenderer({ antialias:false });
+    r_.renderer = new THREE.WebGLRenderer({ antialias:false, preserveDrawingBuffer: true });
     r_.renderer.setClearColor( 0xffffff );
     r_.renderer.setPixelRatio( window.devicePixelRatio );
-    r_.renderer.setSize( scrWidth, scrHeight );
+    r_.renderer.setSize( r_.width, r_.height );
     r_.renderer.autoClear = false;
     //r_.renderer.gammaInput = true;
     //r_.renderer.gammaOutput = true;
@@ -947,10 +1175,14 @@ r_.mode = new function(){
     console.log('....r_.mode()');
     
     var t = this;
+    var screenMode = cfg.screenmode.split('x');
         
     t.list      = [ '640x480', '800x600', '1024x768', '1280x800' ];
     t.current   = cfg.screenmode;    
-    r_.scale    = cfg.screenmode.split('x')[0] / 320;
+    
+    r_.width    = screenMode[0];
+    r_.height   = screenMode[1];
+    r_.scale    = r_.width / 320;
     
     t.next = function(){
         // get index of current mode
@@ -1010,7 +1242,7 @@ r_.onWindowResize = function () {
 r_.render = function() {
     
     r_.renderer.clear();
-    r_.renderer.render( r_.scene, r_.camera );
+    r_.renderer.render( r_.scene, r_.camera, r_.bufferTexture );
     r_.renderer.clearDepth();
     r_.renderer.render( r_.hudScene, r_.hudCamera );
 };
@@ -1034,7 +1266,8 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     var texture;
     var sequence;
     var template;
-    var angle = 0;    
+    var angle = 0;
+    var hp    = 0;
             
     if (thing == undefined) return; // skip if not found in db
 
@@ -1048,8 +1281,9 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
         sequence = thing.move || template.move;      
         frame    = (frame != undefined) ? frame : c_.random(0, sequence.length-1); // put random starting frame
         angle    = 1;
+        hp       = thing.hp;
         
-    } else {
+    } else { // item
         
         sequence = thing.sequence;
         frame    = (frame != undefined) ? frame : c_.random(0, thing.sequence.length-1); 
@@ -1072,15 +1306,23 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     
     // spawn light sources
     
-    if (cfg.gl_light && thing.light != undefined) {
+    if (thing.light != undefined) {
         
-        console.log('..spawning light source', thing.label);
-        plane.light = new THREE.PointLight( thing.light, 2, 50 );
-        plane.light.position.set(x, 0, z);
-        r_.scene.add( plane.light );
+        if (cfg.gl_light) {
+            
+            console.log('..spawning light source', thing.label);
+            plane.light = new THREE.PointLight( thing.light, 2, 50 );
+            plane.light.position.set(x, 0, z);
+            r_.scene.add( plane.light );
+            
+        } else {
+            
+            plane.light = true;
+        }
     }         
     
     plane.position.set( x, y || 0, z );
+    plane.hp    = hp;
     plane.type  = type;
     plane.frame = frame;
     plane.angle = angle;
@@ -1091,6 +1333,208 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     r_.objects.push(plane);
     r_.sprites.push(plane);        
     r_.scene.add(plane);
+};
+
+r_.spawnThings = function(){    
+    console.log('....spawning things');
+    
+    for (var i in o_.map.thing) {
+
+        var o = o_.map.thing[i];
+
+        if (o.dm) continue; // skip multiplayer things
+
+        //floorheight = r_.findFloor( -o.x, o.y );
+        //floorheight = (floorheight != false) ? floorheight.object.position.y : 0;
+        var floorheight = 0;
+
+        if (o.type == 1) { // player starting position
+
+            // remember it to move camera here later
+            p_.spawn = {
+                position: { x: -o.x, y: floorheight + cfg.playerHeight,  z: o.y },
+                rotation: { x: 0,    y: (o.angle + 90) * Math.PI / 180 , z: 0   }
+            };
+            //i_.controls.getObject().position.set( -o.x, floorheight + cfg.playerHeight, o.y );
+            //i_.controls.getObject().rotation.set(0, (o.angle + 90) * Math.PI / 180 , 0 );
+
+        } else if ( o_.things[ o.type ] != undefined ) {
+
+            // known thing
+            r_.spawnThing( o.type, -o.x, o.y );
+
+        } else {
+
+            // add thing placeholder for rest
+        }
+    }
+};
+
+r_.updateSpecials = function(delta){
+    
+    if ( o_.map.actions.length > 0){
+        
+        for (var a in o_.map.actions){
+            
+            var taction = o_.map.actions[a];
+            
+            // door opening
+            //
+            if (taction.special == 1) {              
+                
+                // raise walls
+                //
+                for (var i in taction.walls) {
+                    
+                    var twall = r_.walls[ taction.walls[i] ];
+                    twall.position.y += 100 * delta;
+
+                    if ( twall.position.y >= taction.height + (twall.geometry.parameters.height/2) -2 ) {
+                        console.log('......door opened')
+                        // stop the door, remove action
+                        o_.map.actions.splice( a, 1 );
+                    }
+                }
+                
+                // raise ceiling
+                //
+                r_.ceilings[ taction.ceiling ].position.y += 100 * delta;                
+            }
+        }
+    }
+};
+
+r_.updateThings = function (){
+    
+    for (var i in r_.sprites){
+
+        if (!r_.sprites[i].visible) continue;
+            
+        var o = r_.sprites[i];       
+        var tsector;
+
+        r_.raycaster.ray.origin.copy( o.position );
+        r_.raycaster.ray.origin.y += 400;
+
+        var hits = r_.raycaster.intersectObjects( r_.floors );
+
+        if (hits[0] != undefined) {
+
+            // update things position          
+            if ( o_.things[ o.type].class.indexOf('^') == -1 ) {
+                
+                tsector = o_.map.sector[ hits[0].object.sector ];
+                o.position.y = hits[0].object.position.y + (o.material.map.image.height /2);//(o.geometry.parameters.height /2 ); 
+            }
+
+            // update light source position
+            if (o.light != undefined && cfg.gl_light) {                    
+                o.light.position.y = o.position.y + (o.material.map.image.height /2);
+            }
+
+        } else {
+
+            tsector = o_.map.sector[0];
+        }
+
+        // rotate things to allways face the player
+        o.rotation.y = i_.controls.getObject().rotation._y;
+
+        // update animation
+        //
+        if (r_.globaltimer == 1) {
+
+            var thing       = o_.things[ o.type ];                                       
+            var color       = (o.light != undefined) ? new THREE.Color(0xffffff) : new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+
+            if (thing.class.indexOf('M') != -1) { // monster
+
+                var template = o_.things[ thing.template ];
+                var sequence = thing[ o.state ] || template[ o.state ];
+
+                if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
+
+                    // let it finally die
+                    if ( o.state == 'death') {
+
+                        // remove sprite                            
+                        r_.sprites.splice( i, 1 );
+
+                        // remove from scene
+                        r_.scene.remove( o );
+
+                        // spawn corpse
+                        r_.spawnThing( thing.corpse, o.position.x, o.position.z, o.position.y );      
+
+                        break;
+
+                    } else if (o.state == 'pain') {
+                        
+                        o.state = 'move';
+                        var nextFrame = 0;
+                        
+                    } else {
+
+                        var nextFrame = 0;
+                    } 
+
+                } else {
+
+                    // there are some frames to show
+
+                    var nextFrame = o.frame + 1;                        
+                }                                                                        
+
+            } else {
+
+                var sequence    = thing.sequence;
+                
+                if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
+
+                    // remove sprite at the end of animation
+                    if ( o.state == 'death') {
+
+                        // remove sprite                            
+                        r_.sprites.splice( i, 1 );
+
+                        // remove from scene
+                        r_.scene.remove( o );
+
+                        break;
+
+                    } else {
+
+                        var nextFrame = 0;
+                    } 
+
+                } else {
+
+                    // there are some frames to show
+
+                    var nextFrame = o.frame + 1;                        
+                }
+            }  
+
+            var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
+
+            if (texture == undefined) {
+
+                console.log('no texture', thing.sprite, o.state, nextFrame, o.angle);
+
+            } else {
+
+                var oldtxtr   = r_.imgs[ thing.sprite + sequence[ o.frame ] + o.angle ];                    
+
+                o.scale.x               = texture.image.width / oldtxtr.image.width; 
+                o.scale.y               = texture.image.height / oldtxtr.image.height;
+                o.position.y            = o.position.y - (oldtxtr.image.height/2) + (texture.image.height/2);
+                o.frame                 = nextFrame;
+                o.material.map          = texture;
+                o.material.color        = color;
+                o.material.needsUpdate  = true;                                       
+            }
+        }                        
+    }
 };
 
 core.loadNext();

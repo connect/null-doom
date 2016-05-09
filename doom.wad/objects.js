@@ -31,16 +31,19 @@ o_.map.loaded = function(){
         }
     }
     
+    // falloff
+    r_.drawFalloff();
     
+    // @FIXME debug only, remove later
     c_.give('all') // cheat
 };
 
 
 // load maps
 o_.map.add([
-    'e1m1',
+    //'e1m1',
     'e1m2',
-    //'e1m3',
+    'e1m3',
     //'e1m4',
     //'e1m5',
     //'e1m6',

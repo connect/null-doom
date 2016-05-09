@@ -68,9 +68,11 @@ o_.weapons = {
             var hits = r_.raycaster.intersectObjects( r_.objects );
             
             if (hits[0] != undefined) {
-                                
-                var thing = o_.things[ hits[0].object.type ];
-                var obj   = hits[0].object;
+                
+                var obj     = hits[0].object;
+                var thing   = o_.things[ obj.type ];                
+                var ammo    = o_.ammo[ o_.weapons[ p_.weapon ].ammo ];
+                var damage  = c_.random( ammo.damageMin, ammo.damageMax);
                 
                 if (thing != undefined && obj.state != 'death' && obj.state != 'gibs'){
                     
@@ -78,32 +80,7 @@ o_.weapons = {
                     
                     if (thing.class.indexOf('M') != -1){                        
                         
-                        // play death sound
-                        if (typeof thing.sfx_death == 'object' && thing.sfx_death.length > 1) {
-                            
-                            s_.play( thing.sfx_death[ c_.random( 0, thing.sfx_death.length-1 ) ]);
-                            
-                        } else if (thing.sfx_death != undefined) {
-                            
-                            s_.play( thing.sfx_death );
-                        }                                                
-                        
-                        // remove obstacle
-                        if (thing.class.indexOf('O') != -1) {
-                            
-                            for (var i in r_.walls) {
-                                
-                                if (r_.walls[i].id == obj.id) {
-                                    r_.walls.splice( i, 1);
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // put dying state
-                        obj.state = 'death';
-                        obj.frame = 0;
-                        obj.angle = 0;
+                        o_.hurtMonster(obj, damage);                      
                     }
                     
                 } else {
@@ -149,46 +126,16 @@ o_.weapons = {
             
             for (var h in hits) {
                                 
-                var thing = o_.things[ hits[h].object.type ];
-                var obj   = hits[h].object;
+                var obj     = hits[h].object;
+                var thing   = o_.things[ obj.type ];
+                var ammo    = o_.ammo[ o_.weapons[ p_.weapon ].ammo ];
+                var damage  = c_.random( ammo.damageMin, ammo.damageMax);
                 
                 if (thing != undefined) {
                     
                     if (thing.class.indexOf('M') != -1) {           
                         
-                        if ( obj.state != 'death' && obj.state != 'gibs') {                                    
-                            
-                            console.log('hit',thing.label)         
-
-                            // play death sound
-                            if (typeof thing.sfx_death == 'object' && thing.sfx_death.length > 1) {
-
-                                s_.play( thing.sfx_death[ c_.random( 0, thing.sfx_death.length-1 ) ]);
-
-                            } else if (thing.sfx_death != undefined) {
-
-                                s_.play( thing.sfx_death );
-                            }                                                
-
-                            // remove obstacle
-                            if (thing.class.indexOf('O') != -1) {
-
-                                for (var i in r_.walls) {
-
-                                    if (r_.walls[i].id == obj.id) {
-                                        r_.walls.splice( i, 1);
-                                        break;
-                                    }
-                                }
-                            }
-
-                            // put dying state
-                            obj.state = 'death';
-                            obj.frame = 0;
-                            obj.angle = 0;                            
-                        }
-                        
-                       // r_.spawnThing(c_.random(1002,1004), hits[h].point.x, hits[h].point.z, hits[h].point.y, 'death', 0);
+                        o_.hurtMonster(obj, damage);
                         
                     } else {
                         
@@ -226,15 +173,24 @@ o_.weapons = {
         cooldown    : 7,
         onFire      : function(){
             
-            // test hit or mis
+            var matrix = new THREE.Matrix4();
+            var direction = i_.controls.getDirection( new THREE.Vector3() );
+            
+            matrix.makeRotationY( c_.random(-5.5,5.5) * Math.PI / 180 );
+            direction.applyMatrix4(matrix);
+            matrix.makeRotationX( c_.random(-5.5,5.5) * Math.PI / 180 );
+            direction.applyMatrix4(matrix);            
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-            r_.raycaster.ray.direction.copy( i_.controls.getDirection( new THREE.Vector3() ) );
+            r_.raycaster.ray.direction.copy( direction );
+
             var hits = r_.raycaster.intersectObjects( r_.objects );
             
             if (hits[0] != undefined) {
                                 
-                var thing = o_.things[ hits[0].object.type ];
-                var obj   = hits[0].object;
+                var obj     = hits[0].object;
+                var thing   = o_.things[ obj.type ];                
+                var ammo    = o_.ammo[ o_.weapons[ p_.weapon ].ammo ];
+                var damage  = c_.random( ammo.damageMin, ammo.damageMax);
                 
                 if (thing != undefined && obj.state != 'death' && obj.state != 'gibs'){
                     
@@ -242,32 +198,7 @@ o_.weapons = {
                     
                     if (thing.class.indexOf('M') != -1){                        
                         
-                        // play death sound
-                        if (typeof thing.sfx_death == 'object' && thing.sfx_death.length > 1) {
-                            
-                            s_.play( thing.sfx_death[ c_.random( 0, thing.sfx_death.length-1 ) ]);
-                            
-                        } else if (thing.sfx_death != undefined) {
-                            
-                            s_.play( thing.sfx_death );
-                        }                                                
-                        
-                        // remove obstacle
-                        if (thing.class.indexOf('O') != -1) {
-                            
-                            for (var i in r_.walls) {
-                                
-                                if (r_.walls[i].id == obj.id) {
-                                    r_.walls.splice( i, 1);
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // put dying state
-                        obj.state = 'death';
-                        obj.frame = 0;
-                        obj.angle = 0;
+                        o_.hurtMonster(obj, damage);
                     }
                     
                 } else {
