@@ -443,7 +443,14 @@ o_.things = {
         attack      : 'EFG',
         death       : 'IJKLMN',
         move        : 'ABCD',
-        pain        : 'H'
+        pain        : 'H',
+        corpse      : 21,
+        hp          : 150,
+        speed       : 10,
+        reaction    : 8,
+        painchance  : 180,
+        paintime    : 4,
+        camo        : true
     },
     59: {
         radius: 16,
@@ -946,7 +953,12 @@ o_.things = {
         death       : 'IJKLMN',
         move        : 'ABCD',
         pain        : 'H',
-        corpse      : 21
+        corpse      : 21,
+        hp          : 150,
+        speed       : 10,
+        reaction    : 8,
+        painchance  : 180,
+        paintime    : 4
     },
     3003: {
         radius      : 24,

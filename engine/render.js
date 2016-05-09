@@ -916,8 +916,10 @@ r_.drawFalloff = function(o,delta){
     } else {
 
         // update camera position to player start location
-        i_.controls.getObject().position.set( p_.spawn.position.x, p_.spawn.position.y, p_.spawn.position.z );
-        i_.controls.getObject().rotation.set( p_.spawn.rotation.x, p_.spawn.rotation.y, p_.spawn.rotation.z );       
+        var tcamera = i_.controls.getObject();
+        tcamera.position.set( p_.spawn.position.x, p_.spawn.position.y, p_.spawn.position.z );
+        tcamera.rotation.set( p_.spawn.rotation.x, p_.spawn.rotation.y, p_.spawn.rotation.z ); 
+        tcamera.children[0].rotation.set(0,0,0);
         
         r_.falloff      = true; 
         r_.back.visible = false;
@@ -1291,14 +1293,14 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
         
     }    
     
-    texture = r_.imgs[ thing.sprite + sequence[frame] + angle ];
+    texture = r_.imgs[ thing.sprite + sequence[frame] + angle ];  
     
     if (texture == undefined) {
         console.log('......texture not found', type, o_.things[ type ].label);
         return;
     }                
     
-    var matPlane    = new THREE.MeshPhongMaterial({ map: texture, transparent: true, alphaTest: 0.5 });
+    var matPlane    = new THREE.MeshPhongMaterial({ map: texture, transparent: true, alphaTest: 0.5, opacity: (thing.camo) ? 0.5 : 1 });
     var width       = texture.image.width;
     var height      = texture.image.height;
     var geoPlane    = new THREE.PlaneGeometry(width, height);
@@ -1444,8 +1446,21 @@ r_.updateThings = function (){
         //
         if (r_.globaltimer == 1) {
 
-            var thing       = o_.things[ o.type ];                                       
-            var color       = (o.light != undefined) ? new THREE.Color(0xffffff) : new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')')
+            var thing       = o_.things[ o.type ];           
+            var color;
+            
+            if (thing.camo) {
+                
+                color = new THREE.Color(0x000000);
+                
+            } else if (o.light != undefined) {
+             
+                color = new THREE.Color(0xffffff);
+                
+            } else {
+                
+                color = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
+            }
 
             if (thing.class.indexOf('M') != -1) { // monster
 
@@ -1515,7 +1530,7 @@ r_.updateThings = function (){
                 }
             }  
 
-            var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];
+            var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];           
 
             if (texture == undefined) {
 
