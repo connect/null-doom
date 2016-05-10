@@ -18,10 +18,14 @@ c_.give = function(item){
             }
         }
         
+        //r_.drawMessage( u_.msg.give_all );
+        
     } else {
 
         if (o_.weapons[item] != undefined && item != 'default') {
             console.log('Player received '+item);
+            
+            r_.drawMessage( u_.msg.got_.replace('%item%', item ) );
             p_.weapons[item] = true;
         }
     };

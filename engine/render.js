@@ -6,8 +6,6 @@
  * 
  * @module  core/render
  * @author  kod.connect
- * 
- * @TODO Refactor This File Content
  */
 
 
@@ -27,160 +25,33 @@ r_.frustum      = new THREE.Frustum();
 r_.width        = -1;
 r_.height       = -1;
 r_.bufferTexture = null;
+r_.msgs         = []; // message buffer
 
 r_.animate = function () {
     
     requestAnimationFrame( r_.animate );
-    
-    var scrMode     = r_.mode.current.split('x');
-    var scrWidth    = scrMode[0];
-    var scrHeight   = scrMode[1];            
+                
     var time        = performance.now();
-    var delta       = ( time - r_.prevTime ) / 1000;                  
+    var delta       = ( time - r_.prevTime ) / 1000; 
+    
+    //if (delta < 0.06) return; // do not refresh too fast
+    
+    r_.stats.update();
+    
     r_.bobfactor    = r_.bobfactor  || 0; // camera bob
     r_.weapon.sin   = r_.weapon.sin || 0; // weapon bob
     r_.weapon.cos   = r_.weapon.cos || 0;
-    var wpn         = r_.weapon.obj;
-    
+     
     r_.frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( r_.camera.projectionMatrix, r_.camera.matrixWorldInverse ) );
     
+    // hide objects that out of frustum
     for (var i in r_.objects){
         r_.objects[i].visible = r_.frustum.intersectsObject( r_.objects[i] );
     }
     
-    // Weapon switch 
+    // Animate POV weapon 
     //
-    if (wpn != null) {
-    
-        if (r_.weapon.state == 'takeup') { // taking up
-
-            var thisPos = wpn.position.y += 700 * delta;            
-            var stopPos = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
-
-            if (thisPos <= stopPos) {
-
-                wpn.position.set(0, thisPos, 5);
-
-            } else {
-
-                wpn.position.set(0, stopPos, 5);
-                r_.weapon.state = 'ready';
-                //console.log('FIRE: ready');
-            }
-
-        } else if ( r_.weapon.state == 'takedown') { // taking down
-
-            var thisPos = wpn.position.y -= 700 * delta;
-            var stopPos = (scrHeight/-2) - (wpn.material.map.image.height * r_.scale / 2) + (o_.weapons[ p_.weapon ].offset_y );
-
-            if (thisPos >= stopPos) {
-
-                wpn.position.set(0, thisPos, 5);
-
-            } else {
-
-                // weapon is down
-                var texture = r_.weapon.getTexture();
-                
-                wpn.position.set(0, stopPos, 5);
-                wpn.scale.x      = texture.image.width  * wpn.scale.x / wpn.material.map.image.width;
-                wpn.scale.y      = texture.image.height * wpn.scale.y / wpn.material.map.image.height;
-                wpn.material.map = texture;                
-                
-                r_.weapon.state = 'takeup';
-                //console.log('FIRE: takeup');
-            }
-            
-        } else if ( r_.weapon.state == 'ready') {
-            
-            var yPos = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2) + ( r_.weapon.sin * r_.weapon.cos );
-            var xPos = r_.weapon.sin;
-            var dist = Math.sqrt( Math.pow(wpn.position.x - xPos ,2) + Math.pow(wpn.position.y - yPos ,2) );
-            var sequence = o_.weapons[ p_.weapon ].ready || o_.weapons.default.ready;
-            var frame    = (sequence[ r_.weapon.frame + 1 ] != undefined ) ? r_.weapon.frame + 1 : 0;
-            var texture  = r_.imgs[ o_.weapons[ p_.weapon ].sprite + o_.weapons.default.weapon + sequence[ frame ] + '0' ];
-            
-            if (dist > 10) {  
-                xPos = (wpn.position.x + xPos ) / 2;
-                yPos = (wpn.position.y + yPos ) / 2;
-            }
-            
-            wpn.position.x           = xPos;
-            wpn.position.y           = yPos;
-            wpn.scale.x              = texture.image.width  * wpn.scale.x / wpn.material.map.image.width; 
-            wpn.scale.y              = texture.image.height * wpn.scale.y / wpn.material.map.image.height;
-            wpn.material.map         = texture;
-            wpn.material.needsUpdate = true;
-            r_.weapon.frame          = frame;
-            
-        } else if ( i_.controls.enabled && ( r_.weapon.state == 'fire' || r_.weapon.state == 'cooldown' ) ) {            
-            
-            if ( r_.globaltimer == 1 ) {
-                
-                // flash
-                //
-                /*
-                var sequence    = o_.weapons[ p_.weapon ].flash; 
-                var wpn         = r_.weapon.obj;
-                
-                if ( sequence[  r_.weapon.flashFrame + 1 ] == undefined ) {
-                    
-                    // remove flash
-                    r_.hudScene.remove( r_.weapon.flash );
-                    r_.weapon.flashFrame = 0;
-                    r_.weapon.flash      = null;
-                    
-                } else {
-                
-                    // animate flash
-                    var frame          = r_.weapon.flashFrame + 1;
-                    var flash_suffix   = o_.weapons[ p_.weapon ].flasher || o_.weapons.default.flasher;
-                    var texture        = r_.imgs[ o_.weapons[ p_.weapon ].sprite + flash_suffix + sequence[frame] + '0'  ];
-
-
-                    if (r_.weapon.flash == null) {
-                        
-                        // create flash
-                        var spriteMaterial = new THREE.SpriteMaterial({map: texture, transparent: true });
-                        var sprite         = new THREE.Sprite(spriteMaterial);   
-                        var wpnPosY = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
-                        sprite.scale.set(texture.image.width * r_.scale, texture.image.height * r_.scale, 1);
-                        sprite.position.x =  wpn.position.x;
-                        sprite.position.y =  wpnPosY + (texture.image.height * r_.scale/2);
-                        sprite.position.z = 10;
-                        //r_.objects.push(sprite);
-                        r_.weapon.flash      = sprite;
-                        r_.weapon.flashFrame = 0;
-                        r_.hudScene.add(sprite);
-                        
-                    } else {
-                        
-                        r_.weapon.flashFrame = frame;
-                        r_.weapon.flash.material.map         = texture;
-                        r_.weapon.flash.material.needsUpdate = true;
-                    }
-                }
-                */
-                var sequence = o_.weapons[ p_.weapon ].fire;
-                var frame    = r_.weapon.frame + 1;
-                
-                if (sequence[ frame ] != undefined) {
-                    
-                    var texture = r_.imgs[ o_.weapons[ p_.weapon ].sprite + o_.weapons.default.weapon + sequence[ frame ] + '0' ];
-                    
-                    wpn.scale.x              = texture.image.width  * wpn.scale.x / wpn.material.map.image.width; 
-                    wpn.scale.y              = texture.image.height * wpn.scale.y / wpn.material.map.image.height;
-                    wpn.material.map         = texture;
-                    wpn.material.needsUpdate = true;
-                    wpn.position.x           = 0;
-                    wpn.position.y           = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
-                    r_.weapon.frame          = frame;
-                }
-            }
-            
-        }
-        
-    }
+    r_.drawWeapon(delta);
     
     // update specials
     //
@@ -314,34 +185,50 @@ r_.animate = function () {
         //
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position );        
         r_.raycaster.ray.origin.y -= (cfg.playerHeight/2) - 2;
+        r_.raycaster.far           = 100;
+        
+        // cast 5 rays
         
         // direct ray
         r_.raycaster.ray.direction.copy( r_.direction );
         hits.push( r_.raycaster.intersectObjects( r_.sprites )[0] );
         
-        // -5 ray
-        matrix.makeRotationY( -5 * Math.PI / 180 );
+        // -10 ray
+        matrix.makeRotationY( -10 * Math.PI / 180 );
         r_.direction.applyMatrix4(matrix);
         r_.raycaster.ray.direction.copy( r_.direction );
         hits.push( r_.raycaster.intersectObjects( r_.sprites )[0] );
         
         // +5 ray
-        matrix.makeRotationY( 10 * Math.PI / 180 ); // +5 to direct
+        matrix.makeRotationY( 20 * Math.PI / 180 ); // +10 to direct
         r_.direction.applyMatrix4(matrix);
         r_.raycaster.ray.direction.copy( r_.direction );
         hits.push( r_.raycaster.intersectObjects( r_.sprites )[0] );
         
         // restore direction
-        matrix.makeRotationY( -5 * Math.PI / 180 );
+        matrix.makeRotationY( -10 * Math.PI / 180 );
         r_.direction.applyMatrix4(matrix);
         
         // merge raycasting results
         var pickups = [];
-        for (var p in hits) {
+        
+        for (var h in hits) {
             
-            if (pickups.indexOf(hits[p]) == -1 && hits[p] != undefined) {
+            var found = false;     
+            
+            if (hits[h] == undefined) continue;
+            
+            for (var p in pickups){
                 
-                pickups.push(hits[p]);
+                if (pickups[p].object.id == hits[h].object.id) {
+                    found = true;
+                    break;
+                } 
+            }
+            
+            if ( !found ) {
+                //console.log('pickup sort',pickups,hits[h])
+                pickups.push(hits[h]);
             }
         }
                 
@@ -356,7 +243,9 @@ r_.animate = function () {
                     var id = pickups[p].object.id;
 
                     // pick up item
-                    console.log("You've got "+thing.label+'!');
+                    r_.drawMessage( u_.msg.got_.replace('%item%', thing.label) );
+                    
+                    console.log('pickup',thing.label,p)
 
                     if (thing.sound == undefined) {
 
@@ -373,7 +262,9 @@ r_.animate = function () {
                     r_.scene.remove( pickups[p].object );
 
                     for (var i in r_.sprites) {
+                        
                         if (r_.sprites[i].id == id) {
+                            
                             r_.sprites.splice( i, 1);
                             break;
                         }
@@ -390,6 +281,7 @@ r_.animate = function () {
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position);
             r_.raycaster.ray.origin.y -= (cfg.playerHeight/2);
             r_.raycaster.ray.direction.copy( r_.direction ); 
+            r_.raycaster.far           = 25;
             var hits = r_.raycaster.intersectObjects( r_.walls );
 
             if (hits[0] != undefined)
@@ -431,6 +323,7 @@ r_.animate = function () {
         r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
         r_.raycaster.ray.origin.y += 200;//cfg.playerHeight;
         r_.raycaster.ray.direction.set( 0, -1, 0 );
+        r_.raycaster.far           = 900;
 
         var hits = r_.raycaster.intersectObjects( r_.floors );
 
@@ -494,26 +387,11 @@ r_.animate = function () {
 
     // update animated floors
     //
-    if (r_.globaltimer == 1) {
-        for (var i in r_.floors){
-
-            var o = r_.floors[i];
-
-            if ( o.frame != undefined && o.sprite != undefined) {
-
-                var animated  = r_.img.animated[ o.sprite ];
-                var nextFrame = ( animated[ o.frame + 1 ] != undefined ) ? o.frame + 1 : 0;
-
-                o.frame = nextFrame;
-                o.material.map = r_.imgs[ o.sprite + animated[ nextFrame ] ];
-                o.material.needsUpdate = true;
-            }
-        };
-    }
+    r_.updateFloors(delta);
 
     // Update things
     //
-    r_.updateThings();
+    r_.updateThings(delta);
     
     // Falloff
     //
@@ -524,6 +402,41 @@ r_.animate = function () {
 
     r_.prevTime = time;
     r_.render();
+};
+
+r_.drawFalloff = function(o,delta){
+    
+    if (o == 'update') {
+
+        for (var i in r_.hud.chunks) {
+
+            r_.hud.chunks[i].position.y -= c_.random(20, 40);          
+
+            if (r_.hud.chunks[i].position.y < r_.height*-1.5) { // effect finished
+                                
+                r_.falloff = false;  
+    
+                // clear chunks
+                for (var j in r_.hud.chunks){
+                    
+                    r_.hudScene.remove( r_.hud.chunks[j] );
+                }
+                
+                break;
+            }
+        }
+        
+    } else {
+
+        // update camera position to player start location
+        var tcamera = i_.controls.getObject();
+        tcamera.position.set( p_.spawn.position.x, p_.spawn.position.y, p_.spawn.position.z );
+        tcamera.rotation.set( p_.spawn.rotation.x, p_.spawn.rotation.y, p_.spawn.rotation.z ); 
+        tcamera.children[0].rotation.set(0,0,0);
+        
+        r_.falloff      = true; 
+        r_.back.visible = false;
+    }
 };
 
 r_.drawFlats = function(lines, tsector, sectorIndex){
@@ -749,15 +662,53 @@ r_.drawFlats = function(lines, tsector, sectorIndex){
 
 }
 
-r_.drawText = function(o){
+r_.drawMessage = function(text){
     
-    var scrMode     = r_.mode.current.split('x');
-    var scrWidth    = scrMode[0];
-    var scrHeight   = scrMode[1];    
-    var w           = o.width;
-    var h           = o.height;
-    var x = (o.x.toString().indexOf('%') == -1) ? o.x : (scrWidth/ -2) + (scrWidth  * parseFloat(o.x.replace('%','')) / 100);
-    var z = (o.z.toString().indexOf('%') == -1) ? o.z : (scrHeight/-2) + (scrHeight * parseFloat(o.z.replace('%','')) / 100);
+    var x       = 10 + (r_.width/-2);
+    var first   = { 
+        position: { x: x }, 
+        material: { map: { image: { width: 0 } } } 
+    };
+    var objMsg  = [];
+    var prefix  = 'STCFN';
+
+    text = text.toUpperCase();
+    
+    for (var i in text){
+
+        var n               = ( text.charCodeAt(i) < 100 ) ? '0'+ text.charCodeAt(i) : text.charCodeAt(i);
+        
+        if (r_.imgs[ prefix + n ] == undefined) continue;
+    
+        var w               = r_.imgs[ prefix + n ].image.width;
+        var h               = r_.imgs[ prefix + n ].image.height;
+        var z               = (r_.height/2) - (r_.msgs.length * h * r_.scale) - (h * r_.scale / 2);
+        var spriteMaterial  = new THREE.SpriteMaterial({map: r_.imgs[ prefix + n ]});
+        var sprite          = new THREE.Sprite(spriteMaterial);  
+        var prev            = ( objMsg[i-1] != undefined) ? objMsg[i-1] : first;
+        
+        sprite.scale.set( w * r_.scale, h * r_.scale, 1);
+        sprite.position.set( prev.position.x + (prev.material.map.image.width * r_.scale)  , z, 12);
+        
+        objMsg.push(sprite);
+        r_.hud.objects.push(sprite);
+        r_.hudScene.add(sprite);
+        
+        if (i == text.length-1){ // last
+            
+            r_.msgs.push(objMsg);
+  
+            window.setTimeout(r_.updateMessages, 5000);
+        }
+    }
+    
+    
+};
+    
+r_.drawStatusText = function(o){
+       
+    var x = (o.x.toString().indexOf('%') == -1) ? o.x : (r_.width/ -2) + (r_.width  * parseFloat(o.x.replace('%','')) / 100);
+    var z = (o.z.toString().indexOf('%') == -1) ? o.z : (r_.height/-2) + (r_.height * parseFloat(o.z.replace('%','')) / 100);
     
     for (var i in o.text){
 
@@ -776,8 +727,10 @@ r_.drawText = function(o){
             n = 'NUM'+ n;
         }
 
-        var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs[ o.prefix + n ]});
-        var sprite = new THREE.Sprite(spriteMaterial);            
+        var w               = r_.imgs[ o.prefix + n ].image.width;
+        var h               = r_.imgs[ o.prefix + n ].image.height;
+        var spriteMaterial  = new THREE.SpriteMaterial({map: r_.imgs[ o.prefix + n ]});
+        var sprite          = new THREE.Sprite(spriteMaterial);            
         sprite.scale.set( w * r_.scale, h * r_.scale, 1);
 
         if (o.direction == 'ltr') {
@@ -841,6 +794,143 @@ r_.drawSkyBox = function(){
     //r_.scene.fog = new THREE.Fog( 0xcccccc, 5000, 7000 );
 };
 
+r_.drawWeapon = function(delta){
+    
+    var wpn = r_.weapon.obj;
+    
+    if (wpn != null) {
+    
+        if (r_.weapon.state == 'takeup') { // taking up
+
+            var thisPos = wpn.position.y += 700 * delta;            
+            var stopPos = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
+
+            if (thisPos <= stopPos) {
+
+                wpn.position.set(0, thisPos, 5);
+
+            } else {
+
+                wpn.position.set(0, stopPos, 5);
+                r_.weapon.state = 'ready';
+                //console.log('FIRE: ready');
+            }
+
+        } else if ( r_.weapon.state == 'takedown') { // taking down
+
+            var thisPos = wpn.position.y -= 700 * delta;
+            var stopPos = (r_.height/-2) - (wpn.material.map.image.height * r_.scale / 2) + (o_.weapons[ p_.weapon ].offset_y );
+
+            if (thisPos >= stopPos) {
+
+                wpn.position.set(0, thisPos, 5);
+
+            } else {
+
+                // weapon is down
+                var texture = r_.weapon.getTexture();
+                
+                wpn.position.set(0, stopPos, 5);
+                wpn.scale.x      = texture.image.width  * wpn.scale.x / wpn.material.map.image.width;
+                wpn.scale.y      = texture.image.height * wpn.scale.y / wpn.material.map.image.height;
+                wpn.material.map = texture;                
+                
+                r_.weapon.state = 'takeup';
+                //console.log('FIRE: takeup');
+            }
+            
+        } else if ( r_.weapon.state == 'ready') {
+            
+            var yPos = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2) + ( r_.weapon.sin * r_.weapon.cos );
+            var xPos = r_.weapon.sin;
+            var dist = Math.sqrt( Math.pow(wpn.position.x - xPos ,2) + Math.pow(wpn.position.y - yPos ,2) );
+            var sequence = o_.weapons[ p_.weapon ].ready || o_.weapons.default.ready;
+            var frame    = (sequence[ r_.weapon.frame + 1 ] != undefined ) ? r_.weapon.frame + 1 : 0;
+            var texture  = r_.imgs[ o_.weapons[ p_.weapon ].sprite + o_.weapons.default.weapon + sequence[ frame ] + '0' ];
+            
+            if (dist > 10) {  
+                xPos = (wpn.position.x + xPos ) / 2;
+                yPos = (wpn.position.y + yPos ) / 2;
+            }
+            
+            wpn.position.x           = xPos;
+            wpn.position.y           = yPos;
+            wpn.scale.x              = texture.image.width  * wpn.scale.x / wpn.material.map.image.width; 
+            wpn.scale.y              = texture.image.height * wpn.scale.y / wpn.material.map.image.height;
+            wpn.material.map         = texture;
+            wpn.material.needsUpdate = true;
+            r_.weapon.frame          = frame;
+            
+        } else if ( i_.controls.enabled && ( r_.weapon.state == 'fire' || r_.weapon.state == 'cooldown' ) ) {            
+            
+            if ( r_.globaltimer == 1 ) {
+                
+                // flash
+                //
+                /*
+                var sequence    = o_.weapons[ p_.weapon ].flash; 
+                var wpn         = r_.weapon.obj;
+                
+                if ( sequence[  r_.weapon.flashFrame + 1 ] == undefined ) {
+                    
+                    // remove flash
+                    r_.hudScene.remove( r_.weapon.flash );
+                    r_.weapon.flashFrame = 0;
+                    r_.weapon.flash      = null;
+                    
+                } else {
+                
+                    // animate flash
+                    var frame          = r_.weapon.flashFrame + 1;
+                    var flash_suffix   = o_.weapons[ p_.weapon ].flasher || o_.weapons.default.flasher;
+                    var texture        = r_.imgs[ o_.weapons[ p_.weapon ].sprite + flash_suffix + sequence[frame] + '0'  ];
+
+
+                    if (r_.weapon.flash == null) {
+                        
+                        // create flash
+                        var spriteMaterial = new THREE.SpriteMaterial({map: texture, transparent: true });
+                        var sprite         = new THREE.Sprite(spriteMaterial);   
+                        var wpnPosY = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
+                        sprite.scale.set(texture.image.width * r_.scale, texture.image.height * r_.scale, 1);
+                        sprite.position.x =  wpn.position.x;
+                        sprite.position.y =  wpnPosY + (texture.image.height * r_.scale/2);
+                        sprite.position.z = 10;
+                        //r_.objects.push(sprite);
+                        r_.weapon.flash      = sprite;
+                        r_.weapon.flashFrame = 0;
+                        r_.hudScene.add(sprite);
+                        
+                    } else {
+                        
+                        r_.weapon.flashFrame = frame;
+                        r_.weapon.flash.material.map         = texture;
+                        r_.weapon.flash.material.needsUpdate = true;
+                    }
+                }
+                */
+                var sequence = o_.weapons[ p_.weapon ].fire;
+                var frame    = r_.weapon.frame + 1;
+                
+                if (sequence[ frame ] != undefined) {
+                    
+                    var texture = r_.imgs[ o_.weapons[ p_.weapon ].sprite + o_.weapons.default.weapon + sequence[ frame ] + '0' ];
+                    
+                    wpn.scale.x              = texture.image.width  * wpn.scale.x / wpn.material.map.image.width; 
+                    wpn.scale.y              = texture.image.height * wpn.scale.y / wpn.material.map.image.height;
+                    wpn.material.map         = texture;
+                    wpn.material.needsUpdate = true;
+                    wpn.position.x           = 0;
+                    wpn.position.y           = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
+                    r_.weapon.frame          = frame;
+                }
+            }
+            
+        }
+        
+    }
+};
+
 r_.freezeScreen =function(callback){
     
     // render screen to image and load it as texture
@@ -889,41 +979,6 @@ r_.freezeScreen =function(callback){
             
         }
     );   
-};
-
-r_.drawFalloff = function(o,delta){
-    
-    if (o == 'update') {
-
-        for (var i in r_.hud.chunks) {
-
-            r_.hud.chunks[i].position.y -= c_.random(20, 40);          
-
-            if (r_.hud.chunks[i].position.y < r_.height*-1.5) { // effect finished
-                                
-                r_.falloff = false;  
-    
-                // clear chunks
-                for (var j in r_.hud.chunks){
-                    
-                    r_.hudScene.remove( r_.hud.chunks[j] );
-                }
-                
-                break;
-            }
-        }
-        
-    } else {
-
-        // update camera position to player start location
-        var tcamera = i_.controls.getObject();
-        tcamera.position.set( p_.spawn.position.x, p_.spawn.position.y, p_.spawn.position.z );
-        tcamera.rotation.set( p_.spawn.rotation.x, p_.spawn.rotation.y, p_.spawn.rotation.z ); 
-        tcamera.children[0].rotation.set(0,0,0);
-        
-        r_.falloff      = true; 
-        r_.back.visible = false;
-    }
 };
 
 r_.findFloor = function(x,z){
@@ -1015,42 +1070,6 @@ r_.img = new function(){
     ];
 };
 
-// return picture from cache, or cache it
-r_.pic = function(f, repeatX, repeatY, callback){    
-    
-    if (typeof repeatX == 'function') {
-        
-        callback = repeatX;
-        repeatX  = 1;
-        repeatY  = 1;
-    }
-    
-    if ( r_.imgs[ f ] == undefined ) {
-        
-        r_.img.load({ 
-            files: [ f ], 
-            success: function(image){
-                
-                image.wrapS = image.wrapT = THREE.RepeatWrapping; 
-                image.repeat.set( repeatX, repeatY );
-                
-                if (typeof callback == 'function'){
-
-                    callback(image);
-                } 
-            } 
-        });   
-        
-    } else {
-    
-        // already cached
-        if (typeof callback == 'function'){
-
-            callback(r_.imgs[ f ]);
-        }            
-    }        
-};
-
 r_.postInit = function() {
     console.log('r_.postInit()');
     
@@ -1106,6 +1125,9 @@ r_.postInit = function() {
     
     r_.raycaster = new THREE.Raycaster();
     r_.raycaster.ray.direction.set( 0, -1, 0 );    
+    
+    r_.stats = new Stats();
+    document.body.appendChild( r_.stats.domElement );
     
     i_.init();    
     r_.modInit();
@@ -1372,6 +1394,56 @@ r_.spawnThings = function(){
     }
 };
 
+r_.updateFloors = function(delta){
+    
+    if (r_.globaltimer == 1) {
+        
+        for (var i in r_.floors){
+
+            var o = r_.floors[i];
+            
+            if (!o.visible) continue;
+
+            if ( o.frame != undefined && o.sprite != undefined) {
+
+                var animated  = r_.img.animated[ o.sprite ];
+                var nextFrame = ( animated[ o.frame + 1 ] != undefined ) ? o.frame + 1 : 0;
+
+                o.frame = nextFrame;
+                o.material.map = r_.imgs[ o.sprite + animated[ nextFrame ] ];
+                o.material.needsUpdate = true;
+            }
+        };
+    }
+};
+
+r_.updateMessages = function(){
+    
+    //console.log('..r_.updateMessages()');
+    
+    // remove oldest
+    var old = r_.msgs.shift();
+    
+    for (var i in old){
+        
+        r_.hud.objects.splice( r_.hud.objects.indexOf(old[i]), 1);
+        r_.hudScene.remove( old[i] );
+    }
+    
+    // push up all the rest
+    for (var i in r_.msgs){
+        
+        var tmsg = r_.msgs[i];
+        
+        for (var j in tmsg) {
+            
+            var h = tmsg[j].material.map.image.height;
+            
+            tmsg[j].position.y += (h * r_.scale);
+        }
+    }
+};
+
 r_.updateSpecials = function(delta){
     
     if ( o_.map.actions.length > 0){
@@ -1406,7 +1478,7 @@ r_.updateSpecials = function(delta){
     }
 };
 
-r_.updateThings = function (){
+r_.updateThings = function (delta){
     
     for (var i in r_.sprites){
 

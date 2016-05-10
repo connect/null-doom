@@ -17,9 +17,8 @@ $('head').append('<link rel="stylesheet" type="text/css" href="doom.wad/doom.css
 // set background
 //$('#back').append('<img class="background" src="doom.wad/gra/TITLEPIC.png" />');
 
-////////////////////////////////////////////////////////////////////////////////
-// setup menu  
 
+// setup menu  
 u_.menu.init({
     
     root: {
@@ -61,6 +60,9 @@ u_.menu.init({
         } 
     }
 });
+
+console.log('....loading',cfg.mod +'/messages.js')
+core.include( cfg.mod +'/messages.js' );
 
 u_.postInit();
 w_.loadNext();
