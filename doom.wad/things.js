@@ -450,7 +450,9 @@ o_.things = {
         reaction    : 8,
         painchance  : 180,
         paintime    : 4,
-        camo        : true
+        camo        : true,
+        sfx_pain    : s_.dmpain,
+        sfx_death   : s_.dmdeath
     },
     59: {
         radius: 16,
@@ -811,7 +813,7 @@ o_.things = {
         sequence    : 'ABCDCB',
         class       : 'AP',
         label       : 'Health potion',
-        light       : 0x0000ff
+        light       : 0x000011
     },
     2015: {
         radius      : 20,
@@ -819,7 +821,7 @@ o_.things = {
         sequence    : 'ABCDCB',
         class       : 'AP',
         label       : 'Spiritual armor',
-        light       : 0x00ff00
+        light       : 0x001100
     },
     2018: {
         radius      : 20,
@@ -878,7 +880,7 @@ o_.things = {
         sequence    : 'A',
         class       : 'O',
         label       : 'Floor lamp',
-        light       : 0xffff00
+        light       : 0x111100
     },
     2035: {
         radius      : 10,
@@ -886,7 +888,7 @@ o_.things = {
         sequence    : 'AB+',
         class       : 'O',
         label       : 'Barrel',
-        light       : 0x00ff00,
+        light       : 0x001100,
         //explode     : BEXP(A-E)0
     },
     2045: {
@@ -940,7 +942,8 @@ o_.things = {
         speed       : 8,
         reaction    : 8,
         painchance  : 200,
-        paintime    : 4,        
+        paintime    : 4,   
+        sfx_pain    : s_.popain,
         sfx_death   : [ s_.bgdeath1, s_.bgdeath2 ]
     },
     3002: {
@@ -958,7 +961,9 @@ o_.things = {
         speed       : 10,
         reaction    : 8,
         painchance  : 180,
-        paintime    : 4
+        paintime    : 4,
+        sfx_pain    : s_.dmpain,
+        sfx_death   : s_.dmdeath
     },
     3003: {
         radius      : 24,
@@ -983,6 +988,7 @@ o_.things = {
         speed       : 8,
         painchance  : 200,
         paintime    : 6,
+        sfx_pain    : s_.popain,
         sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ]        
     },
     3005: {

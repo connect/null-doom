@@ -50,7 +50,7 @@ o_.weapons = {
         cache       : 'ABCDE',
         offset_x    : 0,
         offset_y    : -50,
-        fire        : 'ABCDEA',
+        fire        : 'ABCDE',
         flash       : 'A',
         sfx_fire    : s_.bullet,
         delay       : 0,
@@ -65,7 +65,7 @@ o_.weapons = {
             direction.applyMatrix4(matrix);            
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
             r_.raycaster.ray.direction.copy( direction );
-            var hits = r_.raycaster.intersectObjects( r_.objects );
+            var hits = r_.raycaster.intersectObjects( r_.obstacles );
             
             if (hits[0] != undefined) {
                 
@@ -121,10 +121,12 @@ o_.weapons = {
                 //matrix.makeRotationX( c_.random(-0.2, 0.2)* Math.PI / 180 )
                 direction.applyMatrix4(matrix);            
                 r_.raycaster.ray.direction.copy( direction );                        
-                hits.push( r_.raycaster.intersectObjects( r_.objects )[0] );
+                hits.push( r_.raycaster.intersectObjects( r_.obstacles )[0] );
             }
             
             for (var h in hits) {
+                
+                if (hits[h] == undefined) continue;
                                 
                 var obj     = hits[h].object;
                 var thing   = o_.things[ obj.type ];
@@ -183,7 +185,7 @@ o_.weapons = {
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
             r_.raycaster.ray.direction.copy( direction );
 
-            var hits = r_.raycaster.intersectObjects( r_.objects );
+            var hits = r_.raycaster.intersectObjects( r_.obstacles );
             
             if (hits[0] != undefined) {
                                 

@@ -29,6 +29,8 @@ s_.podeath1     = 'DSPODTH1.ogg';
 s_.podeath2     = 'DSPODTH2.ogg';
 s_.podeath3     = 'DSPODTH3.ogg';
 s_.popain       = 'DSPOPAIN.ogg';
+s_.dmpain       = 'DSDMPAIN.ogg';
+s_.dmdeath      = 'DSSGTDTH.ogg';
 
 
 s_.play('D_INTRO.mp3');

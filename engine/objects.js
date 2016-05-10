@@ -9,18 +9,29 @@ o_.hurtMonster = function(obj, damage){
 
     obj.hp -= damage;
     
-    if ( obj.hp <= 0) {
+    if ( obj.hp <= 0 && obj.state != 'death') {
 
         o_.killMonster(obj);
         
-    } else {
-        
+    } else {        
         // monster in pain
+        
+        var thing = o_.things[ obj.type ];                
+        
+        // pain check
+        if (c_.random(1, 255) <= thing.painchance ) {
+            
+            // pain sound
+            if (obj.state != 'pain' && obj.state != 'death') {
+                s_.play( thing.sfx_pain );
+            }
+        }
+        
         obj.state = 'pain';
-        obj.frame = 0;
+        obj.frame = 0;       
         
         // spawn blood
-        r_.spawnThing( 1005 , obj.position.x + c_.random(-5,5), obj.position.z+ c_.random(-5,5), obj.position.y+ c_.random(-5,5), 'death', 0);
+        r_.spawnThing( c_.random(1002,1004) , obj.position.x + c_.random(-5,5), obj.position.z+ c_.random(-5,5), obj.position.y+ c_.random(-5,5), 'death', 0);
     }
 };
 
@@ -279,6 +290,7 @@ o_.map = new function(){
         }
         r_.objects  = [];
         r_.walls    = [];
+        r_.obstacles= [];
         r_.sprites  = [];
         r_.floors   = [];
         
@@ -403,6 +415,7 @@ o_.map = new function(){
 
                                     r_.objects.push(wall);
                                     r_.walls.push(wall);
+                                    if ( t.linedef[j].blocking ) r_.obstacles.push(wall);
                                     if (drawWalls) r_.scene.add(wall);
                                 }
                             }
@@ -433,6 +446,7 @@ o_.map = new function(){
                             
                                     r_.objects.push(wall);
                                     r_.walls.push(wall);
+                                    if ( t.linedef[j].blocking ) r_.obstacles.push(wall);
                                     if (drawWalls) r_.scene.add(wall);
                             }
                             
@@ -461,6 +475,7 @@ o_.map = new function(){
                             
                                     r_.objects.push(wall);
                                     r_.walls.push(wall);
+                                    if ( t.linedef[j].blocking ) r_.obstacles.push(wall);
                                     if (drawWalls) r_.scene.add(wall);                                    
                                 }
                             }
@@ -505,6 +520,7 @@ o_.map = new function(){
 
                                     r_.objects.push(wall);
                                     r_.walls.push(wall);
+                                    if ( t.linedef[j].blocking ) r_.obstacles.push(wall);
                                     if (drawWalls) r_.scene.add(wall);
                                 }
                             }
@@ -531,7 +547,9 @@ o_.map = new function(){
                                     );
                                     r_.objects.push(wall);
                                     r_.walls.push(wall);
-                                    r_.scene.add(wall);
+                                    if ( t.linedef[j].blocking ) r_.obstacles.push(wall);
+                                    if (drawWalls) r_.scene.add(wall);
+                                    
                             }         
                             
                             
@@ -561,6 +579,7 @@ o_.map = new function(){
                             
                                     r_.objects.push(wall);
                                     r_.walls.push(wall);
+                                    if ( t.linedef[j].blocking ) r_.obstacles.push(wall);
                                     if (drawWalls) r_.scene.add(wall);                                    
                                 }
                             }
@@ -615,7 +634,7 @@ o_.map = new function(){
         r_.hud.draw();
         
         // music
-        s_.playMusic('DM_E1M1.mp3');
+        s_.playMusic('DM_'+ t.list[ t.current ].toUpperCase() +'.mp3');
         
         o_.map.loaded();
     };

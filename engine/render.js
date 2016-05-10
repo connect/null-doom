@@ -26,7 +26,6 @@ r_.direction    = false;
 r_.frustum      = new THREE.Frustum();
 r_.width        = -1;
 r_.height       = -1;
-r_.bufferTexture = null;
 
 r_.animate = function () {
     
@@ -725,6 +724,7 @@ r_.drawFlats = function(lines, tsector, sectorIndex){
 
     r_.objects.push(floor);
     r_.floors.push(floor);
+    r_.obstacles.push(floor);
     r_.scene.add(floor);
 
 
@@ -744,6 +744,7 @@ r_.drawFlats = function(lines, tsector, sectorIndex){
 
         r_.objects.push(ceiling);
         r_.ceilings.push(ceiling);
+        r_.obstacles.push(ceiling);
         r_.scene.add(ceiling);
     }
 
@@ -1079,6 +1080,7 @@ r_.postInit = function() {
     r_.scene.add( r_.light );
     
     //Create the texture that will store our result
+    /*
     r_.bufferTexture = new THREE.WebGLRenderTarget(r_.width, r_.height, {
         minFilter: THREE.LinearFilter,
         magFilter: THREE.NearestFilter
@@ -1092,7 +1094,7 @@ r_.postInit = function() {
     );
     r_.monitor.position.z = 1;
     r_.hudScene.add( r_.monitor );
-     
+    */ 
     r_.renderer = new THREE.WebGLRenderer({ antialias:false, preserveDrawingBuffer: true });
     r_.renderer.setClearColor( 0xffffff );
     r_.renderer.setPixelRatio( window.devicePixelRatio );
@@ -1244,7 +1246,7 @@ r_.onWindowResize = function () {
 r_.render = function() {
     
     r_.renderer.clear();
-    r_.renderer.render( r_.scene, r_.camera, r_.bufferTexture );
+    r_.renderer.render( r_.scene, r_.camera );
     r_.renderer.clearDepth();
     r_.renderer.render( r_.hudScene, r_.hudCamera );
 };
@@ -1330,7 +1332,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     plane.angle = angle;
     plane.state = (state != undefined) ? state : 'move';
 
-    if ( thing.class.indexOf('O') != -1 ) r_.walls.push(plane); // add obstacle
+    if ( thing.class.indexOf('O') != -1 ) r_.obstacles.push(plane); // add obstacle
 
     r_.objects.push(plane);
     r_.sprites.push(plane);        
@@ -1447,19 +1449,22 @@ r_.updateThings = function (){
         if (r_.globaltimer == 1) {
 
             var thing       = o_.things[ o.type ];           
-            var color;
+            var color, emissive;
             
             if (thing.camo) {
                 
-                color = new THREE.Color(0x000000);
+                color    = new THREE.Color(0x000000);
+                //emissive = new THREE.Color(0x000000);
                 
             } else if (o.light != undefined) {
              
-                color = new THREE.Color(0xffffff);
+                color    = new THREE.Color( 0xffffff );
+                //emissive = new THREE.Color( o_.things[ o.type ].light );                
                 
             } else {
                 
-                color = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
+                color    = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
+                //emissive = new THREE.Color( 0x000000 );
             }
 
             if (thing.class.indexOf('M') != -1) { // monster
@@ -1486,6 +1491,7 @@ r_.updateThings = function (){
                     } else if (o.state == 'pain') {
                         
                         o.state = 'move';
+                        o.angle = 1;
                         var nextFrame = 0;
                         
                     } else {
@@ -1546,6 +1552,7 @@ r_.updateThings = function (){
                 o.frame                 = nextFrame;
                 o.material.map          = texture;
                 o.material.color        = color;
+               // o.material.emissive     = emissive;
                 o.material.needsUpdate  = true;                                       
             }
         }                        

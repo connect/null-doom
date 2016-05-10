@@ -303,19 +303,14 @@ r_.modInit = function(){
     // setup title back
     //
     r_.back = new THREE.Sprite( r_.mats.title[0] );
-    r_.back.scale.set( r_.width, r_.height, 1);
+    r_.back.scale.set( scrWidth, scrHeight, 1);
+    r_.hudScene.add(r_.back);
     
-    var pos = i_.controls.getObject().position;
-    
-    r_.back.position.set( pos.x, pos.y, pos.z - 390);
-    r_.scene.add( r_.back );
-    i_.controls.getObject().lookAt( r_.back );
-    
-    // @FIXME debug only, remove later
+    /*
     setTimeout(function(){
         c_.nextmap();
     }, 2000);
-     
+     */
 };
 
 // start render
