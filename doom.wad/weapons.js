@@ -62,11 +62,14 @@ o_.weapons = {
             var direction = i_.controls.getDirection( new THREE.Vector3() );            
                         
             matrix.makeRotationY( c_.random(-1,1) * Math.PI / 180 );
-            direction.applyMatrix4(matrix);            
+            direction.applyMatrix4(matrix);        
+            
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
             r_.raycaster.ray.direction.copy( direction );
-            var hits = r_.raycaster.intersectObjects( r_.obstacles );
+            r_.raycaster.far = 2048;
             
+            var hits = r_.raycaster.intersectObjects( r_.obstacles );
+
             if (hits[0] != undefined) {
                 
                 var obj     = hits[0].object;
@@ -111,6 +114,7 @@ o_.weapons = {
             var direction = i_.controls.getDirection( new THREE.Vector3() );
             
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+            r_.raycaster.far = 2048;
                         
             matrix.makeRotationY( -4 * Math.PI / 180 );
             direction.applyMatrix4(matrix);            
@@ -184,6 +188,7 @@ o_.weapons = {
             direction.applyMatrix4(matrix);            
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
             r_.raycaster.ray.direction.copy( direction );
+            r_.raycaster.far = 2048;
 
             var hits = r_.raycaster.intersectObjects( r_.obstacles );
             

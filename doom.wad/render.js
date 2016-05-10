@@ -88,7 +88,7 @@ r_.hud.draw = function(){
 
     // AMMO
     //
-    r_.drawText({            
+    r_.drawStatusText({            
         text: '50', prefix: 'STT', 
         width: 14,  height: 16,     direction: 'rtl',
         x: '16%',   z: '9%'    
@@ -96,7 +96,7 @@ r_.hud.draw = function(){
 
     // HEALTH
     //
-    r_.drawText({
+    r_.drawStatusText({
         text: '100%', prefix: 'STT', 
         width: 14,  height: 16,     direction: 'rtl',
         x: '34.5%', z: '9%'
@@ -104,7 +104,7 @@ r_.hud.draw = function(){
 
     // ARMOR
     //
-    r_.drawText({
+    r_.drawStatusText({
         text: '0%', prefix: 'STT', 
         width: 14,  height: 16,     direction: 'rtl',
         x: '75.5%', z: '9%'  
@@ -112,75 +112,75 @@ r_.hud.draw = function(){
 
     // Arms numbers
     //
-    r_.drawText({
+    r_.drawStatusText({
         text: '2',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '34.8%', z: '10.5%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '3',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '39%',   z: '10.5%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '4',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '42.5%', z: '10.5%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '5',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '34.8%', z: '6.5%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '6',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '39%',   z: '6.5%'
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '7',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'ltr',
         x: '42.5%', z: '6.5%'
     });
     
     // Ammo Info
-    r_.drawText({
+    r_.drawStatusText({
         text: '50', prefix: 'STYS',
         width: 4,   height: 6,      direction: 'rtl',
         x: '91%',   z: '10%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '0',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'rtl',
         x: '91%',   z: '7.5%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '0',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'rtl',
         x: '91%',   z: '5%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '0',  prefix: 'STYS',
         width: 4,   height: 6,      direction: 'rtl',
         x: '91%',   z: '2.5%'  
     });
     
-    r_.drawText({
+    r_.drawStatusText({
         text: '200', prefix: 'STYS',
         width: 4,   height: 6,      direction: 'rtl',
         x: '99%',   z: '10%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '50', prefix: 'STYS',
         width: 4,   height: 6,      direction: 'rtl',
         x: '99%',   z: '7.5%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '50', prefix: 'STYS',
         width: 4,   height: 6,      direction: 'rtl',
         x: '99%',   z: '5%'  
     });
-    r_.drawText({
+    r_.drawStatusText({
         text: '300', prefix: 'STYS',
         width: 4,   height: 6,      direction: 'rtl',
         x: '99%',   z: '2.5%'  
@@ -279,13 +279,21 @@ r_.modInit = function(){
             'AMMNUM6',
             'AMMNUM7',
             'AMMNUM8',
-            'AMMNUM9',        
+            'AMMNUM9',                 
 
             'TITLEPIC',
             
             'cross' // crosshair
         ]
     }); 
+    
+    // cache message font
+    for (var i = 32; i <= 95; i++ ){
+        
+        r_.img.load({ files: [ 'STCFN0'+ i ] });
+    }
+    // cache message font '!' character
+    r_.img.load({ files: [ 'STCFN121' ] });
 
 
     // initial screen   
