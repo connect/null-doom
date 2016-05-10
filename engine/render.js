@@ -672,6 +672,7 @@ r_.drawMessage = function(text){
     };
     var objMsg  = [];
     var prefix  = 'STCFN';
+    var size    = r_.scale/1.5;
 
     text = text.toUpperCase();
     
@@ -683,13 +684,13 @@ r_.drawMessage = function(text){
     
         var w               = r_.imgs[ prefix + n ].image.width;
         var h               = r_.imgs[ prefix + n ].image.height;
-        var z               = (r_.height/2) - (r_.msgs.length * h * r_.scale) - (h * r_.scale / 2);
+        var z               = (r_.height/2) - (r_.msgs.length * h * size) - (h * size);
         var spriteMaterial  = new THREE.SpriteMaterial({map: r_.imgs[ prefix + n ]});
         var sprite          = new THREE.Sprite(spriteMaterial);  
         var prev            = ( objMsg[i-1] != undefined) ? objMsg[i-1] : first;
         
-        sprite.scale.set( w * r_.scale, h * r_.scale, 1);
-        sprite.position.set( prev.position.x + (prev.material.map.image.width * r_.scale)  , z, 12);
+        sprite.scale.set( w * size, h * size, 1);
+        sprite.position.set( prev.position.x + (prev.material.map.image.width * size)  , z, 12);
         
         objMsg.push(sprite);
         r_.hud.objects.push(sprite);
@@ -1248,6 +1249,8 @@ r_.mode = new function(){
         r_.camera.updateProjectionMatrix();
         r_.renderer.setSize( scrMode[0], scrMode[1] );
         r_.scale = scrMode[0] / 320;
+        r_.width = scrMode[0];
+        r_.height= scrMode[1];
         
         t.current = val;
     };
@@ -1422,7 +1425,7 @@ r_.updateFloors = function(delta){
 r_.updateMessages = function(){
     
     //console.log('..r_.updateMessages()');
-    
+    var size = r_.scale/1.5;
     // remove oldest
     var old = r_.msgs.shift();
     
@@ -1441,7 +1444,7 @@ r_.updateMessages = function(){
             
             var h = tmsg[j].material.map.image.height;
             
-            tmsg[j].position.y += (h * r_.scale);
+            tmsg[j].position.y += (h * size);
         }
     }
 };
