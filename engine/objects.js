@@ -45,11 +45,11 @@ o_.hurtMonsters = function(targets, damage){
 
 o_.killMonster = function(obj){
     
-    if (obj.state == 'death' || obj.state == 'gibbed') return; // it's already dead
-    
-    console.log('kill',obj.id)
+    if (obj.state == 'death' || obj.state == 'gibbed') return; // it's already dead        
     
     var thing = o_.things[ obj.type ];
+    
+    console.log('kill', thing.label, obj.id)
     
     // play death sound
     if (typeof thing.sfx_death == 'object' && thing.sfx_death.length > 1) {
@@ -64,10 +64,10 @@ o_.killMonster = function(obj){
     // remove obstacle
     if (thing.class.indexOf('O') != -1) {
 
-        for (var i in r_.walls) {
+        for (var i in r_.obstacles) {
 
-            if (r_.walls[i].id == obj.id) {
-                r_.walls.splice( i, 1);
+            if (r_.obstacles[i].id == obj.id) {
+                r_.obstacles.splice( i, 1);
                 break;
             }
         }
@@ -301,7 +301,11 @@ o_.map = new function(){
         
         // clear scene
         for (var j in r_.objects){
+            
             r_.scene.remove( r_.objects[j] );
+            r_.objects[j].geometry.dispose();
+            r_.objects[j].material.dispose();
+            //r_.objects[j].texture.dispose();                        
         }
         r_.objects  = [];
         r_.walls    = [];
@@ -314,8 +318,14 @@ o_.map = new function(){
             
             r_.hudScene.remove( r_.hud.objects[j]);
         }
-        
+        r_.weapon.obj = null;
         r_.hud.objects = [];
+        
+        // clear image cache
+        for (var j in r_.imgs){
+            
+            r_.imgs[j].dispose();
+        }
         
         callback();
     };

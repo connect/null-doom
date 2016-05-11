@@ -60,7 +60,46 @@ o_.dropLoot = function(o){
     
     if (thing.drop != undefined){
         
-        r_.spawnThing(thing.drop, o.position.x, o.position.z, o.position.y );
+        // calculate closer coords
+        var dX = o.position.x + (i_.controls.getObject().position.x - o.position.x) * 0.05;
+        var dZ = o.position.z + (i_.controls.getObject().position.z - o.position.z) * 0.05;
+        
+        r_.spawnThing(thing.drop, dX, dZ, o.position.y );
+    }
+};
+
+o_.useAction = function(){
+  
+    //console.log('..trying to use something')
+    r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+    r_.raycaster.ray.direction.copy( i_.controls.getDirection( new THREE.Vector3() ) );
+    r_.raycaster.far = 50;
+    var hits = r_.raycaster.intersectObjects( r_.walls );
+
+    if (hits[0] != undefined)  {
+
+        if (hits[0].object.linedef != undefined && hits[0].distance < 50) {
+
+            var line = o_.map.linedef[ hits[0].object.linedef ];
+            //var texture = 
+
+            //console.log('....we hit',line)
+
+            if (line.special == 1) { // door
+
+                //console.log('......open the door!');
+                c_.opendoor( o_.map.sidedef[ line.sideback ].sector );
+
+            } else if (line.special == 11) { // end of level switch
+
+                s_.play( s_.menuback );
+                c_.nextmap();                        
+
+            } else {
+
+                s_.play( s_.ugh );
+            }
+        }
     }
 };
 

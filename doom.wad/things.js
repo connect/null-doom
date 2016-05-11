@@ -83,7 +83,8 @@ o_.things = {
         painchance  : 170,
         paintime    : 6,
         sfx_pain    : s_.popain,
-        sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ]                
+        sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ],
+        drop        : 2001
     },
     10: {
         radius      : 16,

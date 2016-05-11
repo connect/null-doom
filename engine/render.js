@@ -70,36 +70,7 @@ r_.animate = function () {
         //
         if ( i_.act.use ){
 
-            //console.log('..trying to use something')
-            r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-            r_.raycaster.ray.direction.copy( i_.controls.getDirection( new THREE.Vector3() ) );
-            var hits = r_.raycaster.intersectObjects( r_.walls );
-
-            if (hits[0] != undefined)  {
-
-                if (hits[0].object.linedef != undefined && hits[0].distance < 50) {
-
-                    var line = o_.map.linedef[ hits[0].object.linedef ];
-                    //var texture = 
-
-                    //console.log('....we hit',line)
-
-                    if (line.special == 1) { // door
-
-                        //console.log('......open the door!');
-                        c_.opendoor( o_.map.sidedef[ line.sideback ].sector );
-
-                    } else if (line.special == 11) { // end of level switch
-                        
-                        c_.nextmap();
-                        s_.play( s_.menuback );
-                        
-                    } else {
-
-                        s_.play( s_.ugh );
-                    }
-                }
-            }
+            o_.useAction();
 
             i_.act.use = false;
         }
@@ -730,8 +701,8 @@ r_.drawStatusText = function(o){
             n = 'NUM'+ n;
         }
 
-        var w               = r_.imgs[ o.prefix + n ].image.width;
-        var h               = r_.imgs[ o.prefix + n ].image.height;
+        var w               = o.width  || r_.imgs[ o.prefix + n ].image.width;
+        var h               = o.height || r_.imgs[ o.prefix + n ].image.height;
         var spriteMaterial  = new THREE.SpriteMaterial({map: r_.imgs[ o.prefix + n ]});
         var sprite          = new THREE.Sprite(spriteMaterial);            
         sprite.scale.set( w * r_.scale, h * r_.scale, 1);
