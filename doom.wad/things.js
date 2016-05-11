@@ -42,6 +42,7 @@ o_.things = {
         sequence    : 'AB',
         class       : 'P',
         label       : 'Blue keycard',
+        powerup     : 'bluekeycard',
         light       : 0x0000ff
     },
     6: {
@@ -50,6 +51,7 @@ o_.things = {
         sequence    : 'AB',
         class       : 'P',
         label       : 'Yellow keycard',
+        powerup     : 'yellowkeycard',
         light       : 0xffff00
     },
     7: {
@@ -64,7 +66,8 @@ o_.things = {
         sprite      : 'BPAK',
         sequence    : 'A',
         class       : 'P',
-        label       : 'Backpack'
+        label       : 'Backpack',
+        powerup     : 'backpack'
     },
     9: {
         radius      : 20,
@@ -109,6 +112,7 @@ o_.things = {
         sequence    : 'AB',
         class       : 'P',
         label       : 'Red keycard',
+        powerup     : 'redkeycard',
         light       : 0xff0000
     },
     14: {
@@ -141,7 +145,8 @@ o_.things = {
         sprite      : 'CELP',
         sequence    : 'A',
         class       : 'P2',
-        label       : 'Cell charge pack'
+        label       : 'Cell charge pack',
+        powerup     : 'energypack'
     },
     18: {
         radius      : 20,
@@ -193,11 +198,11 @@ o_.things = {
         label       : 'Pool of blood and flesh'
     },
     25: {
-        radius: 16,
-        sprite: 'POL1',
-        sequence: 'A',
-        class: 'O',
-        label: 'Impaled human'
+        radius      : 16,
+        sprite      : 'POL1',
+        sequence    : 'A',
+        class       : 'O',
+        label       : 'Impaled human'
     },
     26: {
         radius: 16,
@@ -272,18 +277,18 @@ o_.things = {
         light       : 0xffff00
     },
     36: {
-        radius: 16,
-        sprite: 'COL5',
-        sequence: 'AB',
-        class: 'O',
-        label: 'Short green pillar with beating heart'
+        radius      : 16,
+        sprite      : 'COL5',
+        sequence    : 'AB',
+        class       : 'O',
+        label       : 'Short green pillar with beating heart'
     },
     37: {
-        radius: 16,
-        sprite: 'COL6',
-        sequence: 'A',
-        class: 'O',
-        label: 'Short red pillar with skull'
+        radius      : 16,
+        sprite      : 'COL6',
+        sequence    : 'A',
+        class       : 'O',
+        label       : 'Short red pillar with skull'
     },
     38: {
         radius      : 20,
@@ -291,6 +296,7 @@ o_.things = {
         sequence    : 'AB',
         class       : 'P',
         label       : 'Red skull key',
+        powerup     : 'redskullkey',
         light       : 0xff0000
     },
     39: {
@@ -299,6 +305,7 @@ o_.things = {
         sequence    : 'AB',
         class       : 'P',
         label       : 'Yellow skull key',
+        powerup     : 'yellowskullkey',
         light       : 0xffff00
     },
     40: {
@@ -307,28 +314,29 @@ o_.things = {
         sequence    : 'AB',
         class       : 'P',
         label       : 'Blue skull key',
+        powerup     : 'blueskullkey',
         light       : 0x0000ff
     },
     41: {
-        radius: 16,
-        sprite: 'CEYE',
-        sequence: 'ABCB',
-        class: 'O',
-        label: 'Evil eye'
+        radius      : 16,
+        sprite      : 'CEYE',
+        sequence    : 'ABCB',
+        class       : 'O',
+        label       : 'Evil eye'
     },
     42: {
-        radius: 16,
-        sprite: 'FSKU',
-        sequence: 'ABC',
-        class: 'O',
-        label: 'Floating skull'
+        radius      : 16,
+        sprite      : 'FSKU',
+        sequence    : 'ABC',
+        class       : 'O',
+        label       : 'Floating skull'
     },
     43: {
-        radius: 16,
-        sprite: 'TRE1',
-        sequence: 'A',
-        class: 'O',
-        label: 'Burnt tree'
+        radius      : 16,
+        sprite      : 'TRE1',
+        sequence    : 'A',
+        class       : 'O',
+        label       : 'Burnt tree'
     },
     44: {
         radius      : 16,
@@ -404,11 +412,11 @@ o_.things = {
         label: 'Hanging leg'
     },
     54: {
-        radius: 32,
-        sprite: 'TRE2',
-        sequence: 'A',
-        class: 'O',
-        label: 'Large brown tree'
+        radius      : 32,
+        sprite      : 'TRE2',
+        sequence    : 'A',
+        class       : 'O',
+        label       : 'Large brown tree'
     },
     55: {
         radius      : 16,
@@ -628,7 +636,8 @@ o_.things = {
         sprite      : 'MEGA',
         sequence    : 'ABCD',
         class       : 'AP',
-        label       : 'Megasphere'
+        label       : 'Megasphere',
+        powerup     : 'megasphere'
     },
     84: {
         radius      : 20,
@@ -789,6 +798,7 @@ o_.things = {
         sequence    : 'A',
         class       : 'P8',
         label       : 'Stimpack',
+        powerup     : 'stimpack',
         light       : 0xff0000
     },
     2012: {
@@ -797,6 +807,7 @@ o_.things = {
         sequence    : 'A',
         class       : 'P8',
         label       : 'Medikit',
+        powerup     : 'medkit',
         light       : 0xff0000
     },
     2013: {
@@ -805,6 +816,7 @@ o_.things = {
         sequence    : 'ABCDCB',
         class       : 'AP',
         label       : 'Soul sphere',
+        powerup     : 'soulsphere',
         light       : 0x0000ff
     },
     2014: {
@@ -813,6 +825,7 @@ o_.things = {
         sequence    : 'ABCDCB',
         class       : 'AP',
         label       : 'Health potion',
+        powerup     : 'healthpotion',
         light       : 0x000011
     },
     2015: {
@@ -821,6 +834,7 @@ o_.things = {
         sequence    : 'ABCDCB',
         class       : 'AP',
         label       : 'Spiritual armor',
+        powerup     : 'spiritualarmor',
         light       : 0x001100
     },
     2018: {
@@ -829,6 +843,7 @@ o_.things = {
         sequence    : 'AB',
         class       : 'P9',
         label       : 'Green armor',
+        powerup     : 'greenarmor',
         light       : 0x00ff00
     },
     2019: {
@@ -837,42 +852,48 @@ o_.things = {
         sequence    : 'AB',
         class       : 'P10',
         label       : 'Blue armor',
+        powerup     : 'bluearmor',
         light       : 0x0000ff
     },
     2022: {
-        radius: 20,
-        sprite: 'PINV',
-        sequence: 'ABCD',
-        class: 'AP',
-        label: 'Invulnerability'
+        radius      : 20,
+        sprite      : 'PINV',
+        sequence    : 'ABCD',
+        class       : 'AP',
+        label       : 'Invulnerability',
+        powerup     : 'invulnerability'
     },
     2023: {
-        radius: 20,
-        sprite: 'PSTR',
-        sequence: 'A',
-        class: 'AP',
-        label: 'Berserk'
+        radius      : 20,
+        sprite      : 'PSTR',
+        sequence    : 'A',
+        class       : 'AP',
+        label       : 'Berserk',
+        powerup     : 'berserk'
     },
     2024: {
-        radius: 20,
-        sprite: 'PINS',
-        sequence: 'ABCD',
-        class: 'AP',
-        label: 'Invisibility'
+        radius      : 20,
+        sprite      : 'PINS',
+        sequence    : 'ABCD',
+        class       : 'AP',
+        label       : 'Invisibility',
+        powerup     : 'invisibility'
     },
     2025: {
-        radius: 20,
-        sprite: 'SUIT',
-        sequence: 'A',
-        class: 'P',
-        label: 'Radiation suit'
+        radius      : 20,
+        sprite      : 'SUIT',
+        sequence    : 'A',
+        class       : 'P',
+        label       : 'Radiation suit',
+        powerup     : 'radiationsuit'
     },
     2026: {
-        radius: 20,
-        sprite: 'PMAP',
-        sequence: 'ABCDCB',
-        class: 'AP11',
-        label: 'Computer map'
+        radius      : 20,
+        sprite      : 'PMAP',
+        sequence    : 'ABCDCB',
+        class       : 'AP11',
+        label       : 'Computer map',
+        powerup     : 'computermap'
     },
     2028: {
         radius      : 16,
@@ -892,39 +913,44 @@ o_.things = {
         //explode     : BEXP(A-E)0
     },
     2045: {
-        radius: 20,
-        sprite: 'PVIS',
-        sequence: 'AB',
-        class: 'AP',
-        label: 'Light amplification visor'
+        radius      : 20,
+        sprite      : 'PVIS',
+        sequence    : 'AB',
+        class       : 'AP',
+        label       : 'Light amplification visor',
+        powerup     : 'lightamplificationvisor'
     },
     2046: {
-        radius: 20,
-        sprite: 'BROK',
-        sequence: 'A',
-        class: 'P2',
-        label: 'Box of rockets'
+        radius      : 20,
+        sprite      : 'BROK',
+        sequence    : 'A',
+        class       : 'P2',
+        label       : 'Box of rockets',
+        ammo        : 'boxofrockets'
     },
     2047: {
-        radius: 20,
-        sprite: 'CELL',
-        sequence: 'A',
-        class: 'P2',
-        label: 'Cell charge'
+        radius      : 20,
+        sprite      : 'CELL',
+        sequence    : 'A',
+        class       : 'P2',
+        label       : 'Cell charge',
+        ammo        : 'energycell'
     },
     2048: {
-        radius: 20,
-        sprite: 'AMMO',
-        sequence: 'A',
-        class: 'P2',
-        label: 'Box of ammo'
+        radius      : 20,
+        sprite      : 'AMMO',
+        sequence    : 'A',
+        class       : 'P2',
+        label       : 'Box of ammo',
+        ammo        : 'boxofammo'
     },
     2049: {
-        radius: 20,
-        sprite: 'SBOX',
-        sequence: 'A',
-        class: 'P2',
-        label: 'Box of shells'
+        radius      : 20,
+        sprite      : 'SBOX',
+        sequence    : 'A',
+        class       : 'P2',
+        label       : 'Box of shells',
+        powerup     : 'boxofshells'
     },
     3001: {
         radius      : 20,
@@ -989,7 +1015,8 @@ o_.things = {
         painchance  : 200,
         paintime    : 6,
         sfx_pain    : s_.popain,
-        sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ]        
+        sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ],
+        drop        : 2007 // clip
     },
     3005: {
         radius      : 31,

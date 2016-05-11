@@ -5,71 +5,94 @@
  * @author kod.connect
  */
 
-o_.ammo = {
+o_.ammo = new function(){
     
-    bullets: {    
+    var t = this;
+    
+    t.onPickup = function(item){
+        
+        return t[item].message;
+    };
+    
+    t.bullets = {    
         capacity    : 200,
         damageMin   : 5,
         damageMax   : 15
-    },
+    };
 
-    shells: {
+    t.shells = {
         capacity    : 50,
         damageMin   : 5,
         damageMax   : 15
-    },
+    };
 
-    rockets: {
+    t.rockets = {
         capacity    : 50,
         damageMin   : 20,
         damageMax   : 160
-    },
+    };
 
-    cells: {
+    t.cells = {
         capacity    : 50,
         damageMin   : 5,
         damageMax   : 40
-    },
+    };
     
     ////////////////////////////////////////////////////////////////////////////  
 
-    clip: {
+    t.clip = {
+        thing       : 2007,
         ammotype    : 'bullets',
-        capacity    : 10
-    },
+        capacity    : 10,
+        message     : u_.msg.GOTCLIP
+    };
 
-    boxofbullets: {
+    t.boxofammo = {
+        thing       : 2048,
         ammotype    : 'bullets',
-        capacity    : 50
-    },
+        capacity    : 50,
+        message     : u_.msg.GOTCLIPBOX
+    };
 
-    shotgunshells: {
+    t.shotgunshells = {
+        thing       : 2008,
         ammotype    : 'shells',
-        capacity    : 4
-    },
+        capacity    : 4,
+        message     : u_.msg.GOTSHELLS
+    };
 
-    boxofshells: {
+    t.boxofshells = {
+        thing       : 2049,
         ammotype    : 'shells',
-        capacity    : 20
-    },
+        capacity    : 20,
+        message     : u_.msg.GOTSHELLBOX
+    };
 
-    rocket: {
+    t.rocket = {
+        thing       : 2010,
         ammotype    : 'rockets',
-        capacity    : 1
-    },
+        capacity    : 1,
+        message     : u_.msg.GOTROCKET
+    };
 
-    boxofrockets: {
+    t.boxofrockets = {
+        thing       : 2046,
         ammotype    : 'rockets',
-        capacity    : 5
-    },
+        capacity    : 5,
+        message     : u_.msg.GOTROCKBOX
+    };
 
-    energycell: {
+    t.energycell = {
+        thing       : 2047,
         ammotype    : 'cells',
-        capacity    : 20
-    },
+        capacity    : 20,
+        message     : u_.msg.GOTCELL
+    };
 
-    energypack: {
+    t.energypac = {
+        thing       : 17,
         ammotype    : 'cells',
-        capacity    : 100
+        capacity    : 100,
+        message     : u_.msg.GOTCELLBOX
     }
 };

@@ -30,6 +30,7 @@ o_.weapons = {
     },
     
     chainsaw: {
+        thing       : 2005,
         sprite      : 'SAW',
         cache       : 'ABCD',
         offset_x    : 0,
@@ -41,6 +42,10 @@ o_.weapons = {
         cooldown    : 60,
         onFire      : function(){
             
+        },
+        onPickup    : function(){
+            
+            return u_.msg.GOTCHAINSAW;
         }
     },
     
@@ -97,6 +102,7 @@ o_.weapons = {
     },
     
     shotgun: {
+        thing       : 2001,
         ammo        : 'shells',
         sprite      : 'SHT',
         cache       : 'ABCD',
@@ -112,6 +118,8 @@ o_.weapons = {
             var matrix = new THREE.Matrix4();
             var hits = [];
             var direction = i_.controls.getDirection( new THREE.Vector3() );
+            var targets = {}; // target accumulator
+            var damaged = {}; //damage accumulator
             
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
             r_.raycaster.far = 2048;
@@ -138,35 +146,40 @@ o_.weapons = {
                 var damage  = c_.random( ammo.damageMin, ammo.damageMax);
                 
                 if (thing != undefined) {
-                    
-                    if (thing.class.indexOf('M') != -1) {           
+                
+                    if (thing.class.indexOf('M') != -1) {
                         
-                        o_.hurtMonster(obj, damage);
+                        targets[ obj.id ] = obj;
+                        damaged[ obj.id ] = (damaged[ obj.id ] == undefined) ? damage : damaged[ obj.id ] + damage;
                         
                     } else {
                         
-                        // hit some level object, spawn sparkle
-                        // make sparkle a bit closer to player
-                        var closerX = (hits[h].point.x + i_.controls.getObject().position.x) - 2;
-                        var closerZ = (hits[h].point.z + i_.controls.getObject().position.z) - 2;
+                        // hit other object
                         r_.spawnThing(1001, hits[h].point.x, hits[h].point.z, hits[h].point.y + c_.random(-2,2), 'death', 0);
-                    }
-                    
-                } else {
+                    }    
                 
-                    // hit some level object, spawn sparkle
-                    // make sparkle a bit closer to player
-                    var closerX = (hits[h].point.x + i_.controls.getObject().position.x) - 2;
-                    var closerZ = (hits[h].point.z + i_.controls.getObject().position.z) - 2;
-                    r_.spawnThing(1001, hits[h].point.x, hits[h].point.z, hits[h].point.y + c_.random(-2,2), 'death', 0);
+                } else {
                     
+                    // hit wall
+                    r_.spawnThing(1001, hits[h].point.x, hits[h].point.z, hits[h].point.y + c_.random(-2,2), 'death', 0);
+                }
+                
+                if (h == hits.length-1) {
+                    
+                    // damage accumulated, apply damage
+                    o_.hurtMonsters(targets, damaged);                    
                 }
             }
             
+        },
+        onPickup    : function(){
+            
+            return u_.msg.GOTSHOTGUN;
         }
     },
     
     chaingun: {
+        thing       : 2002,
         ammo        : 'bullets',
         sprite      : 'CHG',
         cache       : 'AB',
@@ -216,10 +229,15 @@ o_.weapons = {
                 }
             }
             
+        },
+        onPickup    : function(){
+            
+            return u_.msg.GOTCHAINGUN;
         }
     },
     
     rocketlauncher: {
+        thing       : 2003,
         ammo        : 'rockets',
         sprite      : 'MIS',
         cache       : 'AB',
@@ -232,10 +250,15 @@ o_.weapons = {
         cooldown    : 50,
         onFire      : function(){
             
+        },
+        onPickup    : function(){
+            
+            return u_.msg.GOTLAUNCHER;
         }
     },
     
     plasmagun: {
+        thing       : 2004,
         ammo        : 'cells',
         sprite      : 'PLS',
         cache       : 'AB',
@@ -248,10 +271,15 @@ o_.weapons = {
         cooldown    : 7,
         onFire      : function(){
             
+        },
+        onPickup    : function(){
+            
+            return u_.msg.GOTPLASMA;
         }
     },
     
     bfg: {
+        thing       : 2007,
         ammo        : 'cells',
         sprite      : 'BFG',
         cache       : 'ABC',
@@ -264,6 +292,10 @@ o_.weapons = {
         cooldown    : 85,
         onFire      : function(){
             
+        },
+        onPickup    : function(){
+            
+            return u_.msg.GOTBFG9000;
         }
     }
 };

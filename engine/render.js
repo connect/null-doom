@@ -242,9 +242,9 @@ r_.animate = function () {
                     var id = pickups[p].object.id;
 
                     // pick up item
-                    r_.drawMessage( u_.msg.got_.replace('%item%', thing.label) );
+                    //r_.drawMessage( u_.msg.got_.replace('%item%', thing.label) );
                     
-                    console.log('pickup',thing.label,p)
+                    c_.giveThing( thing );
 
                     if (thing.sound == undefined) {
 
@@ -683,8 +683,9 @@ r_.drawMessage = function(text){
         if (r_.imgs[ prefix + n ] == undefined) continue;
     
         var w               = r_.imgs[ prefix + n ].image.width;
+        var line            = r_.imgs[ prefix + '032' ].image.height;
         var h               = r_.imgs[ prefix + n ].image.height;
-        var z               = (r_.height/2) - (r_.msgs.length * h * size) - (h * size);
+        var z               = (r_.height/2) - (r_.msgs.length * line * size ) - (line * size/2) - ((line-h) * size/2) - 2;
         var spriteMaterial  = new THREE.SpriteMaterial({map: r_.imgs[ prefix + n ]});
         var sprite          = new THREE.Sprite(spriteMaterial);  
         var prev            = ( objMsg[i-1] != undefined) ? objMsg[i-1] : first;
@@ -1442,9 +1443,10 @@ r_.updateMessages = function(){
         
         for (var j in tmsg) {
             
-            var h = tmsg[j].material.map.image.height;
+            //var h    = tmsg[j].material.map.image.height;
+            var line = r_.imgs.STCFN032.image.height;
             
-            tmsg[j].position.y += (h * size);
+            tmsg[j].position.y += (line * size);
         }
     }
 };

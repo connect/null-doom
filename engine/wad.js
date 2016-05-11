@@ -26,9 +26,9 @@ var w_ = new function(){
         g_ : 'gameplay',
         i_ : 'input',
         s_ : 'sound',
-        o_ : 'objects',
-        p_ : 'player',
         u_ : 'interface',
+        o_ : 'objects',
+        p_ : 'player',        
         r_ : 'render'        
     };
     

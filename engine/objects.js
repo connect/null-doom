@@ -9,7 +9,7 @@ o_.hurtMonster = function(obj, damage){
 
     obj.hp -= damage;
     
-    if ( obj.hp <= 0 && obj.state != 'death') {
+    if ( obj.hp <= 0 && obj.state != 'death' && obj.state != 'gibbed') {
 
         o_.killMonster(obj);
         
@@ -35,7 +35,19 @@ o_.hurtMonster = function(obj, damage){
     }
 };
 
+o_.hurtMonsters = function(targets, damage){
+  
+    for (var i in targets){
+        
+        o_.hurtMonster(targets[i], damage[i]);
+    }
+};
+
 o_.killMonster = function(obj){
+    
+    if (obj.state == 'death' || obj.state == 'gibbed') return; // it's already dead
+    
+    console.log('kill',obj.id)
     
     var thing = o_.things[ obj.type ];
     
@@ -60,6 +72,9 @@ o_.killMonster = function(obj){
             }
         }
     }
+
+    // drop loot
+    o_.dropLoot(obj);
 
     // put dying state
     obj.state = 'death';

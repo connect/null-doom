@@ -35,7 +35,9 @@ o_.map.loaded = function(){
     r_.drawFalloff();
     
     // @FIXME debug only, remove later
-    c_.give('all') // cheat
+    c_.give('all'); // cheat
+    
+    c_.noclip();
 };
 
 
@@ -52,10 +54,21 @@ o_.map.add([
     'e3m3'
 ]);
 
+o_.dropLoot = function(o){
+  
+    var thing = o_.things[ o.type ];
+    
+    if (thing.drop != undefined){
+        
+        r_.spawnThing(thing.drop, o.position.x, o.position.z, o.position.y );
+    }
+};
+
 o_.modules = [
     'ammo',
     'things', 
-    'weapons'
+    'weapons',
+    'powerups'
 ];
 
 for (var m in o_.modules) {

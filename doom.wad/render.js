@@ -5,28 +5,10 @@
  * @author kod.connect
  */
 
-r_.hud      = {};
-
-r_.weapon   = {
+r_.hud      = {
     
-    obj         : null,
-    state       : 'ready',
-    sin         : 0,
-    cos         : 0,
-    cooldown    : 0,
-    delay       : 0,
-    frame       : -1,
-    flash       : null,
-    flashFrame  : -1,
-    
-    getTexture: function(){
-        var wpn             = o_.weapons[ p_.weapon ];        
-        var ready           = wpn.ready  != undefined ? wpn.ready[0] : o_.weapons.default.ready[0];
-        var wpn_suffix      = wpn.weapon != undefined ? wpn.weapon   : o_.weapons.default.weapon;
-        
-        return r_.imgs[ wpn.sprite + wpn_suffix + ready + '0'  ];
-    }
-}; 
+    smiling: false
+};
 
 r_.hud.draw = function(){
     console.log('r_.hud.draw()');
@@ -68,11 +50,16 @@ r_.hud.draw = function(){
     // FACE
     //                     
 
-    r_.mats.face = [ 
-        new THREE.SpriteMaterial({map: r_.imgs.STFST00}), 
-        new THREE.SpriteMaterial({map: r_.imgs.STFST01}),
-        new THREE.SpriteMaterial({map: r_.imgs.STFST02})
-    ];
+    r_.mats.face =  {
+        smiling: [
+            new THREE.SpriteMaterial({map: r_.imgs.STFEVL0}), 
+        ],    
+        normal:    [ 
+            new THREE.SpriteMaterial({map: r_.imgs.STFST00}), 
+            new THREE.SpriteMaterial({map: r_.imgs.STFST01}),
+            new THREE.SpriteMaterial({map: r_.imgs.STFST02})
+        ]
+    };
     r_.hud.face = new THREE.Sprite(r_.mats.face[0]);
     r_.hud.face.scale.set( 24 * r_.scale, 29 * r_.scale, 1);
     r_.hud.face.position.set( 0, (r_.height/-2) + (29 * r_.scale / 2), 11);
@@ -80,9 +67,17 @@ r_.hud.draw = function(){
     r_.hudScene.add( r_.hud.face );
 
     // animate
-    r_.animateFace = function(){            
-        r_.hud.face.material = r_.mats.face[ c_.random(0,2) ];            
-        window.setTimeout(r_.animateFace, c_.random(500, 5000));
+    r_.animateFace = function(){           
+        
+        if (r_.hud.smiling) {
+            
+            r_.hud.face.material = r_.mats.face.smiling[0];            
+            
+        } else {
+            
+            r_.hud.face.material = r_.mats.face.normal[ c_.random(0,2) ];            
+            window.setTimeout(r_.animateFace, c_.random(500, 5000));
+        }
     };
     r_.animateFace();
 
@@ -199,6 +194,19 @@ r_.hud.update = function(){
     
 }; 
 
+r_.hud.smile = function(){
+  
+    r_.hud.smiling = true;
+    r_.animateFace();
+    
+    window.setTimeout(function(){ 
+
+        r_.hud.smiling = false;
+        r_.animateFace();
+        
+    }, 2000);        
+};
+
 r_.modInit = function(){
     console.log('..r_.modInit()');
     
@@ -227,6 +235,7 @@ r_.modInit = function(){
             'STBAR',
 
             // Face
+            'STFEVL0',
             'STFST00',
             'STFST01',
             'STFST02',
@@ -320,6 +329,28 @@ r_.modInit = function(){
     }, 2000);
      */
 };
+
+
+r_.weapon   = {
+    
+    obj         : null,
+    state       : 'ready',
+    sin         : 0,
+    cos         : 0,
+    cooldown    : 0,
+    delay       : 0,
+    frame       : -1,
+    flash       : null,
+    flashFrame  : -1,
+    
+    getTexture: function(){
+        var wpn             = o_.weapons[ p_.weapon ];        
+        var ready           = wpn.ready  != undefined ? wpn.ready[0] : o_.weapons.default.ready[0];
+        var wpn_suffix      = wpn.weapon != undefined ? wpn.weapon   : o_.weapons.default.weapon;
+        
+        return r_.imgs[ wpn.sprite + wpn_suffix + ready + '0'  ];
+    }
+}; 
 
 // start render
 r_.postInit();

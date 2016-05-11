@@ -5,7 +5,9 @@
  * @author  kod.connect
  */
 
-c_.give = function(item){
+c_.give = function(item, silent){
+    
+    silent = silent || false;
 
     if (item == 'all') {
         
@@ -14,21 +16,77 @@ c_.give = function(item){
             
             if (i != 'default') {
 
-                c_.give( i );
+                c_.give( i, true );
             }
         }
         
-        //r_.drawMessage( u_.msg.give_all );
+        if (!silent) {
+            
+            r_.drawMessage( u_.msg.STSTR_KFAADDED );
+        }
         
     } else {
-
-        if (o_.weapons[item] != undefined && item != 'default') {
-            console.log('Player received '+item);
+        
+        if (item != 'default') {
+        
+            if (o_.weapons[item] != undefined) {
+                
+                o = o_.weapons[item];
+                
+                r_.hud.smile();
+                
+                p_.weapons[item] = true;
+                
+            } else if(o_.ammo[item] != undefined) {
+                
+                o = o_.ammo[item];
+                
+                o.onPickup = o_.ammo.onPickup;
+                
+            } else if(o_.powerups[item] != undefined) {
+                                
+                o = o_.powerups[item];
+                
+            } else {
+                
+                // wtf ?
+                var o = { 
+                    onPickup: function(){
+                        
+                        return u_.msg.GOTUNKNWN.replace('%item%', item);
+                    }
+                }
+            }
+                        
+            var message = (typeof o.onPickup == 'function') ? o.onPickup(item) : 'ERROR: No pickup for '+item;
             
-            r_.drawMessage( u_.msg.got_.replace('%item%', item ) );
-            p_.weapons[item] = true;
-        }
+            if (!silent) {
+ 
+                r_.drawMessage( message ); 
+            }
+                        
+        }  
     };
+};
+
+c_.giveThing = function(item){
+  
+    if (item.weapon != undefined) {
+
+        c_.give( item.weapon );
+
+    } else if(item.ammo != undefined) {
+
+        c_.give( item.ammo );
+
+    } else if(item.powerup != undefined) {
+
+        c_.give( item.powerup );
+
+    } else {
+
+        c_.give( item );
+    }                     
 };
 
 c_.nextmap = function(){
@@ -39,6 +97,14 @@ c_.nextmap = function(){
 // disable wall collisions
 c_.noclip = function(){
     
+    if (cfg.noclip) {
+        
+        r_.drawMessage( u_.msg.STSTR_NCOFF );
+    
+    } else {
+        
+        r_.drawMessage( u_.msg.STSTR_NCON );
+    }
     cfg.noclip = !cfg.noclip;
 };
 
@@ -168,7 +234,6 @@ c_.slot0 = function(){
     
     p_.switchWeaponSlot(0);
 };
-
 
 // Random generator: from, to
 c_.random = function(min, max) {
