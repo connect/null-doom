@@ -7,9 +7,12 @@
 
 r_.hud      = {
     
+    ammo    : [],
+    health  : [],
+    
     smiling: false
 };
-
+        
 r_.hud.draw = function(){
     console.log('r_.hud.draw()');
     
@@ -82,20 +85,12 @@ r_.hud.draw = function(){
     r_.animateFace();
 
     // AMMO
-    //
-    r_.drawStatusText({            
-        text: '50', prefix: 'STT', 
-        width: 14,  height: 16,     direction: 'rtl',
-        x: '16%',   z: '9%'    
-    });
+    //    
+    r_.hud.ammo = r_.drawStatusBigFont('___','16%','9%',true);
 
     // HEALTH
     //
-    r_.drawStatusText({
-        text: '100%', prefix: 'STT', 
-        width: 14,  height: 16,     direction: 'rtl',
-        x: '34.5%', z: '9%'
-    });
+    r_.hud.health = r_.drawStatusBigFont('100%','34.5%','9%',true)
 
     // ARMOR
     //
@@ -190,8 +185,62 @@ r_.hud.draw = function(){
     r_.hudScene.add(sprite);
 };
 
-r_.hud.update = function(){
+r_.hud.update = new function(){
     
+    var t = this;
+    
+    t.ammo_value    = 0;
+    t.armor_value   = 0;
+    t.health_value  = 100;
+    
+    t.all = function(){
+        
+        t.ammo();
+        //t.health();
+    };
+    
+    t.ammo = function(){
+        
+        var value = p_.ammo[ p_.weapon ].toString();
+        
+        if (t.ammo_value != value) { // prevent redraw without need
+            
+            t.ammo_value = value;
+            
+            for (var i = 1; i < 4; i++){
+
+                var tobj = r_.hud.ammo[ r_.hud.ammo.length -i ];                
+                var n    = value[ value.length -i ] || '_';      
+                
+                console.log( r_.imgs[ 'STTNUM' +n ] );
+                
+                if (false) {
+
+                    tobj.material.map = r_.imgs[ 'STTNUM' +n ];
+                    //tobj.meterial.needsUpdate = true;
+                }                
+            }
+        }
+    };
+    
+    t.health = function(){
+        
+        var value = p_.health;
+        
+        if (t.health_value != value) { // prevent redraw without need
+            
+            for (var i = 2; i < 5; i++){ // skip '%' char
+
+                var tobj = r_.hud.health[ r_.hud.health.length -i ];
+                var n    = value[ value.length -i ] || '_'; 
+
+                tobj.material.map = r_.imgs[ 'STTNUM' +n ];
+                tobj.meterial.needsUpdate = 1;
+            }
+            
+            t.health_value = value;
+        }
+    };
 }; 
 
 r_.hud.smile = function(){
@@ -241,6 +290,7 @@ r_.modInit = function(){
             'STFST02',
 
             // Big red font
+            'STTNUM_', // space
             'STTMINUS',
             'STTNUM0',
             'STTNUM1',
