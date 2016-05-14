@@ -42,14 +42,14 @@ r_.hud.draw = function(){
 
     // ARMS
     //
-
+/*
     var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STARMS});
     var sprite = new THREE.Sprite(spriteMaterial);            
     sprite.scale.set(40 * r_.scale, 32 * r_.scale ,1);
     sprite.position.set((r_.width/-2) + (r_.width * 0.385), (r_.height/-2) + (32 * r_.scale / 2) , 11);
     r_.hud.objects.push(sprite);
     r_.hudScene.add(sprite);
-
+*/
     // FACE
     //                     
 
@@ -86,52 +86,32 @@ r_.hud.draw = function(){
 
     // AMMO
     //    
-    r_.hud.ammo = r_.drawStatusBigFont('___','16%','9%',true);
+    r_.hud.ammo = r_.drawStatusRed('__0','16%','9%',true);
 
     // HEALTH
     //
-    r_.hud.health = r_.drawStatusBigFont('100%','34.5%','9%',true)
+    r_.hud.health = r_.drawStatusRed('100%','34.5%','9%',true)
 
     // ARMOR
     //
-    r_.drawStatusText({
-        text: '0%', prefix: 'STT', 
-        width: 14,  height: 16,     direction: 'rtl',
-        x: '75.5%', z: '9%'  
-    });
+    r_.hud.armor = r_.drawStatusRed('__0%','75.5%','9%',true);
 
     // Arms numbers
     //
-    r_.drawStatusText({
-        text: '2',  prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'ltr',
-        x: '34.8%', z: '10.5%'  
-    });
-    r_.drawStatusText({
-        text: '3',  prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'ltr',
-        x: '39%',   z: '10.5%'  
-    });
-    r_.drawStatusText({
-        text: '4',  prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'ltr',
-        x: '42.5%', z: '10.5%'  
-    });
-    r_.drawStatusText({
-        text: '5',  prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'ltr',
-        x: '34.8%', z: '6.5%'  
-    });
-    r_.drawStatusText({
-        text: '6',  prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'ltr',
-        x: '39%',   z: '6.5%'
-    });
-    r_.drawStatusText({
-        text: '7',  prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'ltr',
-        x: '42.5%', z: '6.5%'
-    });
+    var coords = {
+        pistol          : [ '34.8%',   '10.5%' ],
+        shotgun         : [ '39%',     '10.5%' ],
+        chaingun        : [ '42.5%',   '10.5%' ],
+        rocketlauncher  : [ '34.8%',   '6.5%'  ],
+        plasmagun       : [ '39%',     '6.5%'  ],
+        bfg             : [ '42.5%',   '6.5%'  ]
+    };
+    var n = 1;
+    for (var i in coords) {    
+        n++;
+        r_.hud[ 'has' +i ] = (p_.weapons[i]) ? r_.drawStatusYellow( n, coords[i][0], coords[i][1] ) : r_.drawStatusGray( n, coords[i][0], coords[i][1] );
+    }
+        
     
     // Ammo Info
     r_.drawStatusText({
@@ -191,12 +171,13 @@ r_.hud.update = new function(){
     
     t.ammo_value    = 0;
     t.armor_value   = 0;
-    t.health_value  = 100;
+    t.health_value  = '100';
     
     t.all = function(){
         
         t.ammo();
-        //t.health();
+        t.health();
+        t.armor();
     };
     
     t.ammo = function(){
@@ -207,38 +188,49 @@ r_.hud.update = new function(){
             
             t.ammo_value = value;
             
-            for (var i = 1; i < 4; i++){
+            for (var i = 0; i < 3; i++){
 
-                var tobj = r_.hud.ammo[ r_.hud.ammo.length -i ];                
-                var n    = value[ value.length -i ] || '_';      
+                var tobj = r_.hud.ammo[ i ];                
+                var n    = value[ value.length -1 -i ] || '_';                      
                 
-                console.log( r_.imgs[ 'STTNUM' +n ] );
-                
-                if (false) {
-
-                    tobj.material.map = r_.imgs[ 'STTNUM' +n ];
-                    //tobj.meterial.needsUpdate = true;
-                }                
+                tobj.material.map = r_.imgs[ 'STTNUM' +n ];             
             }
         }
     };
     
     t.health = function(){
         
-        var value = p_.health;
+        var value = p_.health.toString();
         
         if (t.health_value != value) { // prevent redraw without need
             
-            for (var i = 2; i < 5; i++){ // skip '%' char
+            t.health_value = value;
+            
+            for (var i = 0; i < 3; i++){ // skip '%' char
 
-                var tobj = r_.hud.health[ r_.hud.health.length -i ];
-                var n    = value[ value.length -i ] || '_'; 
+                var tobj = r_.hud.health[ i + 1 ];
+                var n    = value[ value.length -1 -i ] || '_'; 
 
                 tobj.material.map = r_.imgs[ 'STTNUM' +n ];
-                tobj.meterial.needsUpdate = 1;
             }
+        }
+    };
+    
+    t.armor = function(){
+        
+        var value = p_.armor.toString();
+        
+        if (t.armor_value != value) { // prevent redraw without need
             
-            t.health_value = value;
+            t.armor_value = value;
+            
+            for (var i = 0; i < 3; i++){ // skip '%' char
+
+                var tobj = r_.hud.armor[ i + 1 ];
+                var n    = value[ value.length -1 -i ] || '_'; 
+
+                tobj.material.map = r_.imgs[ 'STTNUM' +n ];
+            }
         }
     };
 }; 
@@ -254,6 +246,52 @@ r_.hud.smile = function(){
         r_.animateFace();
         
     }, 2000);        
+};
+
+r_.drawStatusGray = function(text, x, z, alignRight){
+    console.log('status gray',text)   
+    return r_.drawStatusText({
+        
+        text        : text,
+        x           : x,
+        z           : z,
+        prefix      : 'STG',
+        width       : 4,  
+        height      : 6,
+        direction   : (alignRight) ? 'rtl' : 'ltr'
+    });
+};
+
+r_.drawStatusRed = function(text, x, z, alignRight){
+    
+    return r_.drawStatusText({
+        
+        text        : text,
+        x           : x,
+        z           : z,
+        prefix      : 'STT',
+        width       : 14,  
+        height      : 16,
+        direction   : (alignRight) ? 'rtl' : 'ltr'
+    });
+};
+
+r_.drawStatusYellow = function(text, x, z, alignRight){
+    
+    var res = r_.drawStatusText({
+        
+        text        : text,
+        x           : x,
+        z           : z,
+        prefix      : 'STYS',
+        width       : 4,  
+        height      : 6,
+        direction   : (alignRight) ? 'rtl' : 'ltr'
+    });
+    
+    console.log('status yellow',text,'-->',res)   
+    
+    return res;
 };
 
 r_.modInit = function(){
@@ -379,7 +417,6 @@ r_.modInit = function(){
     }, 2000);
      */
 };
-
 
 r_.weapon   = {
     

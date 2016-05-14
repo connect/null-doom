@@ -687,22 +687,8 @@ r_.drawMessage = function(text){
     
 };
     
-r_.drawStatusBigFont = function(text, x, z, alignRight){
-    
-    return r_.drawStatusText({
-        
-        text        : text,
-        x           : x,
-        z           : z,
-        prefix      : 'STT',
-        width       : 14,  
-        height      : 16,
-        direction   : (alignRight) ? 'rtl' : 'ltr'
-    });
-};
-
 r_.drawStatusText = function(o){
-    
+  
     var res = [];
     var x   = (o.x.toString().indexOf('%') == -1) ? o.x : (r_.width/ -2) + (r_.width  * parseFloat(o.x.replace('%','')) / 100);
     var z   = (o.z.toString().indexOf('%') == -1) ? o.z : (r_.height/-2) + (r_.height * parseFloat(o.z.replace('%','')) / 100);
@@ -729,9 +715,11 @@ r_.drawStatusText = function(o){
         }
 
         var w               = o.width  || r_.imgs[ o.prefix + n ].image.width;
-        var h               = o.height || r_.imgs[ o.prefix + n ].image.height;
-        var spriteMaterial  = new THREE.SpriteMaterial({map: r_.imgs[ o.prefix + n ]});
+        var h               = o.height || r_.imgs[ o.prefix + n ].image.height;        
+        var spriteMaterial  = new THREE.SpriteMaterial({ map: r_.imgs[ o.prefix + n ] });
         var sprite          = new THREE.Sprite(spriteMaterial);            
+        
+        
         sprite.scale.set( w * r_.scale, h * r_.scale, 1);
 
         if (o.direction == 'ltr') {
@@ -748,7 +736,7 @@ r_.drawStatusText = function(o){
         r_.hudScene.add(sprite);
         
         if (i == o.text.length-1) {
-            
+console.log('->',res)
             return res;
         }
     }
