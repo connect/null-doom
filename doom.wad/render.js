@@ -40,16 +40,6 @@ r_.hud.draw = function(){
     r_.hud.objects.push(sprite);
     r_.hudScene.add(sprite);
 
-    // ARMS
-    //
-/*
-    var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STARMS});
-    var sprite = new THREE.Sprite(spriteMaterial);            
-    sprite.scale.set(40 * r_.scale, 32 * r_.scale ,1);
-    sprite.position.set((r_.width/-2) + (r_.width * 0.385), (r_.height/-2) + (32 * r_.scale / 2) , 11);
-    r_.hud.objects.push(sprite);
-    r_.hudScene.add(sprite);
-*/
     // FACE
     //                     
 
@@ -95,6 +85,16 @@ r_.hud.draw = function(){
     // ARMOR
     //
     r_.hud.armor = r_.drawStatusRed('__0%','75.5%','9%',true);
+    
+    // ARMS background
+    //
+
+    var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STARMS});
+    var sprite = new THREE.Sprite(spriteMaterial);            
+    sprite.scale.set(40 * r_.scale, 32 * r_.scale ,1);
+    sprite.position.set((r_.width/-2) + (r_.width * 0.385), (r_.height/-2) + (32 * r_.scale / 2) , 11);
+    r_.hud.objects.push(sprite);
+    r_.hudScene.add(sprite);
 
     // Arms numbers
     //
@@ -109,7 +109,7 @@ r_.hud.draw = function(){
     var n = 1;
     for (var i in coords) {    
         n++;
-        r_.hud[ 'has' +i ] = (p_.weapons[i]) ? r_.drawStatusYellow( n, coords[i][0], coords[i][1] ) : r_.drawStatusGray( n, coords[i][0], coords[i][1] );
+        r_.hud[ 'wpn' +i ] = (p_.weapons[i]) ? r_.drawStatusYellow( n, coords[i][0], coords[i][1] ) : r_.drawStatusGray( n, coords[i][0], coords[i][1] );
     }
         
     
@@ -178,6 +178,7 @@ r_.hud.update = new function(){
         t.ammo();
         t.health();
         t.armor();
+        t.arms();
     };
     
     t.ammo = function(){
@@ -194,6 +195,33 @@ r_.hud.update = new function(){
                 var n    = value[ value.length -1 -i ] || '_';                      
                 
                 tobj.material.map = r_.imgs[ 'STTNUM' +n ];             
+            }
+        }
+    };
+    
+    t.arms = function(){
+
+        var weapons = [
+            'fist',
+            'chainsaw',
+            'pistol',
+            'shotgun',
+            'chaingun',
+            'rocketlauncher',
+            'plasmagun',
+            'bfg'
+        ];
+        
+        for (var i in weapons){
+            
+            if (i > 1){
+                
+                var map = r_.hud[ 'wpn' + weapons[i] ][0].material.map;
+                
+                if (p_.weapons[ weapons[i] ] == true && map != r_.imgs[ 'STYSNUM'+i ]) {
+                    
+                    r_.hud[ 'wpn' + weapons[i] ][0].material.map = r_.imgs[ 'STYSNUM'+i ];
+                }
             }
         }
     };
@@ -249,7 +277,7 @@ r_.hud.smile = function(){
 };
 
 r_.drawStatusGray = function(text, x, z, alignRight){
-    console.log('status gray',text)   
+       
     return r_.drawStatusText({
         
         text        : text,
@@ -278,7 +306,7 @@ r_.drawStatusRed = function(text, x, z, alignRight){
 
 r_.drawStatusYellow = function(text, x, z, alignRight){
     
-    var res = r_.drawStatusText({
+    return r_.drawStatusText({
         
         text        : text,
         x           : x,
@@ -288,10 +316,6 @@ r_.drawStatusYellow = function(text, x, z, alignRight){
         height      : 6,
         direction   : (alignRight) ? 'rtl' : 'ltr'
     });
-    
-    console.log('status yellow',text,'-->',res)   
-    
-    return res;
 };
 
 r_.modInit = function(){

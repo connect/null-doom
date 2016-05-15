@@ -35,7 +35,7 @@ o_.map.loaded = function(){
     r_.drawFalloff();
     
     // @FIXME debug only, remove later
-    c_.give('all'); // cheat
+    //c_.give('all'); // cheat
     
     c_.noclip();
 };

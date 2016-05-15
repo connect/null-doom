@@ -35,7 +35,8 @@ c_.give = function(item, silent){
                 
                 r_.hud.smile();
                 
-                p_.weapons[item] = true;
+                p_.weapons[item] = true; // give weapon itself
+                p_.ammo[item] = (p_.ammo[item] != undefined) ? p_.ammo[item] + o.contains : o.contains ; // provide ammo
                 
             } else if(o_.ammo[item] != undefined) {
                 
@@ -183,6 +184,11 @@ c_.opendoor = function(sector){
         height      : height 
     });
     s_.play( s_.opendoor );
+};
+
+c_.prevweapon = function(){
+    
+    //for ()
 };
 
 c_.slot1 = function(){

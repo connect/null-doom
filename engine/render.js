@@ -132,12 +132,13 @@ r_.animate = function () {
 
             if ( i_.act.attack && r_.weapon.state == 'fire') {
 
-                s_.play( o_.weapons[ p_.weapon ].sfx_fire );
-
-                o_.weapons[ p_.weapon ].onFire();
-
-                r_.weapon.state = 'cooldown';
-                //console.log('FIRE: cooldown');
+                if (o_.weapons[ p_.weapon ].onFire() ) {
+                    s_.play( o_.weapons[ p_.weapon ].sfx_fire );
+                    r_.weapon.state = 'cooldown';
+                    //console.log('FIRE: cooldown');
+                } else {
+                    r_.weapon.state = 'ready';
+                }
             }
 
             // test collisions against walls
@@ -692,6 +693,7 @@ r_.drawStatusText = function(o){
     var res = [];
     var x   = (o.x.toString().indexOf('%') == -1) ? o.x : (r_.width/ -2) + (r_.width  * parseFloat(o.x.replace('%','')) / 100);
     var z   = (o.z.toString().indexOf('%') == -1) ? o.z : (r_.height/-2) + (r_.height * parseFloat(o.z.replace('%','')) / 100);
+    o.text  = o.text.toString();
     
     for (var i in o.text){
 
@@ -736,7 +738,7 @@ r_.drawStatusText = function(o){
         r_.hudScene.add(sprite);
         
         if (i == o.text.length-1) {
-console.log('->',res)
+
             return res;
         }
     }

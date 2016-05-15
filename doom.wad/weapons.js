@@ -16,6 +16,7 @@ o_.weapons = {
     },
     
     fist: {        
+        contains    : 0,
         sprite      : 'PUN',
         cache       : 'ABCD',
         offset_x    : 0,
@@ -31,6 +32,7 @@ o_.weapons = {
     
     chainsaw: {
         thing       : 2005,
+        contains    : 0,
         sprite      : 'SAW',
         cache       : 'ABCD',
         offset_x    : 0,
@@ -41,7 +43,7 @@ o_.weapons = {
         delay       : 0,
         cooldown    : 60,
         onFire      : function(){
-            
+                        
         },
         onPickup    : function(){
             
@@ -51,6 +53,7 @@ o_.weapons = {
     
     pistol: {
         ammo        : 'bullets',
+        contains    : 0,
         sprite      : 'PIS',
         cache       : 'ABCDE',
         offset_x    : 0,
@@ -62,6 +65,8 @@ o_.weapons = {
         cooldown    : 40,
         projectile  : 1001,
         onFire      : function(){
+            
+            if ( p_.ammo[ p_.weapon ] < 1) return false; 
             
             var matrix = new THREE.Matrix4();
             var direction = i_.controls.getDirection( new THREE.Vector3() );            
@@ -98,12 +103,16 @@ o_.weapons = {
                     
                 }
             }
+            
+            p_.ammo[ p_.weapon ] -= 1;
+            return true;
         }
     },
     
     shotgun: {
         thing       : 2001,
         ammo        : 'shells',
+        contains    : 8,
         sprite      : 'SHT',
         cache       : 'ABCD',
         offset_x    : 0,
@@ -114,6 +123,8 @@ o_.weapons = {
         delay       : 0,
         cooldown    : 90,
         onFire      : function(){
+            
+            if ( p_.ammo[ p_.weapon ] < 4) return false;                
             
             var matrix = new THREE.Matrix4();
             var hits = [];
@@ -170,7 +181,8 @@ o_.weapons = {
                     o_.hurtMonsters(targets, damaged);                    
                 }
             }
-            
+            p_.ammo[ p_.weapon ] -= 4;
+            return true;
         },
         onPickup    : function(){
             
@@ -181,6 +193,7 @@ o_.weapons = {
     chaingun: {
         thing       : 2002,
         ammo        : 'bullets',
+        contains    : 20,
         sprite      : 'CHG',
         cache       : 'AB',
         offset_x    : 0,
@@ -191,6 +204,8 @@ o_.weapons = {
         delay       : 0,
         cooldown    : 7,
         onFire      : function(){
+            
+            if ( p_.ammo[ p_.weapon ] < 1) return false;
             
             var matrix = new THREE.Matrix4();
             var direction = i_.controls.getDirection( new THREE.Vector3() );
@@ -228,7 +243,8 @@ o_.weapons = {
                     
                 }
             }
-            
+            p_.ammo[ p_.weapon ] -= 1;
+            return true;
         },
         onPickup    : function(){
             
@@ -239,6 +255,7 @@ o_.weapons = {
     rocketlauncher: {
         thing       : 2003,
         ammo        : 'rockets',
+        contains    : 2,
         sprite      : 'MIS',
         cache       : 'AB',
         offset_x    : 0,
@@ -249,7 +266,10 @@ o_.weapons = {
         delay       : 0,
         cooldown    : 50,
         onFire      : function(){
+            if ( p_.ammo[ p_.weapon ] < 1) return false;
             
+            p_.ammo[ p_.weapon ] -= 1;
+            return true;
         },
         onPickup    : function(){
             
@@ -260,6 +280,7 @@ o_.weapons = {
     plasmagun: {
         thing       : 2004,
         ammo        : 'cells',
+        contains    : 40,
         sprite      : 'PLS',
         cache       : 'AB',
         offset_x    : 0,
@@ -270,7 +291,10 @@ o_.weapons = {
         delay       : 0,
         cooldown    : 7,
         onFire      : function(){
+            if ( p_.ammo[ p_.weapon ] < 1) return false;
             
+            p_.ammo[ p_.weapon ] -= 1;
+            return true;
         },
         onPickup    : function(){
             
@@ -281,6 +305,7 @@ o_.weapons = {
     bfg: {
         thing       : 2007,
         ammo        : 'cells',
+        contains    : 0,
         sprite      : 'BFG',
         cache       : 'ABC',
         offset_x    : 0,
@@ -291,7 +316,10 @@ o_.weapons = {
         delay       : 0,
         cooldown    : 85,
         onFire      : function(){
+            if ( p_.ammo[ p_.weapon ] < 1) return false;
             
+            p_.ammo[ p_.weapon ] -= 1;
+            return true;
         },
         onPickup    : function(){
             
