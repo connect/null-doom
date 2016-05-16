@@ -88,8 +88,26 @@ o_.useAction = function(){
             if (line.special == 1) { // door
 
                 //console.log('......open the door!');
-                c_.opendoor( o_.map.sidedef[ line.sideback ].sector );
+                c_.opendoor( o_.map.sidedef[ line.sideback ].sector, line.special );
 
+            } else if (line.special == 26) { // door blue key
+                
+                if (p_.keys.bluekeycard || p_.keys.blueskullkey) {
+                    c_.opendoor( o_.map.sidedef[ line.sideback ].sector, line.special );
+                }
+                
+            } else if (line.special == 27) { // door yellow key
+                
+                if (p_.keys.yellowkeycard || p_.keys.yellowskullkey) {
+                    c_.opendoor( o_.map.sidedef[ line.sideback ].sector, line.special );
+                }
+
+            } else if (line.special == 28) { // door red key
+                
+                if (p_.keys.redkeycard || p_.keys.redskullkey) {
+                    c_.opendoor( o_.map.sidedef[ line.sideback ].sector, line.special );
+                }
+                
             } else if (line.special == 11) { // end of level switch
 
                 s_.play( s_.menuback );

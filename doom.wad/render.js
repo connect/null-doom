@@ -156,6 +156,35 @@ r_.hud.draw = function(){
         x: '99%',   z: '2.5%'  
     });
     
+    // Keys
+    //
+    // Blue key
+    var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STKEYS_, transparent: true});
+    var sprite = new THREE.Sprite(spriteMaterial);            
+    sprite.scale.set(7 * r_.scale, 7 * r_.scale ,1);
+    sprite.position.set((r_.width/-2) + (r_.width * 0.759), (r_.height/-2) + (r_.height * 0.107) , 11);
+    r_.hud.bluekey = sprite;
+    r_.hud.objects.push(sprite);
+    r_.hudScene.add(sprite);
+    
+    // Yellow key
+    var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STKEYS_, transparent: true});
+    var sprite = new THREE.Sprite(spriteMaterial);            
+    sprite.scale.set(7 * r_.scale, 7 * r_.scale ,1);
+    sprite.position.set((r_.width/-2) + (r_.width * 0.759), (r_.height/-2) + (r_.height * 0.066) , 11);
+    r_.hud.yellowkey = sprite;
+    r_.hud.objects.push(sprite);
+    r_.hudScene.add(sprite);
+    
+    // Red key
+    var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.STKEYS_, transparent: true});
+    var sprite = new THREE.Sprite(spriteMaterial);            
+    sprite.scale.set(7 * r_.scale, 7 * r_.scale ,1);
+    sprite.position.set((r_.width/-2) + (r_.width * 0.759), (r_.height/-2) + (r_.height * 0.025) , 11);
+    r_.hud.redkey = sprite;
+    r_.hud.objects.push(sprite);
+    r_.hudScene.add(sprite);
+    
     // Crosshair
     var spriteMaterial = new THREE.SpriteMaterial({map: r_.imgs.cross, transparent: true, opacity: 0.5});
     var sprite = new THREE.Sprite(spriteMaterial);            
@@ -172,18 +201,22 @@ r_.hud.update = new function(){
     t.ammo_value    = 0;
     t.armor_value   = 0;
     t.health_value  = '100';
+    t.redkey        = false;
+    t.yellowkey     = false;
+    t.bluekey       = false;
     
     t.all = function(){
         
-        t.ammo();
-        t.health();
+        t.ammo();        
         t.armor();
         t.arms();
+        t.health();
+        t.keys();
     };
     
     t.ammo = function(){
         
-        var value = p_.ammo[ p_.weapon ].toString();
+        var value = p_.ammo[ o_.weapons[ p_.weapon ].ammo ].toString();
         
         if (t.ammo_value != value) { // prevent redraw without need
             
@@ -195,6 +228,24 @@ r_.hud.update = new function(){
                 var n    = value[ value.length -1 -i ] || '_';                      
                 
                 tobj.material.map = r_.imgs[ 'STTNUM' +n ];             
+            }
+        }
+    };
+    
+    t.armor = function(){
+        
+        var value = p_.armor.toString();
+        
+        if (t.armor_value != value) { // prevent redraw without need
+            
+            t.armor_value = value;
+            
+            for (var i = 0; i < 3; i++){ // skip '%' char
+
+                var tobj = r_.hud.armor[ i + 1 ];
+                var n    = value[ value.length -1 -i ] || '_'; 
+
+                tobj.material.map = r_.imgs[ 'STTNUM' +n ];
             }
         }
     };
@@ -244,23 +295,48 @@ r_.hud.update = new function(){
         }
     };
     
-    t.armor = function(){
+    t.keys = function(){
         
-        var value = p_.armor.toString();
+        // blue
+        if (!t.bluekey && p_.keys.bluekeycard) {
+            
+            r_.hud.bluekey.material.map = r_.imgs[ o_.powerups.bluekeycard.hudkey ];
+            t.bluekey = true;
+        }
         
-        if (t.armor_value != value) { // prevent redraw without need
+        if (!t.bluekey && p_.keys.blueskullkey) {
             
-            t.armor_value = value;
+            r_.hud.bluekey.material.map = r_.imgs[ o_.powerups.blueskullkey.hudkey ];
+            t.bluekey = true;
+        }
+        
+        // yellow
+        if (!t.yellowkey && p_.keys.yellowkeycard) {
             
-            for (var i = 0; i < 3; i++){ // skip '%' char
-
-                var tobj = r_.hud.armor[ i + 1 ];
-                var n    = value[ value.length -1 -i ] || '_'; 
-
-                tobj.material.map = r_.imgs[ 'STTNUM' +n ];
-            }
+            r_.hud.yellowkey.material.map = r_.imgs[ o_.powerups.yellowkeycard.hudkey ];
+            t.yellowkey = true;
+        }
+        
+        if (!t.yellowkey && p_.keys.yellowskullkey) {
+            
+            r_.hud.yellowkey.material.map = r_.imgs[ o_.powerups.yellowskullkey.hudkey ];
+            t.yellowkey = true;
+        }
+        
+        // red
+        if (!t.redkey && p_.keys.redkeycard) {
+            
+            r_.hud.redkey.material.map = r_.imgs[ o_.powerups.redkeycard.hudkey ];
+            t.redkey = true;
+        }
+        
+        if (!t.redkey && p_.keys.redskullkey) {
+            
+            r_.hud.redkey.material.map = r_.imgs[ o_.powerups.redskullkey.hudkey ];
+            t.redkey = true;
         }
     };
+        
 }; 
 
 r_.hud.smile = function(){
@@ -350,6 +426,15 @@ r_.modInit = function(){
             'STFST00',
             'STFST01',
             'STFST02',
+            
+            // keys
+            'STKEYS_',
+            'STKEYS0',
+            'STKEYS1',
+            'STKEYS2',
+            'STKEYS3',
+            'STKEYS4',
+            'STKEYS5',
 
             // Big red font
             'STTNUM_', // space

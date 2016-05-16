@@ -66,7 +66,7 @@ o_.weapons = {
         projectile  : 1001,
         onFire      : function(){
             
-            if ( p_.ammo[ p_.weapon ] < 1) return false; 
+            if ( p_.ammo[ o_.weapons[ p_.weapon ].ammo ] < 1) return false; 
             
             var matrix = new THREE.Matrix4();
             var direction = i_.controls.getDirection( new THREE.Vector3() );            
@@ -104,7 +104,8 @@ o_.weapons = {
                 }
             }
             
-            p_.ammo[ p_.weapon ] -= 1;
+            p_.ammo[ o_.weapons[ p_.weapon ].ammo ] -= 1;
+
             return true;
         }
     },
@@ -124,7 +125,7 @@ o_.weapons = {
         cooldown    : 90,
         onFire      : function(){
             
-            if ( p_.ammo[ p_.weapon ] < 4) return false;                
+            if ( p_.ammo[ o_.weapons[ p_.weapon ].ammo ] < 4) return false;                
             
             var matrix = new THREE.Matrix4();
             var hits = [];
@@ -181,7 +182,8 @@ o_.weapons = {
                     o_.hurtMonsters(targets, damaged);                    
                 }
             }
-            p_.ammo[ p_.weapon ] -= 4;
+            
+            p_.ammo[ o_.weapons[ p_.weapon ].ammo ] -= 4;
             return true;
         },
         onPickup    : function(){

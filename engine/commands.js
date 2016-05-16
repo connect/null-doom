@@ -36,17 +36,20 @@ c_.give = function(item, silent){
                 r_.hud.smile();
                 
                 p_.weapons[item] = true; // give weapon itself
-                p_.ammo[item] = (p_.ammo[item] != undefined) ? p_.ammo[item] + o.contains : o.contains ; // provide ammo
+                p_.ammo[ o_.weapons[ item ].ammo ] = (p_.ammo[ o_.weapons[ item ].ammo ] != undefined) ? p_.ammo[ o_.weapons[ item ].ammo ] + o.contains : o.contains ; // provide ammo
                 
             } else if(o_.ammo[item] != undefined) {
                 
                 o = o_.ammo[item];
+                
+                p_.ammo[ o.ammotype ] += o.capacity;
                 
                 o.onPickup = o_.ammo.onPickup;
                 
             } else if(o_.powerups[item] != undefined) {
                                 
                 o = o_.powerups[item];
+                                
                 
             } else {
                 
@@ -109,7 +112,7 @@ c_.noclip = function(){
     cfg.noclip = !cfg.noclip;
 };
 
-c_.opendoor = function(sector){
+c_.opendoor = function(sector, type){
     console.log('c_.opendoor(',sector,')');
     
     var backlines   = [];
@@ -117,6 +120,8 @@ c_.opendoor = function(sector){
     var walls       = [];
     var ceiling     = [];
     var height      = 666;
+    
+    type = (type == undefined) ? 1 : type;
                 
     // collect lines    
     for (var i in o_.map.sidedef){
@@ -177,7 +182,7 @@ c_.opendoor = function(sector){
     }
     
     o_.map.actions.push({ 
-        special     : 1, 
+        special     : type, 
         sector      : sector,
         ceiling     : ceiling,
         walls       : walls,

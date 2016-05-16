@@ -9,14 +9,20 @@ o_.powerups = {
     
     bluekeycard: {
         thing       : 5,
+        hudkey      : 'STKEYS0',
         onPickup    : function(){
+            
+            p_.keys.bluekeycard = true;
             
             return u_.msg.GOTBLUECARD;
         }
     },
     yellowkeycard: {
         thing       : 6,
+        hudkey      : 'STKEYS1',
         onPickup    : function(){
+            
+            p_.keys.yellowkeycard = true;
             
             return u_.msg.GOTYELWCARD;
         }
@@ -30,28 +36,40 @@ o_.powerups = {
     },
     redkeycard: {
         thing       : 13,
+        hudkey      : 'STKEYS2',
         onPickup    : function(){
+            
+            p_.keys.redkeycard = true;
             
             return u_.msg.GOTREDCARD;
         }
     },
     redskullkey: {
         thing       : 38,
+        hudkey      : 'STKEYS5',
         onPickup    : function(){
+            
+            p_.keys.redskullkey = true;
             
             return u_.msg.GOTREDSKULL;
         }
     },
     yellowskullkey: {
         thing       : 39,
+        hudkey      : 'STKEYS4',
         onPickup    : function(){
+            
+            p_.keys.yellowskullkey = true;
             
             return u_.msg.GOTYELWSKUL;
         }
     },
     blueskullkey: {
         thing       : 40,
+        hudkey      : 'STKEYS3',
         onPickup    : function(){
+            
+            p_.keys.blueskullkey = true;
             
             return u_.msg.GOTBLUESKUL;
         }
@@ -67,6 +85,10 @@ o_.powerups = {
         thing       : 2011,
         onPickup    : function(){
             
+            if (p_.health < 100) {
+                
+            }
+            
             return u_.msg.GOTSTIM;
         }
     },
@@ -81,12 +103,16 @@ o_.powerups = {
         thing       : 2013,
         onPickup    : function(){
             
+            p_.health = 200;
+            
             return u_.msg.GOTSUPER;
         }
     },
     healthpotion: {
         thing       : 2014,
         onPickup    : function(){
+            
+            p_.health += 1;
             
             return u_.msg.GOTHTHBONUS;
         }
@@ -95,6 +121,8 @@ o_.powerups = {
         thing       : 2015,
         onPickup    : function(){
             
+            p_.armor += 1;
+            
             return u_.msg.GOTARMBONUS;
         }
     },
@@ -102,12 +130,18 @@ o_.powerups = {
         thing       : 2018,
         onPickup    : function(){
             
+            p_.armor        = 100;
+            p_.armortype    = 1;
+            
             return u_.msg.GOTARMOR;
         }
     },
     bluearmor: {
         thing       : 2019,
         onPickup    : function(){
+            
+            p_.armor        = 200;
+            p_.armortype    = 2;
             
             return u_.msg.GOTMEGA;
         }

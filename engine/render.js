@@ -229,12 +229,12 @@ r_.animate = function () {
 
                         c_.giveThing( thing );
 
+                        // play pickup sound
                         if (thing.sound == undefined) {
 
                             if (thing.class.indexOf('W') != -1) {
                                 // weapon
                                 s_.play( s_.getweapon );
-
                             } else {
                                 s_.play( s_.getitem );
                             }
@@ -244,10 +244,19 @@ r_.animate = function () {
                         r_.scene.remove( pickups[p].object );
 
                         for (var i in r_.sprites) {
-
+                            
                             if (r_.sprites[i].id == id) {
 
                                 r_.sprites.splice( i, 1);
+                                break;
+                            }
+                        }
+                        
+                        for (var i in r_.objects) {
+                            
+                            if (r_.objects[i].id == id) {
+
+                                r_.objects.splice( i, 1);
                                 break;
                             }
                         }
@@ -1455,7 +1464,7 @@ r_.updateSpecials = function(delta){
             
             // door opening
             //
-            if (taction.special == 1) {              
+            if (taction.special == 1 || taction.special == 26 || taction.special == 27 || taction.special == 28) {              
                 
                 // raise walls
                 //
