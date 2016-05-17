@@ -10,11 +10,15 @@ r_.hud      = {
     ammo    : [],
     health  : [],
     
-    smiling: false
+    smiling: false,
+    
+    objects : []
 };
         
 r_.hud.draw = function(){
     console.log('r_.hud.draw()');
+    
+    if (r_.hud.objects.length > 0) return; // no need to draw
     
     // WEAPON    
     var spriteMaterial  = new THREE.SpriteMaterial({ map: r_.weapon.getTexture() });
@@ -300,42 +304,66 @@ r_.hud.update = new function(){
     t.keys = function(){
         
         // blue
-        if (!t.bluekey && p_.keys.bluekeycard) {
-            
-            r_.hud.bluekey.material.map = r_.imgs[ o_.powerups.bluekeycard.hudkey ];
-            t.bluekey = true;
-        }
+        if (!t.bluekey) {
         
-        if (!t.bluekey && p_.keys.blueskullkey) {
+            if (p_.keys.bluekeycard) {
+
+                r_.hud.bluekey.material.map = r_.imgs[ o_.powerups.bluekeycard.hudkey ];
+                t.bluekey = true;
+
+            } else if ( p_.keys.blueskullkey) {
+
+                r_.hud.bluekey.material.map = r_.imgs[ o_.powerups.blueskullkey.hudkey ];
+                t.bluekey = true;
+
+            }           
             
-            r_.hud.bluekey.material.map = r_.imgs[ o_.powerups.blueskullkey.hudkey ];
-            t.bluekey = true;
+        } else if ( !p_.keys.bluekeycard && !p_.keys.blueskullkey ) {
+            
+            r_.hud.bluekey.material.map = r_.imgs.STKEYS_;
+            t.bluekey = false;
         }
         
         // yellow
-        if (!t.yellowkey && p_.keys.yellowkeycard) {
-            
-            r_.hud.yellowkey.material.map = r_.imgs[ o_.powerups.yellowkeycard.hudkey ];
-            t.yellowkey = true;
-        }
+        if (!t.yellowkey) {
         
-        if (!t.yellowkey && p_.keys.yellowskullkey) {
+            if (p_.keys.yellowkeycard) {
+
+                r_.hud.yellowkey.material.map = r_.imgs[ o_.powerups.yellowkeycard.hudkey ];
+                t.yellowkey = true;
+
+            } else if ( p_.keys.yellowskullkey) {
+
+                r_.hud.yellowkey.material.map = r_.imgs[ o_.powerups.yellowskullkey.hudkey ];
+                t.yellowkey = true;
+
+            }           
             
-            r_.hud.yellowkey.material.map = r_.imgs[ o_.powerups.yellowskullkey.hudkey ];
-            t.yellowkey = true;
+        } else if ( !p_.keys.yellowkeycard && !p_.keys.yellowskullkey ) {
+            
+            r_.hud.yellowkey.material.map = r_.imgs.STKEYS_;
+            t.yellowkey = false;
         }
         
         // red
-        if (!t.redkey && p_.keys.redkeycard) {
-            
-            r_.hud.redkey.material.map = r_.imgs[ o_.powerups.redkeycard.hudkey ];
-            t.redkey = true;
-        }
+        if (!t.redkey) {
         
-        if (!t.redkey && p_.keys.redskullkey) {
+            if (p_.keys.redkeycard) {
+
+                r_.hud.redkey.material.map = r_.imgs[ o_.powerups.redkeycard.hudkey ];
+                t.redkey = true;
+
+            } else if ( p_.keys.redskullkey) {
+
+                r_.hud.redkey.material.map = r_.imgs[ o_.powerups.redskullkey.hudkey ];
+                t.redkey = true;
+
+            }           
             
-            r_.hud.redkey.material.map = r_.imgs[ o_.powerups.redskullkey.hudkey ];
-            t.redkey = true;
+        } else if ( !p_.keys.redkeycard && !p_.keys.redskullkey ) {
+            
+            r_.hud.redkey.material.map = r_.imgs.STKEYS_;
+            t.redkey = false;
         }
     };
         

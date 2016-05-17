@@ -187,8 +187,7 @@ c_.opendoor = function(sector, special){
         walls       : walls,
         height      : height 
     });  
-    
-    s_.play( s_.opendoor );
+     
 };
 
 c_.opendoorTag = function( tag, special ){

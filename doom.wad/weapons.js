@@ -125,7 +125,7 @@ o_.weapons = {
         cooldown    : 90,
         onFire      : function(){
             
-            if ( p_.ammo[ o_.weapons[ p_.weapon ].ammo ] < 4) return false;                
+            if ( p_.ammo[ o_.weapons[ p_.weapon ].ammo ] < 1) return false;                
             
             var matrix = new THREE.Matrix4();
             var hits = [];
@@ -183,7 +183,7 @@ o_.weapons = {
                 }
             }
             
-            p_.ammo[ o_.weapons[ p_.weapon ].ammo ] -= 4;
+            p_.ammo[ o_.weapons[ p_.weapon ].ammo ] -= 1;
             return true;
         },
         onPickup    : function(){

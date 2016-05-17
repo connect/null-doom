@@ -314,12 +314,14 @@ o_.map = new function(){
         r_.floors   = [];
         
         // clear hud
+        /*
         for (var j in r_.hud.objects){
             
             r_.hudScene.remove( r_.hud.objects[j]);
         }
-        r_.weapon.obj = null;
+        //r_.weapon.obj = null;
         r_.hud.objects = [];
+        */
         
         // clrar keys
         p_.keys     = {};

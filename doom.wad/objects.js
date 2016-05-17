@@ -89,6 +89,7 @@ o_.useAction = function(){
 
                 //console.log('......open the door!');
                 c_.opendoor( o_.map.sidedef[ line.sideback ].sector, line.special );
+                s_.play( s_.opendoor );
 
             } else if (line.special == 11) { // end of level switch
 
@@ -99,29 +100,34 @@ o_.useAction = function(){
                 
                 if (p_.keys.bluekeycard || p_.keys.blueskullkey) {
                     c_.opendoor( o_.map.sidedef[ line.sideback ].sector, line.special );
+                    s_.play( s_.opendoor );
                 }
                 
             } else if (line.special == 27) { // door yellow key
                 
                 if (p_.keys.yellowkeycard || p_.keys.yellowskullkey) {
                     c_.opendoor( o_.map.sidedef[ line.sideback ].sector, line.special );
+                    s_.play( s_.opendoor );
                 }
 
             } else if (line.special == 28) { // door red key
                 
                 if (p_.keys.redkeycard || p_.keys.redskullkey) {
                     c_.opendoor( o_.map.sidedef[ line.sideback ].sector, line.special );
+                    s_.play( s_.opendoor );
                 }
                             
             } else if (line.special == 63) { // switch door
                         
                 console.log('-> open door', line.id, line.special);
                 c_.opendoorTag( line.id, 1 );
+                s_.play( s_.menuopen );
             
             } else if (line.special == 103) { // switch door stay open
                         
                 console.log('-> open door', line.id, line.special);
                 c_.opendoorTag( line.id, 1 );
+                s_.play( s_.menuopen );
  
             } else {
 
