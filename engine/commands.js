@@ -31,9 +31,7 @@ c_.give = function(item, silent){
         
             if (o_.weapons[item] != undefined) {
                 
-                o = o_.weapons[item];
-                
-                r_.hud.smile();
+                o = o_.weapons[item];                             
                 
                 p_.weapons[item] = true; // give weapon itself
                 p_.ammo[ o_.weapons[ item ].ammo ] = (p_.ammo[ o_.weapons[ item ].ammo ] != undefined) ? p_.ammo[ o_.weapons[ item ].ammo ] + o.contains : o.contains ; // provide ammo
@@ -112,46 +110,47 @@ c_.noclip = function(){
     cfg.noclip = !cfg.noclip;
 };
 
-c_.opendoor = function(sector, type){
+c_.opendoor = function(sector, special){
     console.log('c_.opendoor(',sector,')');
     
     var backlines   = [];
     var frontlines  = [];
     var walls       = [];
     var ceiling     = [];
+    var sectors     = [];
     var height      = 666;
     
-    type = (type == undefined) ? 1 : type;
-                
+    special         = (special == undefined) ? 1 : special;   
+    
     // collect lines    
     for (var i in o_.map.sidedef){
-        
+
         var tside = o_.map.sidedef[i];
-        
+
         if (tside.sector == sector){
-            
+
             // get lines
             for (var j in o_.map.linedef){                                
-                
+
                 var tline = o_.map.linedef[j];
-                
+
                 if (tline.sideback == i ) {                    
-                    
+
                     var heightceiling = o_.map.sector[ o_.map.sidedef[ tline.sidefront ].sector ].heightceiling;
                     // choose lowest
                     height = (height > heightceiling) ? heightceiling : height;
-                    
+
                     backlines.push(j);
-                    
+
                 } else if ( tline.sidefront == i) {
-                    
+
                     frontlines.push(j);
-                    
+
                 }
             }
         }
     }
-    
+
     // find walls
     //
     for (var i in r_.walls) {
@@ -159,7 +158,7 @@ c_.opendoor = function(sector, type){
         for (var j in backlines){
 
             if ( r_.walls[i].linedef == backlines[j]){                                
-                
+
                 walls.push(i);
 
             } else if ( r_.walls[i].linedef == frontlines[j]){
@@ -180,15 +179,39 @@ c_.opendoor = function(sector, type){
             ceiling = i;
         }
     }
-    
+
     o_.map.actions.push({ 
-        special     : type, 
+        special     : special, 
         sector      : sector,
         ceiling     : ceiling,
         walls       : walls,
         height      : height 
-    });
+    });  
+    
     s_.play( s_.opendoor );
+};
+
+c_.opendoorTag = function( tag, special ){
+    
+    var sectors = [];
+    
+    for (var s in o_.map.sector) {
+            
+        var sector = o_.map.sector[s];
+
+        if (sector.id == tag) {
+
+            sectors.push(s);
+        }
+
+        if (s == o_.map.sector.length-1){
+
+            for (var s in sectors) {
+            
+                c_.opendoor( sectors[s], special);
+            }
+        }
+    }
 };
 
 c_.prevweapon = function(){

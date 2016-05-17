@@ -1472,8 +1472,11 @@ r_.updateSpecials = function(delta){
                     
                     var twall = r_.walls[ taction.walls[i] ];
                     twall.position.y += 100 * delta;
+                    
+                    var geoHeight = (twall.geometry.parameters.height < 0) ? twall.geometry.parameters.height * -1 : twall.geometry.parameters.height;
 
-                    if ( twall.position.y >= taction.height + (twall.geometry.parameters.height/2) -2 ) {
+                    if ( twall.position.y >= taction.height + (geoHeight/2) -2 ) {                        
+                        
                         console.log('......door opened')
                         // stop the door, remove action
                         o_.map.actions.splice( a, 1 );

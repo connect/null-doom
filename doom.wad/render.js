@@ -272,6 +272,8 @@ r_.hud.update = new function(){
                 if (p_.weapons[ weapons[i] ] == true && map != r_.imgs[ 'STYSNUM'+i ]) {
                     
                     r_.hud[ 'wpn' + weapons[i] ][0].material.map = r_.imgs[ 'STYSNUM'+i ];
+                    
+                    r_.hud.smile();
                 }
             }
         }

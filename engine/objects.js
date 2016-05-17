@@ -321,6 +321,13 @@ o_.map = new function(){
         r_.weapon.obj = null;
         r_.hud.objects = [];
         
+        // clrar keys
+        p_.keys     = {};
+        p_.powerups = {};
+        
+        // clear cheats
+        cfg.noclip  = false;
+        
         // clear image cache
         for (var j in r_.imgs){
             
@@ -399,6 +406,10 @@ o_.map = new function(){
                         
                         // this is front side for the line
                         if (t.linedef[j].sidefront == i) {
+                            
+                            //
+                            // FRONAL SIDE
+                            //
 
                             lines[j] = t.linedef[j];
                             lines.count++;
@@ -407,12 +418,7 @@ o_.map = new function(){
                             
                             // upper sidefront texture
                             if ( sides[i].texturetop != '-' ) {      
-                                
-                                //
-                                // FRONAL SIDE
-                                //
-                                
-                                
+                   
                                 if ( t.sidedef[ t.linedef[j].sideback ] != undefined) 
                                     // ignore upper texture if both sectors have SKY ceiling texture
                                 if ( !(tsector.textureceiling.indexOf('SKY') != -1 && t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].textureceiling.indexOf('SKY') != -1) ){  
@@ -491,6 +497,7 @@ o_.map = new function(){
                                     var wall        = new THREE.Mesh( geoWall, matWall );                            
                                     
                                     wall.linedef = j;
+                                    wall.sidedef = i;
                                     wall.rotateY( wallAngle );
                                     wall.position.set( 
                                         (-v1.x -v2.x)/2, 
