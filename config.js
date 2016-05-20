@@ -9,10 +9,10 @@
 
 var cfg = {
     mod                 : 'doom.wad',
-    screenmode          : '800x600',
+    screenmode          : '1024x768',
     fullscreen          : 0,
     playerHeight        : 45,
-    musicvolume         : 0,
+    musicvolume         : 0.5,
     noclip              : 0,
     gl_light            : 0,
     

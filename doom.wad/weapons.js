@@ -206,8 +206,8 @@ o_.weapons = {
         delay       : 0,
         cooldown    : 7,
         onFire      : function(){
-            
-            if ( p_.ammo[ p_.weapon ] < 1) return false;
+                        
+            if ( p_.ammo[ o_.weapons[ p_.weapon ].ammo ] < 1) return false; 
             
             var matrix = new THREE.Matrix4();
             var direction = i_.controls.getDirection( new THREE.Vector3() );
@@ -245,7 +245,7 @@ o_.weapons = {
                     
                 }
             }
-            p_.ammo[ p_.weapon ] -= 1;
+            p_.ammo[ o_.weapons[ p_.weapon ].ammo ] -= 1;
             return true;
         },
         onPickup    : function(){

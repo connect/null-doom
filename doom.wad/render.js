@@ -46,7 +46,7 @@ r_.hud.draw = function(){
 
     // FACE
     //                     
-
+    /*
     r_.mats.face =  {
         smiling: [
             new THREE.SpriteMaterial({map: r_.imgs.STFEVL0}), 
@@ -57,26 +57,15 @@ r_.hud.draw = function(){
             new THREE.SpriteMaterial({map: r_.imgs.STFST02})
         ]
     };
-    r_.hud.face = new THREE.Sprite(r_.mats.face[0]);
+    */
+    r_.hud.face = new THREE.Sprite( new THREE.SpriteMaterial({ map: r_.imgs[ 'STFST00' ]}) );
     r_.hud.face.scale.set( 24 * r_.scale, 29 * r_.scale, 1);
     r_.hud.face.position.set( 0, (r_.height/-2) + (29 * r_.scale / 2), 11);
     r_.hud.objects.push( r_.hud.face );
     r_.hudScene.add( r_.hud.face );
 
-    // animate
-    r_.animateFace = function(){           
-        
-        if (r_.hud.smiling) {
-            
-            r_.hud.face.material = r_.mats.face.smiling[0];            
-            
-        } else {
-            
-            r_.hud.face.material = r_.mats.face.normal[ c_.random(0,2) ];            
-            window.setTimeout(r_.animateFace, c_.random(500, 5000));
-        }
-    };
-    r_.animateFace();
+    // animate    
+    r_.hud.update.face();
 
     // AMMO
     //    
@@ -118,47 +107,16 @@ r_.hud.draw = function(){
         
     
     // Ammo Info
-    r_.drawStatusText({
-        text: '50', prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'rtl',
-        x: '91%',   z: '10%'  
-    });
-    r_.drawStatusText({
-        text: '0',  prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'rtl',
-        x: '91%',   z: '7.5%'  
-    });
-    r_.drawStatusText({
-        text: '0',  prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'rtl',
-        x: '91%',   z: '5%'  
-    });
-    r_.drawStatusText({
-        text: '0',  prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'rtl',
-        x: '91%',   z: '2.5%'  
-    });
-    
-    r_.drawStatusText({
-        text: '200', prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'rtl',
-        x: '99%',   z: '10%'  
-    });
-    r_.drawStatusText({
-        text: '50', prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'rtl',
-        x: '99%',   z: '7.5%'  
-    });
-    r_.drawStatusText({
-        text: '50', prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'rtl',
-        x: '99%',   z: '5%'  
-    });
-    r_.drawStatusText({
-        text: '300', prefix: 'STYS',
-        width: 4,   height: 6,      direction: 'rtl',
-        x: '99%',   z: '2.5%'  
-    });
+    r_.hud.bullets      = r_.drawStatusYellow('__0','91%','10%', true);
+    r_.hud.shells       = r_.drawStatusYellow('__0','91%','7.5%',true);
+    r_.hud.rockets      = r_.drawStatusYellow('__0','91%','5.0%',true);
+    r_.hud.cells        = r_.drawStatusYellow('__0','91%','2.5%',true);    
+
+    r_.hud.bullets_max  = r_.drawStatusYellow('200','99%','10%', true);
+    r_.hud.shells_max   = r_.drawStatusYellow('_50','99%','7.5%',true);
+    r_.hud.rockets_max  = r_.drawStatusYellow('_50','99%','5.0%',true);
+    r_.hud.cells_max    = r_.drawStatusYellow('300','99%','2.5%',true);
+        
     
     // Keys
     //
@@ -202,16 +160,21 @@ r_.hud.update = new function(){
     
     var t = this;
     
-    t.ammo_value    = 0;
-    t.armor_value   = 0;
+    t.ammo_value    = '0';
+    t.armor_value   = '0';
     t.health_value  = '100';
     t.redkey        = false;
     t.yellowkey     = false;
     t.bluekey       = false;
+    t.bullets       = '0';
+    t.shells        = '0';
+    t.rockets       = '0';
+    t.cells         = '0';
     
     t.all = function(){
         
-        t.ammo();        
+        t.ammo(); 
+        t.ammos();
         t.armor();
         t.arms();
         t.health();
@@ -220,7 +183,7 @@ r_.hud.update = new function(){
     
     t.ammo = function(){
         
-        var value = p_.ammo[ o_.weapons[ p_.weapon ].ammo ].toString();
+        var value = (p_.ammo[ o_.weapons[ p_.weapon ].ammo ] != undefined) ? p_.ammo[ o_.weapons[ p_.weapon ].ammo ].toString() : '0';        
         
         if (t.ammo_value != value) { // prevent redraw without need
             
@@ -232,6 +195,31 @@ r_.hud.update = new function(){
                 var n    = value[ value.length -1 -i ] || '_';                      
                 
                 tobj.material.map = r_.imgs[ 'STTNUM' +n ];             
+            }
+        }
+    };
+    
+    t.ammos = function(){
+        
+        var atype = [ 'bullets', 'shells', 'rockets', 'cells'];
+        
+        for (var i in atype){
+            
+            var value = (p_.ammo[ atype[i] ] != undefined) ? p_.ammo[ atype[i] ].toString() : '0';
+            
+            
+            if (t[ atype[i] ] != value) {
+            
+                t[ atype[i] ] = value;
+            
+                for (var j = 0; j < 3; j++){
+
+                    var tobj = r_.hud[ atype[i] ][j];
+                    var n    = value[ value.length -1 -j ] || '_';                      
+                    //console.log( atype[i], t[atype[i]], value, tobj)
+                    tobj.material.map = r_.imgs[ 'STYSNUM' +n ];             
+                }
+                
             }
         }
     };
@@ -283,6 +271,24 @@ r_.hud.update = new function(){
         }
     };
     
+    t.face = function(){           
+        
+        var state = 5 - Math.ceil( (p_.health+1) /20 );
+        state = (state < 0) ? '0' : state.toString();
+        
+        if (r_.hud.smiling) {
+            
+            r_.hud.face.material.map = r_.imgs[ 'STFEVL' + state ];            
+            
+        } else {
+            
+            //r_.hud.face.material = r_.mats.face.normal[ c_.random(0,2) ];            
+            r_.hud.face.material.map = r_.imgs[ 'STFST' + state + c_.random(0,2).toString() ];            
+            window.setTimeout(t.face, c_.random(500, 5000));
+            //console.log(r_.imgs['STFST' + state + c_.random(0,2).toString()])
+        }
+    };
+    
     t.health = function(){
         
         var value = p_.health.toString();
@@ -290,6 +296,7 @@ r_.hud.update = new function(){
         if (t.health_value != value) { // prevent redraw without need
             
             t.health_value = value;
+            t.face();
             
             for (var i = 0; i < 3; i++){ // skip '%' char
 
@@ -365,19 +372,19 @@ r_.hud.update = new function(){
             r_.hud.redkey.material.map = r_.imgs.STKEYS_;
             t.redkey = false;
         }
-    };
+    };        
         
 }; 
 
 r_.hud.smile = function(){
   
     r_.hud.smiling = true;
-    r_.animateFace();
+    r_.hud.update.face();
     
     window.setTimeout(function(){ 
 
         r_.hud.smiling = false;
-        r_.animateFace();
+        r_.hud.update.face();
         
     }, 2000);        
 };
@@ -457,6 +464,26 @@ r_.modInit = function(){
             'STFST01',
             'STFST02',
             
+            'STFEVL1',
+            'STFST10',
+            'STFST11',
+            'STFST12',
+            
+            'STFEVL2',
+            'STFST20',
+            'STFST21',
+            'STFST22',
+            
+            'STFEVL3',
+            'STFST30',
+            'STFST31',
+            'STFST32',
+            
+            'STFEVL4',
+            'STFST40',
+            'STFST41',
+            'STFST42',
+            
             // keys
             'STKEYS_',
             'STKEYS0',
@@ -482,6 +509,7 @@ r_.modInit = function(){
             'STTPRCNT',
 
             // Yellow small font
+            'STYSNUM_',
             'STYSNUM0',
             'STYSNUM1',
             'STYSNUM2',
