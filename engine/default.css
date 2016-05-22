@@ -45,3 +45,10 @@ canvas {
 #stats #fpsGraph {
     display: none;
 }
+
+#con {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    color: #fff;
+}

@@ -85,8 +85,13 @@ o_.powerups = {
         thing       : 2011,
         onPickup    : function(){
             
-            if (p_.health < 100) {
+            if (p_.health < 90) {
                 
+                p_.health += 10;
+                
+            } else if (p_.health < 100) {
+                
+                p_.health = 100;
             }
             
             return u_.msg.GOTSTIM;
@@ -95,6 +100,15 @@ o_.powerups = {
     medkit: {
         thing       : 2012,
         onPickup    : function(){
+            
+            if (p_.health < 75) {
+                
+                p_.health += 25;
+                
+            } else if (p_.health < 100) {
+                
+                p_.health = 100;
+            }
             
             return u_.msg.GOTMEDIKIT;
         }
@@ -112,7 +126,10 @@ o_.powerups = {
         thing       : 2014,
         onPickup    : function(){
             
-            p_.health += 1;
+            if (p_.health < 200) { 
+                
+                p_.health += 1;
+            }
             
             return u_.msg.GOTHTHBONUS;
         }

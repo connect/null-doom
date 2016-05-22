@@ -448,7 +448,7 @@ o_.map = new function(){
 
                                     r_.objects.push(wall);
                                     r_.walls.push(wall);
-                                    if ( t.linedef[j].blocking ) r_.obstacles.push(wall);
+                                    if ( t.linedef[j].blocking || t.linedef[j].special != 0) r_.obstacles.push(wall);
                                     if (drawWalls) r_.scene.add(wall);
                                 }
                             }
@@ -509,7 +509,8 @@ o_.map = new function(){
                             
                                     r_.objects.push(wall);
                                     r_.walls.push(wall);
-                                    if ( t.linedef[j].blocking ) r_.obstacles.push(wall);
+                                    //if ( t.linedef[j].blocking ) r_.obstacles.push(wall);
+                                    r_.obstacles.push(wall);
                                     if (drawWalls) r_.scene.add(wall);                                    
                                 }
                             }

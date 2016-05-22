@@ -273,6 +273,9 @@ r_.hud.update = new function(){
     
     t.face = function(){           
         
+        // stop face timer if exist
+        window.clearTimeout( r_.hud.face.timer );
+        
         var state = 5 - Math.ceil( (p_.health+1) /20 );
         state = (state < 0) ? '0' : state.toString();
         
@@ -280,12 +283,14 @@ r_.hud.update = new function(){
             
             r_.hud.face.material.map = r_.imgs[ 'STFEVL' + state ];            
             
-        } else {
+        } else if (r_.hud.pain) {
             
-            //r_.hud.face.material = r_.mats.face.normal[ c_.random(0,2) ];            
+            r_.hud.face.material.map = r_.imgs[ 'STFKILL' + state ];            
+            
+        } else {
+                        
             r_.hud.face.material.map = r_.imgs[ 'STFST' + state + c_.random(0,2).toString() ];            
-            window.setTimeout(t.face, c_.random(500, 5000));
-            //console.log(r_.imgs['STFST' + state + c_.random(0,2).toString()])
+            r_.hud.face.timer = window.setTimeout(t.face, c_.random(500, 5000));
         }
     };
     
@@ -459,26 +464,31 @@ r_.modInit = function(){
             'STBAR',
 
             // Face
+            'STFKILL0',
             'STFEVL0',
             'STFST00',
             'STFST01',
             'STFST02',
             
+            'STFKILL1',
             'STFEVL1',
             'STFST10',
             'STFST11',
             'STFST12',
             
+            'STFKILL2',
             'STFEVL2',
             'STFST20',
             'STFST21',
             'STFST22',
             
+            'STFKILL3',
             'STFEVL3',
             'STFST30',
             'STFST31',
             'STFST32',
             
+            'STFKILL4',
             'STFEVL4',
             'STFST40',
             'STFST41',

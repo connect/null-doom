@@ -12,7 +12,7 @@ var cfg = {
     screenmode          : '1024x768',
     fullscreen          : 0,
     playerHeight        : 45,
-    musicvolume         : 0.5,
+    musicvolume         : 0.3,
     noclip              : 0,
     gl_light            : 0,
     

@@ -34,15 +34,43 @@ c_.give = function(item, silent){
                 o = o_.weapons[item];                             
                 
                 p_.weapons[item] = true; // give weapon itself
-                p_.ammo[ o_.weapons[ item ].ammo ] = (p_.ammo[ o_.weapons[ item ].ammo ] != undefined) ? p_.ammo[ o_.weapons[ item ].ammo ] + o.contains : o.contains ; // provide ammo
+                
+                var ammo_max = o_.ammo[ o_.weapons[ item ].ammo ].capacity;
+                var ammo_has = p_.ammo[ o_.weapons[ item ].ammo ] || 0;                
+                     
+                if ( ammo_has < ammo_max ) {
+
+                    if ( ammo_has + o.contains <= ammo_max ) {
+                
+                        p_.ammo[ o_.weapons[ item ].ammo ] = ammo_has + o.contains;
+                        
+                    } else {
+                        
+                        p_.ammo[ o_.weapons[ item ].ammo ] = ammo_max;
+                    }
+                    
+                }
                 
             } else if(o_.ammo[item] != undefined) {
                 
                 o = o_.ammo[item];
                 
-                p_.ammo[ o.ammotype ] += o.capacity;
+                var ammo_max = o_.ammo[ o.ammotype ].capacity;
+                var ammo_has = p_.ammo[ o.ammotype ] || 0;                
+                            
+                if ( ammo_has < ammo_max ) {
                 
-                o.onPickup = o_.ammo.onPickup;
+                    if ( ammo_has + o.capacity <= ammo_max ) {
+                
+                        p_.ammo[ o_.ammo[item].ammotype ] = ammo_has + o.capacity;
+                        
+                    } else {
+                        
+                        p_.ammo[ o_.ammo[item].ammotype ] = ammo_max;
+                    }
+                    
+                    o.onPickup = o_.ammo.onPickup;
+                }
                 
             } else if(o_.powerups[item] != undefined) {
                                 

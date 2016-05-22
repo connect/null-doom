@@ -14,6 +14,7 @@ s_.opendoor     = 'DSDOROPN.ogg';
 s_.getweapon    = 'DSSGCOCK.ogg';
 s_.getitem      = 'DSITEMUP.ogg';
 s_.ugh          = 'DSNOWAY.ogg';
+s_.playerpain   = 'DSPLPAIN.ogg';
 
 s_.chainsaw     = 'DSSAWFUL.ogg';
 s_.fist         = 'DSPUNCH.ogg';
@@ -28,9 +29,13 @@ s_.bgdeath2     = 'DSBGDTH2.ogg';
 s_.podeath1     = 'DSPODTH1.ogg';
 s_.podeath2     = 'DSPODTH2.ogg';
 s_.podeath3     = 'DSPODTH3.ogg';
+s_.posit1       = 'DSPOSIT1.ogg';
+s_.posit2       = 'DSPOSIT2.ogg';
+s_.posit3       = 'DSPOSIT3.ogg';
 s_.popain       = 'DSPOPAIN.ogg';
 s_.dmpain       = 'DSDMPAIN.ogg';
 s_.dmdeath      = 'DSSGTDTH.ogg';
+
 
 
 s_.play('D_INTRO.mp3');

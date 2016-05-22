@@ -13,6 +13,7 @@
 r_.prevTime     = performance.now();
 r_.velocity     = new THREE.Vector3();   
 r_.objects      = [];
+r_.obstacles    = [];
 r_.floors       = [];
 r_.ceilings     = [];
 r_.walls        = [];
@@ -46,15 +47,20 @@ r_.animate = function () {
     
     if (g_.state == 'ingame') {
     
+        
         r_.bobfactor    = r_.bobfactor  || 0; // camera bob
+        var oldBobfactor= r_.bobfactor;       // save bobfactor
         r_.weapon.sin   = r_.weapon.sin || 0; // weapon bob
         r_.weapon.cos   = r_.weapon.cos || 0;
 
         r_.frustum.setFromMatrix( new THREE.Matrix4().multiplyMatrices( r_.camera.projectionMatrix, r_.camera.matrixWorldInverse ) );
 
+        r_.globaltimer = (r_.globaltimer * 100 * delta > 10) ? 0 : parseInt(r_.globaltimer)+1;
+
         // hide objects that out of frustum
-        for (var i in r_.objects){
-            r_.objects[i].visible = r_.frustum.intersectsObject( r_.objects[i] );
+        
+        for (var i in r_.obstacles){
+            r_.obstacles[i].visible = r_.frustum.intersectsObject( r_.obstacles[i] );
         }
 
         r_.hud.update.all();
@@ -71,7 +77,7 @@ r_.animate = function () {
 
             // change bobfactor while moving
             if ( i_.act.forward || i_.act.back || i_.act.left || i_.act.right) {
-
+                   
                 r_.bobfactor  = Math.sin( time / 100 ) * 5;
                 r_.weapon.sin = Math.sin( time / 300 ) * 50;
                 r_.weapon.cos = Math.cos( time / 300 ) ;
@@ -143,7 +149,6 @@ r_.animate = function () {
 
             // test collisions against walls
             //
-
             var matrix = new THREE.Matrix4();
             var hits   = [];
             //r_.direction = (r_.direction) ? r_.direction : new THREE.Vector3().copy( i_.controls.getDirection(new THREE.Vector3() ) );
@@ -166,7 +171,7 @@ r_.animate = function () {
             // test collisions agains items
             //
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );        
-            r_.raycaster.ray.origin.y -= (cfg.playerHeight/2) - 2;
+            r_.raycaster.ray.origin.y -= (cfg.playerHeight/2) + 16;
             r_.raycaster.far           = 100;
 
             // cast 5 rays
@@ -181,7 +186,7 @@ r_.animate = function () {
             r_.raycaster.ray.direction.copy( r_.direction );
             hits.push( r_.raycaster.intersectObjects( r_.sprites )[0] );
 
-            // +5 ray
+            // +10 ray
             matrix.makeRotationY( 20 * Math.PI / 180 ); // +10 to direct
             r_.direction.applyMatrix4(matrix);
             r_.raycaster.ray.direction.copy( r_.direction );
@@ -272,92 +277,120 @@ r_.animate = function () {
                 r_.raycaster.ray.origin.copy( i_.controls.getObject().position);
                 r_.raycaster.ray.origin.y -= (cfg.playerHeight/2);
                 r_.raycaster.ray.direction.copy( r_.direction ); 
-                r_.raycaster.far           = 25;
-                var hits = r_.raycaster.intersectObjects( r_.walls );
+                r_.raycaster.far           = 20;
+                var hits = r_.raycaster.intersectObjects( r_.obstacles );
 
                 if (hits[0] != undefined)
-                if (hits[0].distance < 20) {
+                if (hits[0].distance < 15) {
 
+                    var angle = Math.atan2( i_.controls.getObject().position.z - hits[0].point.z ,  i_.controls.getObject().position.x - hits[0].point.x);
+                    
                     // pushback alittle                    
+                    i_.controls.getObject().position.x = hits[0].point.x + Math.cos(angle) * 15;
+                    i_.controls.getObject().position.z = hits[0].point.z + Math.sin(angle) * 15;                                                                                
+                    
                     if (i_.act.forward)     {
                         i_.act.forward  = false;
-                        r_.velocity.z   = 21;
+                        r_.velocity.z   = 0;
 
                     } else if (i_.act.back ) {
-                    //} else {
+                    
 
                         i_.act.back     = false;
-                        r_.velocity.z   = -21;
+                        r_.velocity.z   = 0;
                     }
 
                     if (i_.act.left ) {
-                    //if ( r_.direction.x < 0) {
+                        
                         i_.act.left     = false;
-                        r_.velocity.x   = 21;
+                        r_.velocity.x   = 0;
 
                     } else if (i_.act.right ) {
-                    //} else {
+                    
                         i_.act.right    = false;
-                        r_.velocity.x   = -21;
+                        r_.velocity.x   = 0;
 
                     }  
-                    //r_.velocity = new THREE.Vector3(0,0,0);
-                    //console.log( r_.direction.x, r_.direction.z );
+                    
                     r_.direction = false;
+                        
                 }
             }
 
-
-
             // test collisions against floor
             //        
+            var casterHeight = 200;
             r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
-            r_.raycaster.ray.origin.y += 200;//cfg.playerHeight;
+            r_.raycaster.ray.origin.y += casterHeight;//cfg.playerHeight;
             r_.raycaster.ray.direction.set( 0, -1, 0 );
             r_.raycaster.far           = 900;
-
+            
             var hits = r_.raycaster.intersectObjects( r_.floors );
 
             // @FIXME
             if (hits[0] != undefined) {
 
                 // player weapon shading
+                //
                 var tsector = o_.map.sector[ hits[0].object.sector ];
                 var color   = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
+                var isOnObj = false;
                 r_.weapon.obj.material.color = color;
-                r_.weapon.obj.material.needsUpdate  = true;             
+                r_.weapon.obj.material.needsUpdate  = true;    
+                                 
+                // player Y position
+                //
+                if (Math.round( hits[0].distance ) < Math.round( casterHeight + cfg.playerHeight + oldBobfactor) ) {
+                                      
+                    // below the floor
+                    isOnObj = true;
+                    r_.velocity.y = 0;                    
+                    i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;                                        
 
-                if (hits[0].distance < cfg.playerHeight) {
-                    //console.log( hits[0].object)
-                    i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;
+                } else if (Math.round( hits[0].distance ) > Math.round( casterHeight + cfg.playerHeight + oldBobfactor ) ) {
+                    
+                    // above the floor
+                    //i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;
+                    
+                } else {
+                    
+                    // on the floor                    
+                    r_.velocity.y = 0;        
+                    isOnObj       = true;
 
-                } else if (hits[0].distance > cfg.playerHeight) {
-
-                    i_.controls.getObject().position.y = hits[0].object.position.y + cfg.playerHeight + r_.bobfactor;
                 }
-            } else {
+                
+                // check for enviromental hazards
+                if ( tsector.texturefloor.indexOf('NUKAGE') != -1 && isOnObj) {                                                
 
+                    var duration    = 1000;
+                    var val         = r_.hud.face.nextani || 0;
+
+                    // hurt
+                    if ( time > val ) {
+
+                        r_.hud.face.nextani = time + duration;
+                        p_.hurt( 2 );
+                    }
+                }
+                
+            } else {
+                
+                // no floor at all
+                isOnObj = true;
+                r_.velocity.y = 0; 
                  //i_.controls.getObject().position.y = cfg.playerHeight;
             }
 
-            var isOnObject = true; 
-
             r_.velocity.x -= r_.velocity.x * 5.0 * delta; // 5.0 = speed
-            r_.velocity.z -= r_.velocity.z * 5.0 * delta;
-            r_.velocity.y -= 9.8 * 150.0 * delta; // 9.8 = ?; 100.0 = mass       
+            r_.velocity.z -= r_.velocity.z * 5.0 * delta;            
+            r_.velocity.y -= (isOnObj) ? 0 : 9.8 * 200.0 * delta; // 9.8 = ?; 100.0 = mass       
 
             if ( i_.act.forward ) r_.velocity.z -= 1600.0 * delta;
             if ( i_.act.back )    r_.velocity.z += 1600.0 * delta;
 
             if ( i_.act.left )    r_.velocity.x -= 1600.0 * delta;
             if ( i_.act.right )   r_.velocity.x += 1600.0 * delta;
-
-            if ( isOnObject === true ) {
-                r_.velocity.y = Math.max( 0, r_.velocity.y );
-                i_.act.jump = true;
-            }
-
-            //console.log( r_.velocity.x, r_.velocity.y, r_.velocity.z );
 
             i_.controls.getObject().translateX( r_.velocity.x * delta );
             i_.controls.getObject().translateY( r_.velocity.y * delta );
@@ -372,9 +405,7 @@ r_.animate = function () {
             i_.controls.getObject().position.y = cfg.playerHeight;
             i_.act.jump = true;
         } 
-        */                             
-
-        r_.globaltimer = (r_.globaltimer * 100 * delta > 10) ? 0 : parseInt(r_.globaltimer)+1; 
+        */                                      
 
         // update animated floors
         //
@@ -1358,7 +1389,8 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     plane.hp    = hp;
     plane.type  = type;
     plane.frame = frame;
-    plane.angle = angle;
+    plane.activated = false;
+    plane.angle = angle;    
     plane.state = (state != undefined) ? state : 'move';
 
     if ( thing.class.indexOf('O') != -1 ) r_.obstacles.push(plane); // add obstacle
@@ -1495,13 +1527,88 @@ r_.updateThings = function (delta){
     
     for (var i in r_.sprites){
 
-        if (!r_.sprites[i].visible) continue;
-            
         var o = r_.sprites[i];       
         var tsector;
+        
+        // Check visibility of monsters
+        //       
+        var thing = o_.things[ o.type ];
+        
+        if ( thing.class.indexOf('M') != -1 ) {
+            
+            var p1 = new THREE.Vector3().copy( i_.controls.getObject().position );
+            p1.y += cfg.playerHeight / 2;
+            var p2 = new THREE.Vector3().copy( o.position );
+            p2.y += o.geometry.parameters.height / 2;
+            var direction = new THREE.Vector3()
+                    .copy( p2 )
+                    .sub( p1 )
+                    .normalize();
 
-        r_.raycaster.ray.origin.copy( o.position );
-        r_.raycaster.ray.origin.y += 400;
+            r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+            r_.raycaster.ray.direction.copy( direction );
+            r_.raycaster.far = 2048;
+
+            var hits = r_.raycaster.intersectObjects( r_.objects );
+            
+            if ( hits[0] != undefined) {                
+
+                if ( hits[0].object.id == o.id ) { // can see you
+
+                    if (o.activated == false) {
+                        
+                        s_.play( s_[ 'posit' + c_.random(1,3) ] );
+                        //o.state     = 'attack';
+                        //o.frame     = 0;
+                        o.activated = true;                        
+                    }
+                    
+                    o.enemypos = new THREE.Vector3().copy( i_.controls.getObject().position );
+                    o.cansee    = true;
+                    
+                } else { // can't see player
+                    
+                    o.cansee    = false;
+                    /*
+                    if (o.state == 'attack') {
+                        
+                        o.state = 'move';
+                        o.frame = 0;
+                    }*/
+                }                
+            }
+            
+            // Move Monster
+            if ( o.activated && o.state != 'death' ) {
+                
+                if (o.cansee) {
+
+                    if (o.state == 'move') {
+                        o.state = 'attack';
+                        o.frame = 0;
+                    }
+                    
+                } else {
+                
+                    if ( o.state == 'attack') {
+                        o.state = 'move';
+                        o.frame = 0;
+                    }
+                    
+                    var pos = new THREE.Vector3().copy( o.position );
+                    var pose = new THREE.Vector3().copy( o.enemypos );
+                    o.position.x = pos.x + 0.005 * (pose.x - pos.x );
+                    o.position.z = pos.z + 0.005 * (pose.z - pos.z );
+                
+                }
+            }
+        }                 
+            
+        // Check thing position
+
+        r_.raycaster.ray.origin.copy( o.position );        
+        r_.raycaster.ray.origin.y += 400;        
+        r_.raycaster.ray.direction.set(0,-1,0);
 
         var hits = r_.raycaster.intersectObjects( r_.floors );
 
@@ -1524,9 +1631,11 @@ r_.updateThings = function (delta){
             tsector = o_.map.sector[0];
         }
 
+        if (!r_.sprites[i].visible) continue;
+
         // rotate things to allways face the player
         o.rotation.y = i_.controls.getObject().rotation._y;
-
+                       
         // update animation
         //
         if (r_.globaltimer == 1) {
@@ -1638,7 +1747,8 @@ r_.updateThings = function (delta){
                // o.material.emissive     = emissive;
                 o.material.needsUpdate  = true;                                       
             }
-        }                        
+        }       
+                                               
     }
 };
 

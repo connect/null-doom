@@ -30,8 +30,22 @@ $.extend(p_, {
         'rocketlauncher',
         'plasmagun',
         'bfg'
-    ]
+    ],
+    hurt        : function(damage){
+        
+        p_.health      -= damage;
+        r_.hud.smiling  = false;
+        r_.hud.pain     = true;        
+        r_.hud.update.face();
+        s_.play( s_.playerpain );
 
+        window.setTimeout(function(){ 
+
+            r_.hud.pain     = false;
+            r_.hud.update.face();            
+            
+        }, 2000);
+    }
 });
 
 w_.loadNext();
