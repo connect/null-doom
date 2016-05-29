@@ -312,6 +312,7 @@ o_.map = new function(){
         r_.obstacles= [];
         r_.sprites  = [];
         r_.floors   = [];
+        r_.player   = null;
         
         // clear hud
         /*
@@ -632,8 +633,7 @@ o_.map = new function(){
                 
                 r_.drawFlats(lines, tsector, sectorIndex);
             }
-             
-        
+                     
         }
         
         //

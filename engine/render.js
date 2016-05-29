@@ -58,11 +58,11 @@ r_.animate = function () {
         r_.globaltimer = (r_.globaltimer * 100 * delta > 10) ? 0 : parseInt(r_.globaltimer)+1;
 
         // hide objects that out of frustum
-        
+        /*
         for (var i in r_.obstacles){
             r_.obstacles[i].visible = r_.frustum.intersectsObject( r_.obstacles[i] );
         }
-
+        */
         r_.hud.update.all();
 
         // Animate POV weapon 
@@ -78,7 +78,7 @@ r_.animate = function () {
             // change bobfactor while moving
             if ( i_.act.forward || i_.act.back || i_.act.left || i_.act.right) {
                    
-                r_.bobfactor  = Math.sin( time / 100 ) * 5;
+                r_.bobfactor  = 0//Math.sin( time / 100 ) * 5;
                 r_.weapon.sin = Math.sin( time / 300 ) * 50;
                 r_.weapon.cos = Math.cos( time / 300 ) ;
             } 
@@ -101,14 +101,14 @@ r_.animate = function () {
                 //console.log('->FIRE: delay');
             }
 
-            if ( !i_.act.attack && r_.weapon.state == 'delay') {
+            else if ( !i_.act.attack && r_.weapon.state == 'delay') {
 
                 // cancel delay
                 r_.weapon.state = 'ready';
                 //console.log('FIRE: ready');
             }        
 
-            if ( i_.act.attack && r_.weapon.state == 'delay') {
+            else if ( i_.act.attack && r_.weapon.state == 'delay') {
 
                 if (r_.weapon.delay > o_.weapons[ p_.weapon ].delay ){
 
@@ -122,9 +122,9 @@ r_.animate = function () {
                     r_.weapon.delay += 100 * delta;
                     //console.log('weapon.delay:',r_.weapon.delay )
                 }
-            };
+            }
 
-            if ( r_.weapon.state == 'cooldown'){
+            else if ( r_.weapon.state == 'cooldown'){
 
                 if (r_.weapon.cooldown > o_.weapons[ p_.weapon ].cooldown ){
 
@@ -136,7 +136,7 @@ r_.animate = function () {
                 }
             }
 
-            if ( i_.act.attack && r_.weapon.state == 'fire') {
+            else if ( i_.act.attack && r_.weapon.state == 'fire') {
 
                 if (o_.weapons[ p_.weapon ].onFire() ) {
                     s_.play( o_.weapons[ p_.weapon ].sfx_fire );
@@ -285,7 +285,7 @@ r_.animate = function () {
 
                     var angle = Math.atan2( i_.controls.getObject().position.z - hits[0].point.z ,  i_.controls.getObject().position.x - hits[0].point.x);
                     
-                    // pushback alittle                    
+                    // push back a little                    
                     i_.controls.getObject().position.x = hits[0].point.x + Math.cos(angle) * 15;
                     i_.controls.getObject().position.z = hits[0].point.z + Math.sin(angle) * 15;                                                                                
                     
@@ -395,7 +395,16 @@ r_.animate = function () {
             i_.controls.getObject().translateX( r_.velocity.x * delta );
             i_.controls.getObject().translateY( r_.velocity.y * delta );
             i_.controls.getObject().translateZ( r_.velocity.z * delta );
+            
+            r_.player.position.copy(  i_.controls.getObject().position );
 
+            // update animated floors
+            //
+            r_.updateFloors(delta);
+            
+            // Update things
+            //
+            r_.updateThings(delta);
         }
 
         /*
@@ -406,14 +415,7 @@ r_.animate = function () {
             i_.act.jump = true;
         } 
         */                                      
-
-        // update animated floors
-        //
-        r_.updateFloors(delta);
-
-        // Update things
-        //
-        r_.updateThings(delta);
+               
 
     }
 
@@ -1420,8 +1422,22 @@ r_.spawnThings = function(){
                 position: { x: -o.x, y: floorheight + cfg.playerHeight,  z: o.y },
                 rotation: { x: 0,    y: (o.angle + 90) * Math.PI / 180 , z: 0   }
             };
+            
+            var texture     = r_.imgs.PLAYA1;
+            var matPlane    = new THREE.MeshPhongMaterial({ map: texture });
+            //var width       = texture.image.width;
+            //var height      = texture.image.height;
+            //var geoPlane    = new THREE.PlaneGeometry(width, height);            
+            var geoBox      = new THREE.BoxGeometry( 5, cfg.playerHeight/2, 5);
+            //var geo         = new THREE.Sphere( 5, 32, 32 );
+            r_.player       = new THREE.Mesh( geoBox, matPlane);
+            r_.objects.push( r_.player );
+            //r_.obstacles.push( r_.player );
+            r_.scene.add( r_.player );
+            
             //i_.controls.getObject().position.set( -o.x, floorheight + cfg.playerHeight, o.y );
             //i_.controls.getObject().rotation.set(0, (o.angle + 90) * Math.PI / 180 , 0 );
+            //r_.objects.push( i_.controls.getObject() );
 
         } else if ( o_.things[ o.type ] != undefined ) {
 
@@ -1535,29 +1551,35 @@ r_.updateThings = function (delta){
         var thing = o_.things[ o.type ];
         
         if ( thing.class.indexOf('M') != -1 ) {
+                        
+            var p1 = new THREE.Vector3().copy( o.position );
+            //p1.y += o.geometry.parameters.height / 2;
             
-            var p1 = new THREE.Vector3().copy( i_.controls.getObject().position );
-            p1.y += cfg.playerHeight / 2;
-            var p2 = new THREE.Vector3().copy( o.position );
-            p2.y += o.geometry.parameters.height / 2;
+            var p2 = new THREE.Vector3().copy( i_.controls.getObject().position );
+            //p2.y += cfg.playerHeight / 2;
+            
             var direction = new THREE.Vector3()
                     .copy( p2 )
                     .sub( p1 )
                     .normalize();
 
-            r_.raycaster.ray.origin.copy( i_.controls.getObject().position );
+            // cast from monster to player
+            r_.raycaster.ray.origin.copy( o.position);
             r_.raycaster.ray.direction.copy( direction );
-            r_.raycaster.far = 2048;
+            r_.raycaster.far = 1024;
 
             var hits = r_.raycaster.intersectObjects( r_.objects );
             
             if ( hits[0] != undefined) {                
 
-                if ( hits[0].object.id == o.id ) { // can see you
+//                /console.log(hits[0].object.id)
+
+                if ( hits[0].object.id == r_.player.id ) { // can see you
 
                     if (o.activated == false) {
                         
                         s_.play( s_[ 'posit' + c_.random(1,3) ] );
+                        console.log(o.id,thing.label,'can see you')
                         //o.state     = 'attack';
                         //o.frame     = 0;
                         o.activated = true;                        
@@ -1578,34 +1600,20 @@ r_.updateThings = function (delta){
                 }                
             }
             
-            // Move Monster
+            // call for AI update
             if ( o.activated && o.state != 'death' ) {
                 
-                if (o.cansee) {
-
-                    if (o.state == 'move') {
-                        o.state = 'attack';
-                        o.frame = 0;
-                    }
+                if (typeof thing.update == 'function') {
                     
-                } else {
-                
-                    if ( o.state == 'attack') {
-                        o.state = 'move';
-                        o.frame = 0;
+                    if (cfg.ai_enabled) {
+                        thing.update(o, delta, hits[0]);
                     }
-                    
-                    var pos = new THREE.Vector3().copy( o.position );
-                    var pose = new THREE.Vector3().copy( o.enemypos );
-                    o.position.x = pos.x + 0.005 * (pose.x - pos.x );
-                    o.position.z = pos.z + 0.005 * (pose.z - pos.z );
-                
                 }
             }
         }                 
             
-        // Check thing position
-
+        // Check thing Y position
+        //
         r_.raycaster.ray.origin.copy( o.position );        
         r_.raycaster.ray.origin.y += 400;        
         r_.raycaster.ray.direction.set(0,-1,0);
@@ -1643,109 +1651,113 @@ r_.updateThings = function (delta){
             var thing       = o_.things[ o.type ];           
             var color, emissive;
             
-            if (thing.camo) {
-                
-                color    = new THREE.Color(0x000000);
-                //emissive = new THREE.Color(0x000000);
-                
-            } else if (o.light != undefined) {
-             
-                color    = new THREE.Color( 0xffffff );
-                //emissive = new THREE.Color( o_.things[ o.type ].light );                
-                
-            } else {
-                
-                color    = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
-                //emissive = new THREE.Color( 0x000000 );
-            }
+            if (thing != undefined) {
+            
+                if (thing.camo) {
 
-            if (thing.class.indexOf('M') != -1) { // monster
+                    color    = new THREE.Color(0x000000);
+                    //emissive = new THREE.Color(0x000000);
 
-                var template = o_.things[ thing.template ];
-                var sequence = thing[ o.state ] || template[ o.state ];
+                } else if (o.light != undefined) {
 
-                if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
-
-                    // let it finally die
-                    if ( o.state == 'death') {
-
-                        // remove sprite                            
-                        r_.sprites.splice( i, 1 );
-
-                        // remove from scene
-                        r_.scene.remove( o );
-
-                        // spawn corpse
-                        r_.spawnThing( thing.corpse, o.position.x, o.position.z, o.position.y );      
-
-                        break;
-
-                    } else if (o.state == 'pain') {
-                        
-                        o.state = 'move';
-                        o.angle = 1;
-                        var nextFrame = 0;
-                        
-                    } else {
-
-                        var nextFrame = 0;
-                    } 
+                    color    = new THREE.Color( 0xffffff );
+                    //emissive = new THREE.Color( o_.things[ o.type ].light );                
 
                 } else {
 
-                    // there are some frames to show
-
-                    var nextFrame = o.frame + 1;                        
-                }                                                                        
-
-            } else {
-
-                var sequence    = thing.sequence;
-                
-                if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
-
-                    // remove sprite at the end of animation
-                    if ( o.state == 'death') {
-
-                        // remove sprite                            
-                        r_.sprites.splice( i, 1 );
-
-                        // remove from scene
-                        r_.scene.remove( o );
-
-                        break;
-
-                    } else {
-
-                        var nextFrame = 0;
-                    } 
-
-                } else {
-
-                    // there are some frames to show
-
-                    var nextFrame = o.frame + 1;                        
+                    color    = new THREE.Color('rgb('+ tsector.lightlevel +','+ tsector.lightlevel +','+ tsector.lightlevel +')');
+                    //emissive = new THREE.Color( 0x000000 );
                 }
-            }  
 
-            var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];           
+                if (thing.class.indexOf('M') != -1) { // monster
 
-            if (texture == undefined) {
+                    var template = o_.things[ thing.template ];
+                    var sequence = thing[ o.state ] || template[ o.state ];
 
-                console.log('no texture', thing.sprite, o.state, nextFrame, o.angle);
+                    if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
 
-            } else {
+                        // let it finally die
+                        if ( o.state == 'death') {
 
-                var oldtxtr   = r_.imgs[ thing.sprite + sequence[ o.frame ] + o.angle ];                    
+                            // remove sprite                            
+                            r_.sprites.splice( i, 1 );
 
-                o.scale.x               = texture.image.width / oldtxtr.image.width; 
-                o.scale.y               = texture.image.height / oldtxtr.image.height;
-                o.position.y            = o.position.y - (oldtxtr.image.height/2) + (texture.image.height/2);
-                o.frame                 = nextFrame;
-                o.material.map          = texture;
-                o.material.color        = color;
-               // o.material.emissive     = emissive;
-                o.material.needsUpdate  = true;                                       
+                            // remove from scene
+                            r_.scene.remove( o );
+
+                            // spawn corpse
+                            r_.spawnThing( thing.corpse, o.position.x, o.position.z, o.position.y );      
+
+                            break;
+
+                        } else if (o.state == 'pain') {
+
+                            o.state = 'move';
+                            o.angle = 1;
+                            var nextFrame = 0;
+
+                        } else {
+
+                            var nextFrame = 0;
+                        } 
+
+                    } else {
+
+                        // there are some frames to show
+
+                        var nextFrame = o.frame + 1;                        
+                    }                                                                        
+
+                } else {
+
+                    var sequence    = thing.sequence;
+
+                    if ( sequence[ o.frame + 1] == undefined ) { // last frame in sequence                                            
+
+                        // remove sprite at the end of animation
+                        if ( o.state == 'death') {
+
+                            // remove sprite                            
+                            r_.sprites.splice( i, 1 );
+
+                            // remove from scene
+                            r_.scene.remove( o );
+
+                            break;
+
+                        } else {
+
+                            var nextFrame = 0;
+                        } 
+
+                    } else {
+
+                        // there are some frames to show
+
+                        var nextFrame = o.frame + 1;                        
+                    }
+                }  
+
+                var texture     = r_.imgs[ thing.sprite + sequence[ nextFrame ] + o.angle ];           
+
+                if (texture == undefined) {
+
+                    console.log('no texture', thing.sprite, o.state, nextFrame, o.angle);
+
+                } else {
+
+                    var oldtxtr   = r_.imgs[ thing.sprite + sequence[ o.frame ] + o.angle ];                    
+
+                    o.scale.x               = texture.image.width / oldtxtr.image.width; 
+                    o.scale.y               = texture.image.height / oldtxtr.image.height;
+                    o.position.y            = o.position.y - (oldtxtr.image.height/2) + (texture.image.height/2);
+                    o.frame                 = nextFrame;
+                    o.material.map          = texture;
+                    o.material.color        = color;
+                   // o.material.emissive     = emissive;
+                    o.material.needsUpdate  = true;                                       
+                }
+            
             }
         }       
                                                

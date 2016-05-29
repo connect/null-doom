@@ -138,7 +138,10 @@ o_.powerups = {
         thing       : 2015,
         onPickup    : function(){
             
-            p_.armor += 1;
+            if (p_.armor < 200) {
+            
+                p_.armor += 1;
+            }
             
             return u_.msg.GOTARMBONUS;
         }
@@ -147,9 +150,11 @@ o_.powerups = {
         thing       : 2018,
         onPickup    : function(){
             
-            p_.armor        = 100;
-            p_.armortype    = 1;
-            
+            if (p_.armor < 100) {
+                
+                p_.armor        = 100;
+                p_.armortype    = 1;
+            }
             return u_.msg.GOTARMOR;
         }
     },

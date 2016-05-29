@@ -453,6 +453,8 @@ r_.modInit = function(){
             // Pistol
             'PISGA0',
             
+            'PLAYA1',
+            
             // Shotgun
             'SHTGA0',
             'SHTGB0',
@@ -569,7 +571,6 @@ r_.modInit = function(){
     // cache message font '!' character
     r_.img.load({ files: [ 'STCFN121' ] });
 
-
     // initial screen   
     r_.mats.title = [
         new THREE.SpriteMaterial({ map: r_.imgs.TITLEPIC }),
@@ -586,7 +587,7 @@ r_.modInit = function(){
     //
     r_.back = new THREE.Sprite( r_.mats.title[0] );
     r_.back.scale.set( scrWidth, scrHeight, 1);
-    r_.hudScene.add(r_.back);
+    r_.hudScene.add(r_.back);   
     
     /*
     setTimeout(function(){

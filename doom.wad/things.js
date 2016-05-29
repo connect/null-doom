@@ -70,11 +70,11 @@ o_.things = {
         powerup     : 'backpack'
     },
     9: {
+        label       : 'Former Human Sergeant',
         radius      : 20,
         sprite      : 'SPOS',
         sequence    : '+',
-        class       : 'MO',
-        label       : 'Former Human Sergeant',
+        class       : 'MO',        
         template    : 'template1',
         corpse      : 19,
         hp          : 30,
@@ -84,7 +84,37 @@ o_.things = {
         paintime    : 6,
         sfx_pain    : s_.popain,
         sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ],
-        drop        : 2001
+        drop        : 2001,
+        update      : function(o, delta, ray){
+            
+            if (o.cansee) {
+
+                if (o.state == 'move') {
+                    o.state = 'attack';
+                    o.frame = 0;
+                }
+
+            } else {
+
+                if ( o.state == 'attack') {
+                    o.state = 'move';
+                    o.frame = 0;
+                }
+
+                var pos = new THREE.Vector3().copy( o.position );
+                var pose = new THREE.Vector3().copy( o.enemypos );
+                var angle = Math.atan2( pose.z - pos.z,  pose.x - pos.x );
+                
+                // if obstacle
+                //if ( ray.point )
+                
+                
+                // move forward
+                o.position.x = pos.x + Math.cos(angle) * 10 * delta * 8;
+                o.position.z = pos.z + Math.sin(angle) * 10 * delta * 8 ;
+
+            }
+        }
     },
     10: {
         radius      : 16,
@@ -954,11 +984,11 @@ o_.things = {
         powerup     : 'boxofshells'
     },
     3001: {
+        label       : 'Imp',
         radius      : 20,
         sprite      : 'TROO',
         sequence    : '+',
-        class       : 'MO',
-        label       : 'Imp',
+        class       : 'MO',        
         attack      : 'EF',
         death       : 'IJKL',        
         gibs        : 'MNOPQRSTU',
@@ -971,7 +1001,31 @@ o_.things = {
         painchance  : 200,
         paintime    : 4,   
         sfx_pain    : s_.popain,
-        sfx_death   : [ s_.bgdeath1, s_.bgdeath2 ]
+        sfx_death   : [ s_.bgdeath1, s_.bgdeath2 ],
+        update      : function(o){
+            
+            if (o.cansee) {
+
+                if (o.state == 'move') {
+                    o.state = 'attack';
+                    o.frame = 0;
+                }
+
+            } else {
+
+                // stop attack if can't see
+                if ( o.state == 'attack') {
+                    o.state = 'move';
+                    o.frame = 0;
+                }
+                /*
+                var pos = new THREE.Vector3().copy( o.position );
+                var pose = new THREE.Vector3().copy( o.enemypos );
+                o.position.x = pos.x + 0.005 * (pose.x - pos.x );
+                o.position.z = pos.z + 0.005 * (pose.z - pos.z );
+                */
+            }
+        }
     },
     3002: {
         radius      : 30,
@@ -1004,11 +1058,11 @@ o_.things = {
         pain        : 'H'
     },
     3004: {
+        label       : 'Former Human Trooper',
         radius      : 20,
         sprite      : 'POSS',
         sequence    : '+',
-        class       : 'MO',
-        label       : 'Former Human Trooper',
+        class       : 'MO',        
         template    : 'template1',
         corpse      : 18,
         hp          : 20,
@@ -1017,7 +1071,34 @@ o_.things = {
         paintime    : 6,
         sfx_pain    : s_.popain,
         sfx_death   : [s_.podeath1, s_.podeath2, s_.podeath3 ],
-        drop        : 2007 // clip
+        drop        : 2007, // clip
+        update      : function(o, delta){
+            
+            if (o.cansee) {
+
+                if (o.state == 'move') {
+                    o.state = 'attack';
+                    o.frame = 0;
+                }
+
+            } else {
+
+                // stop attack if can't see
+                if ( o.state == 'attack') {
+                    o.state = 'move';
+                    o.frame = 0;
+                }
+                
+                var pos = new THREE.Vector3().copy( o.position );
+                var pose = new THREE.Vector3().copy( o.enemypos );
+                var angle = Math.atan2( pose.z - pos.z,  pose.x - pos.x );
+                    
+                // move forward
+                o.position.x = pos.x + Math.cos(angle) * 10 * delta * 8;
+                o.position.z = pos.z + Math.sin(angle) * 10 * delta * 8 ;
+                
+            }
+        }
     },
     3005: {
         radius      : 31,
