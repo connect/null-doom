@@ -33,9 +33,7 @@ r_.animate = function () {
                 
     var time        = performance.now();
     var delta       = ( time - r_.prevTime ) / 1000; 
-    
-    //if (delta < 0.06) return; // do not refresh too fast
-    
+        
     r_.stats.update();
     
     // Falloff
@@ -57,21 +55,21 @@ r_.animate = function () {
 
         r_.globaltimer = (r_.globaltimer * 100 * delta > 10) ? 0 : parseInt(r_.globaltimer)+1;
 
-        // hide objects that out of frustum
-        /*
-        for (var i in r_.obstacles){
-            r_.obstacles[i].visible = r_.frustum.intersectsObject( r_.obstacles[i] );
+        // mark objects that out of frustum
+        for (var i in r_.objects){
+            r_.objects[i].frustum = r_.frustum.intersectsObject( r_.objects[i] );
         }
-        */
+        
+       
         r_.hud.update.all();
 
         // Animate POV weapon 
         //
-        r_.drawWeapon(delta);
+        r_.drawWeapon(delta, time);
 
         // update specials
         //
-        r_.updateSpecials(delta);
+        r_.updateSpecials(delta, time);
 
         if ( i_.controls.enabled ) { 
 
@@ -404,7 +402,7 @@ r_.animate = function () {
             
             // Update things
             //
-            r_.updateThings(delta);
+            r_.updateThings(delta, time);
         }
 
         /*
@@ -833,7 +831,7 @@ r_.drawSkyBox = function(){
     //r_.scene.fog = new THREE.Fog( 0xcccccc, 5000, 7000 );
 };
 
-r_.drawWeapon = function(delta){
+r_.drawWeapon = function(delta, time){
     
     var wpn = r_.weapon.obj;
     
@@ -902,8 +900,8 @@ r_.drawWeapon = function(delta){
             
         } else if ( i_.controls.enabled && ( r_.weapon.state == 'fire' || r_.weapon.state == 'cooldown' ) ) {            
             
-            if ( r_.globaltimer == 1 ) {
-                
+            //if ( r_.globaltimer == 1 ) {
+            if (time > wpn.nexttime) {
                 // flash
                 //
                 /*
@@ -963,8 +961,9 @@ r_.drawWeapon = function(delta){
                     wpn.position.y           = r_.hud.statusbar.position.y + (o_.weapons[ p_.weapon ].offset_y) + (r_.hud.statusbar.material.map.image.height * r_.scale/2) + (wpn.material.map.image.height * r_.scale/2);
                     r_.weapon.frame          = frame;
                 }
-            }
-            
+                
+                wpn.nexttime = time + wpn.duration;
+            }            
         }
         
     }
@@ -1394,6 +1393,7 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
     plane.activated = false;
     plane.angle = angle;    
     plane.state = (state != undefined) ? state : 'move';
+    plane.nexttime = 0;
 
     if ( thing.class.indexOf('O') != -1 ) r_.obstacles.push(plane); // add obstacle
 
@@ -1453,13 +1453,13 @@ r_.spawnThings = function(){
 
 r_.updateFloors = function(delta){
     
-    if (r_.globaltimer == 1) {
+    if (r_.globaltimer == 1) {    
         
         for (var i in r_.floors){
 
             var o = r_.floors[i];
             
-            if (!o.visible) continue;
+            if (!o.frustum) continue;
 
             if ( o.frame != undefined && o.sprite != undefined) {
 
@@ -1539,7 +1539,7 @@ r_.updateSpecials = function(delta){
     }
 };
 
-r_.updateThings = function (delta){
+r_.updateThings = function (delta, time){
     
     for (var i in r_.sprites){
 
@@ -1639,15 +1639,16 @@ r_.updateThings = function (delta){
             tsector = o_.map.sector[0];
         }
 
-        if (!r_.sprites[i].visible) continue;
+        if (!r_.sprites[i].frustum) continue;
 
         // rotate things to allways face the player
         o.rotation.y = i_.controls.getObject().rotation._y;
                        
         // update animation
         //
-        if (r_.globaltimer == 1) {
-
+        //if (r_.globaltimer == 1) {
+        if (time > o.nexttime) {
+            
             var thing       = o_.things[ o.type ];           
             var color, emissive;
             
@@ -1747,17 +1748,18 @@ r_.updateThings = function (delta){
                 } else {
 
                     var oldtxtr   = r_.imgs[ thing.sprite + sequence[ o.frame ] + o.angle ];                    
-
-                    o.scale.x               = texture.image.width / oldtxtr.image.width; 
-                    o.scale.y               = texture.image.height / oldtxtr.image.height;
+                    
                     o.position.y            = o.position.y - (oldtxtr.image.height/2) + (texture.image.height/2);
                     o.frame                 = nextFrame;
                     o.material.map          = texture;
                     o.material.color        = color;
-                   // o.material.emissive     = emissive;
+                    //o.material.emissive     = emissive;
                     o.material.needsUpdate  = true;                                       
+                    //o.scale.x               = texture.image.width / oldtxtr.image.width; 
+                    o.scale.y               = texture.image.height / oldtxtr.image.height;
                 }
             
+                o.nexttime = time + ( thing.duration || 200);
             }
         }       
                                                
