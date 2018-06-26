@@ -8,13 +8,14 @@
  */
 
 var cfg = {
-    mod                 : 'doom.wad',
+    mod                 : '_doom.wad',
     screenmode          : '1024x768',
     fullscreen          : 0,
     playerHeight        : 45,
-    musicvolume         : 0.1,
+    musicvolume         : 0.01,
     noclip              : 0,
     gl_light            : 0,
+    nomonsters          : 1,
     
     bind: {
         38  : '+forward',   // uparrow

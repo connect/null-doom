@@ -1,0 +1,110 @@
+<html>
+<head>
+
+</head>
+<body>
+
+    <style>
+  .thumb {
+    height: 75px;
+    border: 1px solid #000;
+    margin: 10px 5px 0 0;
+  }
+</style>
+
+<input type="file" id="files" name="files[]" multiple />
+<output id="list"></output>
+
+<script>
+    
+    var buff = {
+        
+        data : new ArrayBuffer(),
+        read : function(start, length){
+
+            return this.data.slice(start, start + length);
+        },
+        readInt : function(start, length){
+            
+            return new Uint32Array(this.read(start,length))[0];
+        },
+        readStr : function(start, length){
+            
+            var dec = new TextDecoder("utf-8");
+            
+            return dec.decode(new Uint8Array(this.read(start, length))).replace(/\0/g, '');
+        }
+    };
+    
+    handleFileSelect = function(evt) {
+        
+        var files = evt.target.files; // FileList object
+
+        // Loop through the FileList and render image files as thumbnails.
+        for (var i = 0, f; f = files[i]; i++) {
+
+            // Only process doom maps files.
+            if (!f.type.match('application/x-doom-wad')) {
+              continue;
+            }
+
+            var reader = new FileReader();
+
+            // Closure to capture the file information.
+            reader.onload = (function(theFile) {
+
+                //console.log('1:',theFile);
+
+                return function(e) {
+
+                    readMap(e.target.result);
+                };
+            })(f);
+
+            // Read file.
+            reader.readAsArrayBuffer(f);
+        }
+    }
+
+    readMap = function(data){
+        
+        buff.data = data;
+        
+        var header = {
+            
+                sig         : buff.readStr(0,4),
+                numFiles    : buff.readInt(4,4),
+                offFat      : buff.readInt(8,4)
+
+            },
+            lumps = {};    
+    
+        for ( var i = 0; i < header.numFiles; i++){
+
+            var offset = 16 * i + header.offFat, 
+                fileEntry = {
+
+                    offData     : buff.readInt(offset, 4),
+                    lenData     : buff.readInt(offset+4, 4),
+                    name        : buff.readStr(offset+8, 8)
+                };
+            
+            console.log (i, fileEntry.name, fileEntry.offData, fileEntry.lenData,);
+            /*
+            lumps[fileEntry.name] = {
+            
+                
+                id : i,
+                filePosition = buffer.readInt( fileEntry.offData ),
+                size = buffer.readInt( fileEntry.offData + 4 ),
+                name = fileEntry.name
+            };*/
+        }
+        
+    };
+
+    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+</script>
+
+</body>
+</html>

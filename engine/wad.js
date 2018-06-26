@@ -9,7 +9,7 @@ var w_ = new function(){
     
     var t    = this;
     var tmod = 0; 
-   
+    
     var module = function(n){
         var c = 0;
         
@@ -19,17 +19,21 @@ var w_ = new function(){
         }
         
         return -1;
-    };        
+    }; 
     
-    t.modules = {
-        c_ : 'commands',
-        g_ : 'gameplay',
-        i_ : 'input',
-        s_ : 'sound',
-        u_ : 'interface',
-        o_ : 'objects',
-        p_ : 'player',        
-        r_ : 'render'        
+    t.buffer = {
+        
+        data : new ArrayBuffer(),
+        readInt : function(start, length){
+            
+            return new Uint32Array( this.data.slice(start,start+length) )[0];
+        },
+        readStr : function(start, length){
+            
+            var dec = new TextDecoder("utf-8");
+            
+            return dec.decode( new Uint8Array(this.data.slice(start, start+length)) ).replace(/\0/g, '');
+        }
     };
     
     t.init = function(){
@@ -49,6 +53,17 @@ var w_ = new function(){
 
             tmod++;
         }
+    };     
+    
+    t.modules = {
+        c_ : 'commands',
+        g_ : 'gameplay',
+        i_ : 'input',
+        s_ : 'sound',
+        u_ : 'interface',
+        o_ : 'objects',
+        p_ : 'player',        
+        r_ : 'render'        
     };
     
     t.init();

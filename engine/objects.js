@@ -156,6 +156,7 @@ o_.map = new function(){
         
         // Thing textures
         //
+        
         for (var i in t.thing){
             
             var thing = o_.things[ t.thing[i].type ];
@@ -168,24 +169,29 @@ o_.map = new function(){
                 thing.sequence = thing.sequence.replace('+','');
             }
             
-            if (thing.class.indexOf('M') != -1) { // monster
-                //console.log('......monster',thing.label)
-                var template    = o_.things[ thing.template ];
-                var actions     = [ 'attack', 'move', 'pain', 'death' ];
-                var angle, cache;
+            
+            if (thing.class.indexOf('M') != -1 ) { // monster
                 
-                for (var j in actions) {
-                    
-                    angle = (actions[j] == 'death' || actions[j] == 'gibs') ? 0 : 1;                    
-                    cache = thing[ actions[j] ] || template[ actions[j] ] || '';
-                    
-                    for (var c in cache){
-                        
-                        var img = thing.sprite + cache[c] + angle;
-                        
-                        if ( cachelist.indexOf(img) == -1) {
+                if (cfg.nomonsters == 0) {
 
-                            cachelist.push(img);
+                    var template    = o_.things[ thing.template ];
+                    var actions     = [ 'attack', 'move', 'pain', 'death' ];
+                    var angle, cache;
+
+                    for (var j in actions) {
+                        //console.log(thing)
+                        angle = (actions[j] == 'death' || actions[j] == 'gibs') ? 0 : 1;                    
+                        cache = thing[ actions[j] ] || template[ actions[j] ] || '';
+
+                        for (var c in cache){
+
+                            var img = thing.sprite + cache[c] + angle;
+
+                            if ( cachelist.indexOf(img) == -1) {
+
+                                //console.log('......monster',thing.label, img)
+                                cachelist.push(img);
+                            }
                         }
                     }
                 }
@@ -411,7 +417,7 @@ o_.map = new function(){
                         if (t.linedef[j].sidefront == i) {
                             
                             //
-                            // FRONAL SIDE
+                            // FRONTAL SIDE
                             //
 
                             lines[j] = t.linedef[j];
@@ -432,7 +438,7 @@ o_.map = new function(){
                                     var wallWidth   = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ) *-1;                                 
                                     var wallHeight  = tsector.heightceiling - t.sector[ t.sidedef[ t.linedef[j].sideback ].sector ].heightceiling;
                                     var geoWall     = new THREE.PlaneGeometry( wallWidth, wallHeight );
-                                    
+                                   
                                     var matWall     = new THREE.MeshPhongMaterial({ map: texture, color: color });
                                     //var matWall     = (t.sidedef[ t.linedef[j].sideback ].uppertexture == '-') ? new THREE.MeshPhongMaterial({ map: texture, color: color, side: THREE.DoubleSide }) : new THREE.MeshPhongMaterial({ map: texture, color: color });
                                         
@@ -456,8 +462,9 @@ o_.map = new function(){
                             
                             // Middle sidefront texture                                                        
                             if ( sides[i].texturemiddle != '-' ) {                                                    
-                                    
-                                    var texture     = r_.imgs[ sides[i].texturemiddle ].clone(); 
+                                     console.log('->',sides[i].texturemiddle);                        
+
+                                    var texture     = r_.imgs[ sides[i].texturemiddle.toUpperCase() ].clone(); 
                                     texture.wrapS   = THREE.RepeatWrapping;
                                     texture.repeat.x= -1;
                                     texture.needsUpdate = true;
@@ -570,7 +577,8 @@ o_.map = new function(){
                                     var wallWidth   = Math.sqrt( Math.pow( v2.x - v1.x, 2) + Math.pow( v2.y - v1.y, 2) ); 
                                     var wallHeight  = tsector.heightceiling - tsector.heightfloor;
                                     var geoWall     = new THREE.PlaneGeometry( wallWidth, wallHeight );
-                                    var matWall     = new THREE.MeshBasicMaterial({ map: texture, color: color, transparent: true, alphatest: 0.5 });
+                                    //var matWall     = new THREE.MeshBasicMaterial({ map: texture, color: color, transparent: true, alphatest: 0.5 });
+                                    var matWall     = new THREE.MeshPhongMaterial({ map: texture, color: color, transparent: true });
                                     var wallAngle   = Math.atan2(v2.y - v1.y, v2.x - v1.x);
                                     var wall        = new THREE.Mesh( geoWall, matWall );   
                                     
@@ -674,15 +682,19 @@ o_.map = new function(){
         o_.map.loaded();
     };
     
-    t.readUDMF = function(f){
+    t.readUDMF = function(f){ console.log('..reading UDMF')
         // Structures
         //
         
         var Factory = function(type, o){
             
-            var f = this;
+            var f = this, types = ['linedef', 'sidedef', 'vertex', 'sector', 'thing'];
             
-            if ( type.length == 0 || t[ type ] == undefined ) return false;
+            if (types.indexOf(type) == -1) return false;
+            
+            //console.log(type)
+            
+            //if ( type.length == 0 || t[ type ] == undefined ) return false;
        
             f.linedef = {
                 id              : t.linedef.length, // <integer>; // ID of line. Interpreted as tag or scripting id.
@@ -831,6 +843,43 @@ o_.map = new function(){
                     }
                 }
             });
+    };
+    
+    t.readWAD = function(data){
+        
+        w_.buffer.data = data;
+        
+        var header = {
+            
+                sig         : w_.buffer.readStr(0,4),
+                numFiles    : w_.buffer.readInt(4,4),
+                offFat      : w_.buffer.readInt(8,4)
+
+            },
+            lumps = {};    
+    
+        for ( var i = 0; i < header.numFiles; i++){
+
+            var offset = 16 * i + header.offFat, 
+                fileEntry = {
+
+                    offData     : w_.buffer.readInt(offset, 4),
+                    lenData     : w_.buffer.readInt(offset+4, 4),
+                    name        : w_.buffer.readStr(offset+8, 8)
+                };
+            
+            console.log (i, fileEntry.name, fileEntry.offData, fileEntry.lenData,);
+            /*
+            lumps[fileEntry.name] = {
+            
+                
+                id : i,
+                filePosition = buffer.readInt( fileEntry.offData ),
+                size = buffer.readInt( fileEntry.offData + 4 ),
+                name = fileEntry.name
+            };*/
+        }
+        
     };
 };
 

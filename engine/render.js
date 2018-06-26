@@ -806,12 +806,12 @@ r_.drawSkyBox = function(){
 
     // Load the skybox images and create list of materials
     var materials = [
-        createMaterial( 'doom.wad/gra/SKY1.png' ), // right
-        createMaterial( 'doom.wad/gra/SKY1.png' ), // left
+        createMaterial( cfg.mod +'/gra/SKY1.png' ), // right
+        createMaterial( cfg.mod +'/gra/SKY1.png' ), // left
         createMaterial( undefined, undefined, 'rgb(190,190,190)' ), // top
-        createMaterial( 'doom.wad/gra/F_SKY1.png' ), // bottom
-        createMaterial( 'doom.wad/gra/SKY1.png' ), // back
-        createMaterial( 'doom.wad/gra/SKY1.png' )  // front
+        createMaterial( cfg.mod +'/gra/F_SKY1.png' ), // bottom
+        createMaterial( cfg.mod +'/gra/SKY1.png' ), // back
+        createMaterial( cfg.mod +'/gra/SKY1.png' )  // front
     ];
 
     // Create a large cube
@@ -1093,7 +1093,25 @@ r_.img = new function(){
             },function(e){
                 
                 // error
-                console.log('Texture loading error:',e)
+                console.log('Texture loading error:',e);
+                
+                //var texture = r_.imgs['NOTEXTURE'];
+                
+                //console.log('--->',texture.image)
+                             
+                //texture.magFilter = THREE.NearestFilter;
+                //texture.minFilter = THREE.LinearMipMapLinearFilter;   
+                //texture.minFilter = THREE.NearestFilter;
+                //texture.minFilter = THREE.NearestMipMapNearestFilter, 
+
+                
+                t.cached++;
+                
+                if (typeof o.success == 'function'){
+                    
+                    o.success( r_.imgs['NOTEXTURE'] );
+                }
+                
             });                  
         }
         
@@ -1342,11 +1360,11 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
 
     if (thing.class.indexOf('M') != -1) { // monster
         
-        template = o_.things[ thing.template ];
-        sequence = thing.move || template.move;      
-        frame    = (frame != undefined) ? frame : c_.random(0, sequence.length-1); // put random starting frame
-        angle    = 1;
-        hp       = thing.hp;
+            template = o_.things[ thing.template ];
+            sequence = thing.move || template.move;      
+            frame    = (frame != undefined) ? frame : c_.random(0, sequence.length-1); // put random starting frame
+            angle    = 1;
+            hp       = thing.hp;
         
     } else { // item
         
@@ -1512,7 +1530,7 @@ r_.updateSpecials = function(delta){
             
             // door opening
             //
-            if (taction.special == 1 || taction.special == 26 || taction.special == 27 || taction.special == 28) {              
+            if (taction.special == 1 || taction.special == 26 || taction.special == 27 || taction.special == 28 || taction.special == 31) {              
                 
                 // raise walls
                 //
