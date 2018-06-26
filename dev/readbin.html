@@ -1,40 +1,49 @@
 <html>
 <head>
-
+    <script src="../engine/jquery/jquery-2.2.0.min.js"></script>
+    <script src="../engine/pnglib.js"></script>
 </head>
 <body>
 
-    <style>
+<style>
   .thumb {
     height: 75px;
     border: 1px solid #000;
     margin: 10px 5px 0 0;
   }
+  
+  div {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+  }
 </style>
 
+<!--
 <input type="file" id="files" name="files[]" multiple />
 <output id="list"></output>
+-->
 
 <script>
     
-    var buff = {
+    var buffer = {
         
         data : new ArrayBuffer(),
-        read : function(start, length){
-
-            return this.data.slice(start, start + length);
+        readRaw : function(start, length){
+            return this.data.slice(start,start + length)
         },
         readInt : function(start, length){
             
-            return new Uint32Array(this.read(start,length))[0];
+            return new Uint32Array(this.readRaw(start, length))[0];
         },
         readStr : function(start, length){
             
             var dec = new TextDecoder("utf-8");
             
-            return dec.decode(new Uint8Array(this.read(start, length))).replace(/\0/g, '');
+            return dec.decode(new Uint8Array(this.readRaw(start, length))).replace(/\0/g, '');
         }
     };
+    var wad = {};
     
     handleFileSelect = function(evt) {
         
@@ -66,44 +75,104 @@
         }
     }
 
+    readLump = function(o){
+        
+        wad[ o.name ] = o.data;
+        
+    };
+
     readMap = function(data){
         
-        buff.data = data;
+        buffer.data = data;
         
         var header = {
             
-                sig         : buff.readStr(0,4),
-                numFiles    : buff.readInt(4,4),
-                offFat      : buff.readInt(8,4)
+                sig         : buffer.readStr(0,4),
+                numFiles    : buffer.readInt(4,4),
+                offFat      : buffer.readInt(8,4)
 
-            },
-            lumps = {};    
+            };    
     
         for ( var i = 0; i < header.numFiles; i++){
 
             var offset = 16 * i + header.offFat, 
                 fileEntry = {
 
-                    offData     : buff.readInt(offset, 4),
-                    lenData     : buff.readInt(offset+4, 4),
-                    name        : buff.readStr(offset+8, 8)
+                    offData     : buffer.readInt(offset, 4),
+                    lenData     : buffer.readInt(offset+4, 4),
+                    name        : buffer.readStr(offset+8, 8)
                 };
             
-            console.log (i, fileEntry.name, fileEntry.offData, fileEntry.lenData,);
-            /*
-            lumps[fileEntry.name] = {
-            
-                
-                id : i,
-                filePosition = buffer.readInt( fileEntry.offData ),
-                size = buffer.readInt( fileEntry.offData + 4 ),
-                name = fileEntry.name
-            };*/
+            readLump({
+                entry       : fileEntry,
+                id          : i,
+                name        : fileEntry.name,
+                data        : buffer.readRaw(fileEntry.offData, fileEntry.lenData)
+            });
         }
         
+        var pal = {
+            
+            data : new Uint8Array( wad.PLAYPAL ),
+            get : function(index) {
+                
+                return [ this.data[index*3], this.data[index*3+1], this.data[index*3+2] ];
+            }
+        }
+        
+        var flat = new Uint8Array( wad.FLOOR4_8 );
+       
+        var png = [];
+        
+        for (var i = 0; i < 64; i++) {
+            
+            for (var j = 0; j < 64; j++) {
+                
+                var px = pal.get( flat[i * 64 + j] );
+                // i = j 
+                // j = res - (i * 64)
+                
+                png.push(px);
+            }
+        }
+        
+        drawPNG(png);
+
     };
 
-    document.getElementById('files').addEventListener('change', handleFileSelect, false);
+    //document.getElementById('files').addEventListener('change', handleFileSelect, false);
+    
+    
+    drawPNG = function(data){
+        
+        var p = new PNGlib(64, 64, 256); // construcor takes height, weight and color-depth
+        var background = p.color(0, 0, 0, 0); // set the background 
+
+        for (var i = 0; i < 64; i++) {
+            
+            for (var j = 0; j < 64; j++) {
+                
+                var px = data[i * 64 + j];
+    
+                p.buffer[ p.index(j, i) ] = p.color(px[0], px[1], px[2]);
+            }
+        }
+
+console.log(p)
+
+        document.write('<img src="data:image/png;base64,'+p.getBase64()+'">');
+    };
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'doom.wad', true);
+    xhr.responseType = 'arraybuffer';
+
+    xhr.onload = function(e) {
+
+        readMap(e.target.response);
+    };
+
+    xhr.send();
 </script>
 
 </body>

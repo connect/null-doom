@@ -102,20 +102,20 @@ u_.openmenu = function( menuID ){
 
     // set background
     if (o.background)
-    $('#blocker').prepend('<img class="background" src="'+ cfg.mod +'/gra/'+ o.background +'">');
+    $('#blocker').prepend('<img class="background" src="'+ cfg.iwad +'/gra/'+ o.background +'">');
 
     // set menu heading
     if (o.heading)
-    $('#menu').prepend('<img class="heading" src="'+ cfg.mod +'/gra/'+ o.heading +'"><br/>');
+    $('#menu').prepend('<img class="heading" src="'+ cfg.iwad +'/gra/'+ o.heading +'"><br/>');
 
     // draw items
     for (var i in o.items) {
-        $('#menu').append('<img id="menu'+ i +'" src="'+ cfg.mod +'/gra/'+ o.items[i].img +'" /><br/>');                
+        $('#menu').append('<img id="menu'+ i +'" src="'+ cfg.iwad +'/gra/'+ o.items[i].img +'" /><br/>');                
         
         if (i == o.items.length-1) {
             window.setTimeout(function(){
                 // add selector
-                $('#menu').append('<img class="selector" ind="0" anim="0" src="'+ cfg.mod +'/gra/'+ o.selector.img[0] +'">');
+                $('#menu').append('<img class="selector" ind="0" anim="0" src="'+ cfg.iwad +'/gra/'+ o.selector.img[0] +'">');
                 u_.menu.selector = o.selector;
 
                 var pos = $('#menu img#menu0').position();

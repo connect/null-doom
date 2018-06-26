@@ -35,7 +35,7 @@ s_.play = function(o){
     o = ( s_.items[ o ] != undefined ) ? s_.items[ o ] : o;
     
     $('<audio />')
-        .attr('src', cfg.mod +'/snd/'+ o )
+        .attr('src', cfg.iwad +'/snd/'+ o )
         .attr('preload', 'auto')
         .on('ended', function() {            
             $(this).remove();
@@ -48,7 +48,7 @@ s_.playMusic = function(o){
     o = ( s_.items[ o ] != undefined ) ? s_.items[ o ] : o;
     
     $('#music')
-        .attr('src', cfg.mod +'/snd/'+ o )
+        .attr('src', cfg.iwad +'/snd/'+ o )
         .prop('volume', cfg.musicvolume )
         .trigger('play');    
 };

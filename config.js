@@ -8,7 +8,8 @@
  */
 
 var cfg = {
-    mod                 : '_doom.wad',
+    iwad                : '_doom.wad',
+    pwad                : '',
     screenmode          : '1024x768',
     fullscreen          : 0,
     playerHeight        : 45,

@@ -159,8 +159,8 @@ o_.modules = [
 
 for (var m in o_.modules) {
 
-    console.log('....loading',cfg.mod +'/'+ o_.modules[m] +'.js')
-    core.include( cfg.mod +'/'+ o_.modules[m] +'.js' );
+    console.log('....loading',cfg.iwad +'/'+ o_.modules[m] +'.js')
+    core.include( cfg.iwad +'/'+ o_.modules[m] +'.js' );
 }
 
 o_.postInit();

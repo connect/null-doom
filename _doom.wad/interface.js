@@ -9,10 +9,10 @@
 $('title').html(g_.title);
 
 // set favicon
-$('head').append('<link rel="icon" href="'+ cfg.mod +'/gra/YSKUB0.png" />');
+$('head').append('<link rel="icon" href="'+ cfg.iwad +'/gra/YSKUB0.png" />');
 
 // load css
-$('head').append('<link rel="stylesheet" type="text/css" href="'+ cfg.mod +'/doom.css" />');
+$('head').append('<link rel="stylesheet" type="text/css" href="'+ cfg.iwad +'/doom.css" />');
 
 // set background
 //$('#back').append('<img class="background" src="doom.wad/gra/TITLEPIC.png" />');
@@ -55,14 +55,14 @@ u_.menu.init({
             i = ( i < img.length-1 ) ? parseInt(i)+1 : 0;
 
             $('#menu .selector')
-                .attr('src', cfg.mod +'/gra/'+ img[i] )
+                .attr('src', cfg.iwad +'/gra/'+ img[i] )
                 .attr('anim', i);
         } 
     }
 });
 
-console.log('....loading',cfg.mod +'/messages.js')
-core.include( cfg.mod +'/messages.js' );
+console.log('....loading',cfg.iwad +'/messages.js')
+core.include( cfg.iwad +'/messages.js' );
 
 u_.postInit();
 w_.loadNext();

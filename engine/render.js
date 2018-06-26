@@ -806,12 +806,12 @@ r_.drawSkyBox = function(){
 
     // Load the skybox images and create list of materials
     var materials = [
-        createMaterial( cfg.mod +'/gra/SKY1.png' ), // right
-        createMaterial( cfg.mod +'/gra/SKY1.png' ), // left
+        createMaterial( cfg.iwad +'/gra/SKY1.png' ), // right
+        createMaterial( cfg.iwad +'/gra/SKY1.png' ), // left
         createMaterial( undefined, undefined, 'rgb(190,190,190)' ), // top
-        createMaterial( cfg.mod +'/gra/F_SKY1.png' ), // bottom
-        createMaterial( cfg.mod +'/gra/SKY1.png' ), // back
-        createMaterial( cfg.mod +'/gra/SKY1.png' )  // front
+        createMaterial( cfg.iwad +'/gra/F_SKY1.png' ), // bottom
+        createMaterial( cfg.iwad +'/gra/SKY1.png' ), // back
+        createMaterial( cfg.iwad +'/gra/SKY1.png' )  // front
     ];
 
     // Create a large cube
@@ -1054,10 +1054,27 @@ r_.img = new function(){
             f = o.files[i];
             //console.log('load image:',f);
             
+            // skip already cached
+            /*
+            if (r_.imgs[ f ] != undefined) {
+                
+                //console.log(f, r_.imgs[f])
+                
+                t.cached++;
+                
+                if (typeof o.success == 'function'){
+
+                    o.success(r_.imgs[ f ]);
+                }
+                continue;
+            }*/
+            
+            
             // if animated texture loaded, cache other frames
             //
             var animated = t.animated[ f.match(/\D+/) ];
             
+            /*
             if ( animated != undefined ) {                
                 
                 for (var j in animated) {
@@ -1065,54 +1082,97 @@ r_.img = new function(){
                     console.log('......more cache', f.match(/\D+/)+ animated[j]);
                     var more = f.match(/\D+/)+ animated[j];
                     
-                    r_.imgs[ more ] = new THREE.TextureLoader().load( cfg.mod+ "/gra/"+ more +"."+ o.type, function(texture){
+                    r_.imgs[ more ] = new THREE.TextureLoader().load( cfg.iwad+ "/gra/"+ more +"."+ o.type, function(texture){
                         
                         texture.magFilter = THREE.NearestFilter;
                         texture.minFilter = THREE.NearestFilter;
                     });
                 }
-            }
+            }*/
             
-            r_.imgs[ f ] = new THREE.TextureLoader().load( cfg.mod+ "/gra/"+ f +"."+ o.type , function(texture){
+            if (o.type == 'flat') {
+                
+                // convert flat raw data to texture
+                
+                var flat = new Uint8Array( w_.lumps[ f ] ),
+                    pal  = new Uint8Array( w_.lumps.PLAYPAL ),
+                    dataRGB  = new Uint8Array(3 * 64);
+
+                for (var i = 0; i < 64; i++) {
+
+                    for (var j = 0; j < 64; j++) {
+
+                        var stride = i * 64 + j,
+                            index = flat[stride] ;
+
+                        dataRGB[stride*3]    = pal[index*3];
+                        dataRGB[stride*3+1]  = pal[index*3+1];
+                        dataRGB[stride*3+2]  = pal[index*3+2];
+                    }
+                }
+                
+                r_.imgs[ f ] = new THREE.DataTexture( dataRGB, 64, 64, THREE.RGBFormat, THREE.UnsignedByteType );
+                
+                //console.log( f, r_.imgs[ f ] )
                 
                 // complete                
-                texture.magFilter = THREE.NearestFilter;
+                r_.imgs[ f ].magFilter = THREE.NearestFilter;
                 //texture.minFilter = THREE.LinearMipMapLinearFilter;   
-                texture.minFilter = THREE.NearestFilter;
-                //texture.minFilter = THREE.NearestMipMapNearestFilter, 
-                
-                t.cached++;
-                
-                if (typeof o.success == 'function'){
-                    
-                    o.success(texture);
-                }
-            },function(e){
-                
-                // progress
-            },function(e){
-                
-                // error
-                console.log('Texture loading error:',e);
-                
-                //var texture = r_.imgs['NOTEXTURE'];
-                
-                //console.log('--->',texture.image)
-                             
-                //texture.magFilter = THREE.NearestFilter;
-                //texture.minFilter = THREE.LinearMipMapLinearFilter;   
-                //texture.minFilter = THREE.NearestFilter;
+                //r_.imgs[ f ].minFilter = THREE.NearestFilter;
                 //texture.minFilter = THREE.NearestMipMapNearestFilter, 
 
-                
+                r_.imgs[ f ].needsUpdate = true;
+
                 t.cached++;
-                
+
                 if (typeof o.success == 'function'){
-                    
-                    o.success( r_.imgs['NOTEXTURE'] );
+
+                    o.success(r_.imgs[ f ]);
                 }
                 
-            });                  
+            } else {
+            
+                r_.imgs[ f ] = new THREE.TextureLoader().load( cfg.iwad+ "/gra/"+ f +"."+ o.type , function(texture){
+
+                    // complete                
+                    texture.magFilter = THREE.NearestFilter;
+                    //texture.minFilter = THREE.LinearMipMapLinearFilter;   
+                    texture.minFilter = THREE.NearestFilter;
+                    //texture.minFilter = THREE.NearestMipMapNearestFilter, 
+
+                    t.cached++;
+
+                    if (typeof o.success == 'function'){
+
+                        o.success(texture);
+                    }
+                },function(e){
+
+                    // progress
+                },function(e){
+
+                    // error
+                    console.log('Texture loading error:',e);
+
+                    //var texture = r_.imgs['NOTEXTURE'];
+
+                    //console.log('--->',texture.image)
+
+                    //texture.magFilter = THREE.NearestFilter;
+                    //texture.minFilter = THREE.LinearMipMapLinearFilter;   
+                    //texture.minFilter = THREE.NearestFilter;
+                    //texture.minFilter = THREE.NearestMipMapNearestFilter, 
+
+
+                    t.cached++;
+
+                    if (typeof o.success == 'function'){
+
+                        o.success( r_.imgs['NOTEXTURE'] );
+                    }
+
+                });    
+            }
         }
         
     };
@@ -1322,6 +1382,22 @@ r_.onWindowResize = function () {
     //renderer.setSize( scrWidth, scrHeight );
 };
 
+r_.createPNG = function(pxl){
+    
+    var p = new PNGlib(64, 64, 256); // construcor takes height, weight and color-depth
+
+    for (var i = 0; i < 64; i++) {
+
+        for (var j = 0; j < 64; j++) {
+
+            var px = pxl[i * 64 + j];
+
+            p.buffer[ p.index(j, i) ] = p.color(px[0], px[1], px[2]);
+        }
+    }
+    $('body').css('background-image','url("data:image/png;base64,'+p.getBase64()+'")');
+};
+
 r_.render = function() {
     
     r_.renderer.clear();
@@ -1360,11 +1436,13 @@ r_.spawnThing = function( type, x, z, y, state, frame ){
 
     if (thing.class.indexOf('M') != -1) { // monster
         
-            template = o_.things[ thing.template ];
-            sequence = thing.move || template.move;      
-            frame    = (frame != undefined) ? frame : c_.random(0, sequence.length-1); // put random starting frame
-            angle    = 1;
-            hp       = thing.hp;
+        if (cfg.nomonsters == 1) return; // skip if nomonsters
+        
+        template = o_.things[ thing.template ];
+        sequence = thing.move || template.move;      
+        frame    = (frame != undefined) ? frame : c_.random(0, sequence.length-1); // put random starting frame
+        angle    = 1;
+        hp       = thing.hp;
         
     } else { // item
         
@@ -1470,6 +1548,8 @@ r_.spawnThings = function(){
 };
 
 r_.updateFloors = function(delta){
+    
+    return; // @FIXME disabled so far
     
     if (r_.globaltimer == 1) {    
         

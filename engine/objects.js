@@ -149,7 +149,10 @@ o_.map = new function(){
                          
                 if ( img != '-' && img != undefined && cachelist.indexOf(img) == -1) {
 
-                    cachelist.push( img );
+                    //cachelist.push( img );
+                    
+                    // read flats
+                    r_.img.load({ files: [img], type : 'flat' });
                 }
             }
         }
@@ -462,7 +465,7 @@ o_.map = new function(){
                             
                             // Middle sidefront texture                                                        
                             if ( sides[i].texturemiddle != '-' ) {                                                    
-                                     console.log('->',sides[i].texturemiddle);                        
+                                     //console.log('->',sides[i].texturemiddle);                        
 
                                     var texture     = r_.imgs[ sides[i].texturemiddle.toUpperCase() ].clone(); 
                                     texture.wrapS   = THREE.RepeatWrapping;
@@ -773,7 +776,7 @@ o_.map = new function(){
         
         // load file to memory, then call .load()
         //
-        $.get( cfg.mod +'/maps/'+ f +'.udmf')
+        $.get( cfg.iwad +'/maps/'+ f +'.udmf')
             .done(function(res){
                 
                 var obj, o, l, type, namespace, option, value;
