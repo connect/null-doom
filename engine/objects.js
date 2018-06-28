@@ -43,6 +43,16 @@ o_.hurtMonsters = function(targets, damage){
     }
 };
 
+o_.hurtObject = function(obj, damage){
+    
+    obj.hp -= damage;
+    
+    if ( obj.hp <= 0 && obj.state != 'death' && obj.state != 'gibbed') {
+
+        o_.killMonster(obj);
+    }
+};
+
 o_.killMonster = function(obj){
     
     if (obj.state == 'death' || obj.state == 'gibbed') return; // it's already dead        

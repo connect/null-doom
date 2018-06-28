@@ -89,11 +89,15 @@ o_.weapons = {
                 
                 if (thing != undefined && obj.state != 'death' && obj.state != 'gibs'){
                     
-                    console.log('hit',thing.label)
+                    //console.log('hit',thing.label)
                     
                     if (thing.class.indexOf('M') != -1){                        
                         
-                        o_.hurtMonster(obj, damage);                      
+                        o_.hurtMonster(obj, damage);
+                        
+                    } else {
+                        
+                        o_.hurtObject(obj, damage);
                     }
                     
                 } else {

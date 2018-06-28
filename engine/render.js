@@ -789,8 +789,10 @@ r_.drawSkyBox = function(){
     function createMaterial( path, repeat, color ) {
 
         if (path != undefined) {
-            var texture = THREE.ImageUtils.loadTexture(path);
-            var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5 } );
+            
+            var texture = new THREE.TextureLoader().load( path );            
+            //var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5 } );
+            var material = new THREE.MeshBasicMaterial( { map: texture, side: THREE.BackSide } );
 
             if (repeat != undefined){
                 material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
@@ -813,6 +815,7 @@ r_.drawSkyBox = function(){
         createMaterial( cfg.iwad +'/gra/SKY1.png' ), // back
         createMaterial( cfg.iwad +'/gra/SKY1.png' )  // front
     ];
+    
 
     // Create a large cube
     var mesh = new THREE.Mesh( 
@@ -824,7 +827,7 @@ r_.drawSkyBox = function(){
     mesh.position.y += 2000;
 
     // Set the x scale to be -1, this will turn the cube inside out
-    mesh.scale.set(-1,1,1);
+    //mesh.scale.set(-1,1,1);
     r_.skybox = mesh;
     r_.scene.add( mesh );  
 
@@ -1096,7 +1099,7 @@ r_.img = new function(){
                 
                 var flat = new Uint8Array( w_.lumps[ f ] ),
                     pal  = new Uint8Array( w_.lumps.PLAYPAL ),
-                    dataRGB  = new Uint8Array(3 * 64);
+                    dataRGB  = new Uint8Array(3 * 64 * 64);
 
                 for (var i = 0; i < 64; i++) {
 
@@ -1118,7 +1121,7 @@ r_.img = new function(){
                 // complete                
                 r_.imgs[ f ].magFilter = THREE.NearestFilter;
                 //texture.minFilter = THREE.LinearMipMapLinearFilter;   
-                //r_.imgs[ f ].minFilter = THREE.NearestFilter;
+                r_.imgs[ f ].minFilter = THREE.NearestFilter;
                 //texture.minFilter = THREE.NearestMipMapNearestFilter, 
 
                 r_.imgs[ f ].needsUpdate = true;
